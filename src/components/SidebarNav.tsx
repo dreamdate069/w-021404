@@ -4,7 +4,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { MessageSquare, Heart, Users, Settings, Menu } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Logo } from './Logo';
+import Logo from './Logo';
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -48,7 +48,7 @@ const SidebarNav = () => {
     )}>
       <div className="p-4">
         <div className={cn("flex items-center", isCollapsed ? "justify-center" : "justify-between")}>
-          {!isCollapsed && <Logo className="h-8" />}
+          {!isCollapsed && <Logo />}
           {isCollapsed && <span className="text-white text-xl font-bold">DD</span>}
         </div>
       </div>
