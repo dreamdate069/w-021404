@@ -46,11 +46,13 @@ const SidebarNav = () => {
       "flex flex-col h-screen bg-zinc-900 border-r border-zinc-800 transition-all",
       isCollapsed ? "w-[70px]" : "w-[240px]"
     )}>
-      <div className="p-4 flex justify-center">
+      <div className="p-4">
         {!isCollapsed ? (
           <Logo />
         ) : (
-          <span className="text-pink-500 text-xl font-bold">DD</span>
+          <div className="flex justify-center">
+            <span className="text-pink-500 text-xl font-bold">DD</span>
+          </div>
         )}
       </div>
 
