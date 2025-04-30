@@ -1,14 +1,14 @@
-
 import React from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 // Placeholder data - will be replaced with Supabase data
 const CONVERSATIONS = [
   {
     id: '1',
     user: { name: 'Jessica', image: '/lovable-uploads/6d9b54c2-64d4-44f3-959b-b0c71fff7a04.png', online: true },
-    lastMessage: 'Hey there! How's your day going so far?',
+    lastMessage: "Hey there! How's your day going so far?",
     time: '12:34 PM',
     unread: 2,
   },
@@ -40,13 +40,13 @@ const MESSAGES = [
   {
     id: '1',
     sender: 'them',
-    text: 'Hey there! I noticed we have a lot in common. How's your day going?',
+    text: "Hey there! I noticed we have a lot in common. How's your day going?",
     time: '12:30 PM'
   },
   {
     id: '2',
     sender: 'me',
-    text: 'Hi Jessica! It's going well, thanks for asking. I'm just finishing up some work. How about you?',
+    text: "Hi Jessica! It's going well, thanks for asking. I'm just finishing up some work. How about you?",
     time: '12:32 PM'
   },
   {
