@@ -1,30 +1,33 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Chat from "./pages/Chat";
-import NotFound from "./pages/NotFound";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import SidebarNav from './components/SidebarNav';
+import HomePage from './pages/HomePage';
+import ProfilePage from './pages/ProfilePage';
+import DiscoverPage from './pages/DiscoverPage';
+import MessagesPage from './pages/MessagesPage';
+import NotFound from './pages/NotFound';
 
-const queryClient = new QueryClient();
+import './App.css';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/chat" element={<Chat />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <BrowserRouter>
+      <div className="flex">
+        <SidebarNav />
+        <div className="flex-1 overflow-auto bg-zinc-900 min-h-screen">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/discover" element={<DiscoverPage />} />
+            <Route path="/messages" element={<MessagesPage />} />
+            <Route path="/profile/:id" element={<ProfilePage />} />
+            <Route path="/matches" element={<Navigate to="/discover" />} />
+            <Route path="/settings" element={<div className="container p-8"><h1 className="text-3xl font-bold text-white">Settings</h1></div>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
+  );
+}
 
 export default App;
