@@ -78,7 +78,7 @@ const HomePage = () => {
                 </div>
               </div>
               
-              <div className="flex items-center justify-between text-sm text-zinc-400">
+              <div className="flex items-center justify-between text-sm text-white">
                 <span>{currentStep + 1}/{quizSteps.length} questions</span>
                 <Button 
                   variant="link" 

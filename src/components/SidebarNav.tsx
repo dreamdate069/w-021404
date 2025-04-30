@@ -57,13 +57,13 @@ const SidebarNav = () => {
       </div>
 
       <div className="px-3 py-2">
-        <Link to="/new-chat">
+        <Link to="/login">
           <Button variant="outline" className={cn(
             "w-full border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors",
             isCollapsed ? "p-2 justify-center" : ""
           )}>
             <span className="flex items-center gap-2">
-              {isCollapsed ? "+" : "+ New Match"}
+              {isCollapsed ? "→" : "Login"}
             </span>
           </Button>
         </Link>
