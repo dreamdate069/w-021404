@@ -18,7 +18,7 @@ const ButtonSecondary: React.FC<ButtonSecondaryProps> = ({
   return (
     <button 
       onClick={onClick}
-      className={`group relative border border-white/50 hover:border-rose-500/50 bg-adam-gray/50
+      className={`group relative border border-white/50 hover:border-custom-purple/70 bg-adam-gray/50
         text-white rounded-full px-6 py-3 font-medium 
         transition-all duration-300 hover:shadow-lg flex items-center gap-2 ${className}`}
     >

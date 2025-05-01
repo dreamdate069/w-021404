@@ -69,6 +69,10 @@ export default {
 					darker: '#0A080B',
 					gray: '#151319',
 					'light-gray': '#222222',
+				},
+				custom: {
+					pink: '#ed0ced',
+					purple: '#750edc',
 				}
 			},
 			borderRadius: {

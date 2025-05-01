@@ -51,7 +51,7 @@ const SidebarNav = () => {
           <Logo />
         ) : (
           <div className="flex justify-center">
-            <span className="text-pink-500 text-xl font-bold">DD</span>
+            <span className="text-custom-pink text-xl font-bold">DD</span>
           </div>
         )}
       </div>
@@ -59,7 +59,7 @@ const SidebarNav = () => {
       <div className="px-3 py-2">
         <Link to="/login">
           <Button variant="outline" className={cn(
-            "w-full border-rose-500 text-white bg-rose-500 hover:bg-rose-600 hover:border-rose-600 transition-colors",
+            "w-full border-custom-pink text-white bg-custom-pink hover:bg-opacity-90 hover:border-custom-pink transition-colors",
             isCollapsed ? "p-2 justify-center" : ""
           )}>
             <span className="flex items-center gap-2">

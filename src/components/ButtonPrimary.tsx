@@ -18,8 +18,8 @@ const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({
   return (
     <button 
       onClick={onClick}
-      className={`action-button-glow relative bg-rose-500 text-white rounded-full px-6 py-3 font-medium 
-        transition-all duration-300 hover:bg-rose-600 flex items-center gap-2 ${className}`}
+      className={`action-button-glow relative bg-custom-pink text-white rounded-full px-6 py-3 font-medium 
+        transition-all duration-300 hover:bg-opacity-90 flex items-center gap-2 ${className}`}
     >
       {children}
       {icon && <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />}
