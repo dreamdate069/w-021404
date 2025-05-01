@@ -59,7 +59,7 @@ const SidebarNav = () => {
       <div className="px-3 py-2">
         <Link to="/login">
           <Button variant="outline" className={cn(
-            "w-full border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors",
+            "w-full border-rose-500 text-white bg-rose-500 hover:bg-rose-600 hover:border-rose-600 transition-colors",
             isCollapsed ? "p-2 justify-center" : ""
           )}>
             <span className="flex items-center gap-2">
@@ -84,7 +84,7 @@ const SidebarNav = () => {
       <div className="mt-auto p-3 border-t border-zinc-800">
         <Button 
           variant="ghost" 
-          className="w-full justify-start text-zinc-400 hover:text-white hover:bg-zinc-800"
+          className="w-full justify-start text-white hover:text-white hover:bg-zinc-800"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <Menu size={18} />
