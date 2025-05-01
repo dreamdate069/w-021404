@@ -44,10 +44,14 @@ const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <div className="relative h-[500px] bg-gradient-to-b from-black via-zinc-900 to-zinc-900">
+      <div 
+        className="relative h-[500px] bg-cover bg-center bg-no-repeat" 
+        style={{ backgroundImage: 'url("/lovable-uploads/ab2b4a57-9177-4693-9a88-23d89544a07b.png")' }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="container mx-auto px-6 py-16 relative z-10">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-            Find Your <span className="text-rose-500">Dream</span> Connection
+            Find Your <span className="text-custom-pink">Dream</span> Connection
           </h1>
           <p className="text-xl text-zinc-300 mb-8 max-w-2xl">
             Join thousands of singles finding meaningful relationships every day. Your perfect match is just a conversation away.
@@ -55,7 +59,7 @@ const HomePage = () => {
           
           {/* Welcome Quiz/Chat */}
           {showQuiz ? (
-            <div className="bg-zinc-800 rounded-xl p-6 max-w-md shadow-lg border border-zinc-700">
+            <div className="bg-zinc-800 bg-opacity-90 rounded-xl p-6 max-w-md shadow-lg border border-zinc-700">
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-white mb-2">Let's get to know you</h3>
                 <p className="text-zinc-300 text-sm">Step {currentStep + 1} of {quizSteps.length}</p>
@@ -82,7 +86,7 @@ const HomePage = () => {
                 <span>{currentStep + 1}/{quizSteps.length} questions</span>
                 <Button 
                   variant="link" 
-                  className="text-rose-400 hover:text-rose-300 p-0"
+                  className="text-custom-pink hover:text-custom-pink/80 p-0"
                   onClick={() => setShowQuiz(false)}
                 >
                   Skip for now
@@ -91,7 +95,7 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="flex gap-4">
-              <Button className="bg-rose-500 hover:bg-rose-600 text-white px-8 py-6 rounded-lg text-lg">
+              <Button className="bg-custom-pink hover:bg-custom-pink/90 text-white px-8 py-6 rounded-lg text-lg">
                 Create Account
               </Button>
               <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black px-8 py-6 rounded-lg text-lg">
@@ -122,7 +126,7 @@ const HomePage = () => {
               { title: "Start Chatting", desc: "Connect with people you like and begin your journey" }
             ].map((step, index) => (
               <div key={index} className="bg-zinc-900 p-6 rounded-lg border border-zinc-700">
-                <div className="w-12 h-12 bg-rose-500 rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-custom-pink rounded-full flex items-center justify-center mb-4">
                   <span className="text-white font-bold">{index + 1}</span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
