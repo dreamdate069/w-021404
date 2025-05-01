@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -109,7 +110,7 @@ const MessagesPage = () => {
                 <div className="flex justify-between items-center">
                   <p className="text-zinc-400 text-sm truncate">{conversation.lastMessage}</p>
                   {conversation.unread > 0 && (
-                    <span className="ml-2 bg-rose-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="ml-2 bg-custom-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {conversation.unread}
                     </span>
                   )}
@@ -149,13 +150,13 @@ const MessagesPage = () => {
                   <div 
                     className={`max-w-[70%] rounded-lg p-3 ${
                       message.sender === 'me' 
-                        ? 'bg-rose-500 text-white' 
+                        ? 'bg-custom-pink text-white' 
                         : 'bg-zinc-800 text-white'
                     }`}
                   >
                     <p>{message.text}</p>
                     <span className={`text-xs block mt-1 ${
-                      message.sender === 'me' ? 'text-rose-200' : 'text-zinc-400'
+                      message.sender === 'me' ? 'text-custom-pink/70' : 'text-zinc-400'
                     }`}>
                       {message.time}
                     </span>
@@ -171,7 +172,7 @@ const MessagesPage = () => {
                   placeholder="Type a message..." 
                   className="bg-zinc-800 border-zinc-700 text-white"
                 />
-                <Button className="bg-rose-500 hover:bg-rose-600">Send</Button>
+                <Button className="bg-custom-pink hover:bg-custom-pink/90">Send</Button>
               </div>
             </div>
           </>
