@@ -43,7 +43,7 @@ const SidebarNav = () => {
 
   return (
     <div className={cn(
-      "flex flex-col h-screen bg-zinc-900 border-r border-zinc-800 transition-all",
+      "sticky top-0 h-screen flex flex-col bg-zinc-900 border-r border-zinc-800 transition-all",
       isCollapsed ? "w-[70px]" : "w-[240px]"
     )}>
       <div className="p-4">
@@ -69,7 +69,7 @@ const SidebarNav = () => {
         </Link>
       </div>
 
-      <div className="mt-2 space-y-1 px-3">
+      <div className="mt-2 space-y-1 px-3 overflow-y-auto">
         {navItems.map((item) => (
           <NavItem
             key={item.label}
