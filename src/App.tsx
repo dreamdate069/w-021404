@@ -6,6 +6,7 @@ import ProfilePage from './pages/ProfilePage';
 import DiscoverPage from './pages/DiscoverPage';
 import MessagesPage from './pages/MessagesPage';
 import NotFound from './pages/NotFound';
+import { Toaster } from './components/ui/toaster';
 
 import './App.css';
 
@@ -26,6 +27,7 @@ function App() {
           </Routes>
         </div>
       </div>
+      <Toaster />
     </BrowserRouter>
   );
 }

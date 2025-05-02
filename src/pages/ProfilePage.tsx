@@ -1,9 +1,29 @@
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { MessageSquare, Heart, X, Check, MapPin, Calendar, Image } from 'lucide-react';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  MessageSquare, 
+  Heart, 
+  X, 
+  Check, 
+  MapPin, 
+  Calendar, 
+  Share,
+  MoreHorizontal, 
+  Flag,
+  UserX
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ButtonPrimary from '@/components/ButtonPrimary';
+import ButtonSecondary from '@/components/ButtonSecondary';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 
 // This is a temporary solution until connected to Supabase
 const MEMBER = {
@@ -23,18 +43,80 @@ const MEMBER = {
 
 const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLiked, setIsLiked] = useState(false);
+  
+  const handleLike = () => {
+    setIsLiked(prev => !prev);
+    toast({
+      title: isLiked ? "Removed Like" : "Profile Liked",
+      description: isLiked ? "You've removed your like." : "You've liked Jessica's profile.",
+    });
+  };
+  
+  const handleMessage = () => {
+    // Navigate to messages with this user
+    navigate(`/messages?userId=${id}`);
+  };
+  
+  const handleShare = () => {
+    // Copy profile link to clipboard
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link Copied",
+      description: "Profile link copied to clipboard.",
+    });
+  };
+  
+  const handleBlock = () => {
+    toast({
+      title: "User Blocked",
+      description: "You won't see Jessica's profile anymore.",
+      variant: "destructive",
+    });
+    // In a real app, we would make an API call to block the user
+    setTimeout(() => navigate('/discover'), 1500);
+  };
+  
+  const handleReport = () => {
+    toast({
+      title: "Profile Reported",
+      description: "Thank you for helping keep our community safe.",
+      variant: "destructive",
+    });
+  };
   
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <div className="grid md:grid-cols-[1fr_2fr] gap-8">
         {/* Left Column - Photos */}
         <div className="space-y-4">
-          <div className="bg-zinc-800 rounded-xl overflow-hidden">
+          <div className="bg-zinc-800 rounded-xl overflow-hidden relative">
             <img 
               src={MEMBER.images[0]} 
               alt={`${MEMBER.name}'s profile`}
               className="w-full aspect-[3/4] object-cover"
             />
+            
+            {/* Action buttons overlay at bottom of profile picture */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent flex gap-2">
+              <ButtonPrimary 
+                onClick={handleLike} 
+                className="flex-1 py-2"
+              >
+                {isLiked ? 'Liked' : 'Like'}
+                <Heart size={18} className={isLiked ? "fill-white" : ""} />
+              </ButtonPrimary>
+              
+              <ButtonSecondary 
+                onClick={handleMessage} 
+                className="flex-1 py-2"
+              >
+                Message
+                <MessageSquare size={18} />
+              </ButtonSecondary>
+            </div>
           </div>
           
           <div className="grid grid-cols-3 gap-2">
@@ -49,15 +131,36 @@ const ProfilePage = () => {
             ))}
           </div>
           
-          <div className="flex justify-between gap-2">
-            <Button className="flex-1 gap-2 bg-rose-600 hover:bg-rose-700">
-              <Heart size={16} />
-              Like
-            </Button>
-            <Button className="flex-1 gap-2" variant="outline">
-              <MessageSquare size={16} />
-              Message
-            </Button>
+          {/* Additional action buttons */}
+          <div className="flex justify-between">
+            <ButtonSecondary onClick={handleShare} className="flex-1 mr-2">
+              Share
+              <Share size={16} />
+            </ButtonSecondary>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <MoreHorizontal size={18} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem 
+                  onClick={handleBlock}
+                  className="text-red-500 cursor-pointer"
+                >
+                  <UserX size={16} className="mr-2" />
+                  Block User
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={handleReport}
+                  className="text-orange-500 cursor-pointer"
+                >
+                  <Flag size={16} className="mr-2" />
+                  Report Profile
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         
