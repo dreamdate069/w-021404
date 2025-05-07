@@ -4,7 +4,12 @@ import SidebarNav from './components/SidebarNav';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import DiscoverPage from './pages/DiscoverPage';
+import MatchesPage from './pages/MatchesPage';
 import MessagesPage from './pages/MessagesPage';
+import AboutPage from './pages/AboutPage';
+import CommunityPage from './pages/CommunityPage';
+import TermsPage from './pages/TermsPage';
+import BrowsePage from './pages/BrowsePage';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/toaster';
 
@@ -19,9 +24,13 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/discover" element={<DiscoverPage />} />
+            <Route path="/matches" element={<MatchesPage />} />
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/profile/:id" element={<ProfilePage />} />
-            <Route path="/matches" element={<Navigate to="/discover" />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/community" element={<CommunityPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/browse" element={<BrowsePage />} />
             <Route path="/settings" element={<div className="container p-8"><h1 className="text-3xl font-bold text-white">Settings</h1></div>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
