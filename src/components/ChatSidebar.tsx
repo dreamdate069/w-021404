@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Smile, Image, Gift, UserPlus, UserMinus, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   
   return (
     <div 
-      className="sticky top-0 right-0 h-screen flex flex-col items-center justify-end gap-6 py-8 relative"
+      className="sticky top-0 right-0 h-screen flex flex-col items-center justify-start gap-6 py-8 relative"
       onMouseEnter={() => setIsExpanded(true)} 
       onMouseLeave={() => setIsExpanded(false)} 
       onTouchStart={() => setIsExpanded(true)}
@@ -59,26 +60,26 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         )}
       ></div>
       
-      {/* Buttons with full opacity */}
-      <div className="flex flex-col items-center justify-end gap-6 z-10 relative">
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleEmoji}>
-          <Smile size={24} className="text-white" />
-        </Button>
-        
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleAttach}>
-          <Image size={24} className="text-white" />
-        </Button>
-        
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleGiftShop}>
-          <Gift size={24} className="text-white" />
+      {/* Buttons with full opacity - Order flipped */}
+      <div className="flex flex-col items-center justify-start gap-6 z-10 relative">
+        <Button variant="ghost" onClick={handleCoinTransfer} className="rounded-full p-3 transition-colors bg-gray-950 hover:bg-gray-800">
+          <Coins size={24} className="text-white" />
         </Button>
         
         <Button variant="ghost" className={cn("rounded-full p-3 transition-colors", isFriend ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700")} onClick={onToggleFriend}>
           {isFriend ? <UserMinus size={24} className="text-white" /> : <UserPlus size={24} className="text-white" />}
         </Button>
         
-        <Button variant="ghost" onClick={handleCoinTransfer} className="rounded-full p-3 transition-colors bg-gray-950 hover:bg-gray-800">
-          <Coins size={24} className="text-white" />
+        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleGiftShop}>
+          <Gift size={24} className="text-white" />
+        </Button>
+        
+        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleAttach}>
+          <Image size={24} className="text-white" />
+        </Button>
+        
+        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleEmoji}>
+          <Smile size={24} className="text-white" />
         </Button>
       </div>
     </div>
