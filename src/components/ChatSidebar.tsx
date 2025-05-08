@@ -52,8 +52,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
       {/* Background element with opacity */}
       <div className={cn("absolute inset-0 bg-zinc-900 border-l border-zinc-800 transition-opacity duration-300 z-0", isExpanded ? "opacity-100" : "opacity-[0.13]")}></div>
       
-      {/* Buttons with full opacity - Order reversed with Smile at bottom and Coins at top */}
-      <div className="flex flex-col items-center justify-end gap-6 z-10 relative mt-auto">
+      {/* Buttons with full opacity - Original order restored */}
+      <div className="flex flex-col items-center justify-start gap-6 z-10 relative mb-auto">
         <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleEmoji}>
           <Smile size={24} className="text-white" />
         </Button>

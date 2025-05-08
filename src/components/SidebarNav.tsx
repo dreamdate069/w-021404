@@ -129,8 +129,10 @@ const SidebarNav = () => {
       onMouseLeave={handleMouseLeave}
     >
       <div className="p-4 flex justify-center">
-        <div className={cn("transition-transform duration-300", effectiveCollapsed ? "rotate-90" : "")}>
-          <Logo />
+        <div className={cn("transition-transform duration-300", effectiveCollapsed ? "rotate-[270deg]" : "")}>
+          {!effectiveCollapsed ? <Logo /> : <div className="flex justify-center">
+            <span className="text-custom-pink text-xl font-bold">DD</span>
+          </div>}
         </div>
       </div>
 
