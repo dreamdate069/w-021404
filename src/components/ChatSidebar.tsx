@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Smile, Image, Gift, UserPlus, UserMinus, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onToggleFriend
 }) => {
   const { toast } = useToast();
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleEmoji = () => {
     toast({
@@ -45,7 +46,15 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   };
 
   return (
-    <div className="sticky top-0 right-0 h-screen w-[60px] flex flex-col items-center justify-end gap-6 bg-zinc-900 border-l border-zinc-800 py-8">
+    <div 
+      className={cn(
+        "sticky top-0 right-0 h-screen flex flex-col items-center justify-end gap-6 bg-zinc-900 border-l border-zinc-800 py-8 transition-all duration-300",
+        isExpanded ? "w-[60px] opacity-100" : "w-[60px] opacity-[0.13]"
+      )}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+      onTouchStart={() => setIsExpanded(true)}
+    >
       <Button 
         variant="ghost" 
         className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" 
