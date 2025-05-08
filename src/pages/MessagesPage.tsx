@@ -1,8 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import DreamCoinBalance from '@/components/DreamCoinBalance';
+import VideoChat from '@/components/VideoChat';
 
 // Placeholder data - will be replaced with Supabase data
 const CONVERSATIONS = [
@@ -65,7 +68,9 @@ const MESSAGES = [
 ];
 
 const MessagesPage = () => {
-  const [selectedConversation, setSelectedConversation] = React.useState(CONVERSATIONS[0]);
+  const [selectedConversation, setSelectedConversation] = useState(CONVERSATIONS[0]);
+  const [isVideoMode, setIsVideoMode] = useState(false);
+  const [dreamCoinBalance, setDreamCoinBalance] = useState(100000000);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -126,44 +131,63 @@ const MessagesPage = () => {
         {selectedConversation ? (
           <>
             {/* Header */}
-            <div className="border-b border-zinc-800 p-4 flex items-center gap-3">
-              <img 
-                src={selectedConversation.user.image} 
-                alt={selectedConversation.user.name}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div>
-                <h3 className="text-white font-medium">{selectedConversation.user.name}</h3>
-                <span className="text-xs text-zinc-400">
-                  {selectedConversation.user.online ? 'Online' : 'Offline'}
-                </span>
+            <div className="border-b border-zinc-800 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={selectedConversation.user.image} 
+                  alt={selectedConversation.user.name}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <h3 className="text-white font-medium">{selectedConversation.user.name}</h3>
+                  <span className="text-xs text-zinc-400">
+                    {selectedConversation.user.online ? 'Online' : 'Offline'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <DreamCoinBalance balance={dreamCoinBalance} />
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-zinc-400">{isVideoMode ? 'Video' : 'Text'}</span>
+                  <Switch 
+                    checked={isVideoMode}
+                    onCheckedChange={setIsVideoMode}
+                    className="data-[state=checked]:bg-custom-pink"
+                  />
+                </div>
               </div>
             </div>
             
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {MESSAGES.map((message) => (
-                <div 
-                  key={message.id}
-                  className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
-                >
+            {/* Messages or Video Chat */}
+            {isVideoMode ? (
+              <VideoChat isActive={true} partnerName={selectedConversation.user.name} />
+            ) : (
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {MESSAGES.map((message) => (
                   <div 
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      message.sender === 'me' 
-                        ? 'bg-custom-pink text-white' 
-                        : 'bg-zinc-800 text-white'
-                    }`}
+                    key={message.id}
+                    className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p>{message.text}</p>
-                    <span className={`text-xs block mt-1 ${
-                      message.sender === 'me' ? 'text-custom-pink/70' : 'text-zinc-400'
-                    }`}>
-                      {message.time}
-                    </span>
+                    <div 
+                      className={`max-w-[70%] rounded-lg p-3 ${
+                        message.sender === 'me' 
+                          ? 'bg-custom-pink text-white' 
+                          : 'bg-zinc-800 text-white'
+                      }`}
+                    >
+                      <p>{message.text}</p>
+                      <span className={`text-xs block mt-1 ${
+                        message.sender === 'me' ? 'text-custom-pink/70' : 'text-zinc-400'
+                      }`}>
+                        {message.time}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             
             {/* Message input */}
             <div className="border-t border-zinc-800 p-4">
