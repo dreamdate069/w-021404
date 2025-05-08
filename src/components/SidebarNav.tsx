@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { MessageSquare, Heart, Users, Settings, Menu, LogIn, LogOut, UserPlus, Info, Newspaper, FileText, Globe, MapPin, UserCheck } from 'lucide-react';
