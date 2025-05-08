@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import DreamCoinBalance from '@/components/DreamCoinBalance';
 import VideoChat from '@/components/VideoChat';
+import ChatSidebar from '@/components/ChatSidebar';
 
 // Placeholder data - will be replaced with Supabase data
 const CONVERSATIONS = [{
@@ -71,11 +72,19 @@ const MESSAGES = [{
   text: 'I saw in your profile you enjoy outdoor activities!',
   time: '12:34 PM'
 }];
+
 const MessagesPage = () => {
   const [selectedConversation, setSelectedConversation] = useState(CONVERSATIONS[0]);
   const [isVideoMode, setIsVideoMode] = useState(false);
   const [dreamCoinBalance, setDreamCoinBalance] = useState(100000000);
-  return <div className="flex h-screen overflow-hidden">
+  const [isFriend, setIsFriend] = useState(true);
+  
+  const handleToggleFriend = () => {
+    setIsFriend(!isFriend);
+  };
+
+  return (
+    <div className="flex h-screen overflow-hidden">
       {/* Conversations sidebar */}
       <div className="w-full md:w-80 border-r border-zinc-800 overflow-y-auto">
         <div className="p-4 border-b border-zinc-800">
@@ -87,10 +96,17 @@ const MessagesPage = () => {
         </div>
         
         <div>
-          {CONVERSATIONS.map(conversation => <div key={conversation.id} className={`flex items-center gap-3 p-4 hover:bg-zinc-800 cursor-pointer ${selectedConversation?.id === conversation.id ? 'bg-zinc-800' : ''}`} onClick={() => setSelectedConversation(conversation)}>
+          {CONVERSATIONS.map(conversation => (
+            <div 
+              key={conversation.id} 
+              className={`flex items-center gap-3 p-4 hover:bg-zinc-800 cursor-pointer ${selectedConversation?.id === conversation.id ? 'bg-zinc-800' : ''}`} 
+              onClick={() => setSelectedConversation(conversation)}
+            >
               <div className="relative">
                 <img src={conversation.user.image} alt={conversation.user.name} className="w-12 h-12 rounded-full object-cover" />
-                {conversation.user.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-900" />}
+                {conversation.user.online && (
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-900" />
+                )}
               </div>
               
               <div className="flex-1 min-w-0">
@@ -100,18 +116,22 @@ const MessagesPage = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-zinc-400 text-sm truncate">{conversation.lastMessage}</p>
-                  {conversation.unread > 0 && <span className="ml-2 bg-custom-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {conversation.unread > 0 && (
+                    <span className="ml-2 bg-custom-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {conversation.unread}
-                    </span>}
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>)}
+            </div>
+          ))}
         </div>
       </div>
       
       {/* Messages */}
       <div className="flex-1 flex flex-col">
-        {selectedConversation ? <>
+        {selectedConversation ? (
+          <>
             {/* Header */}
             <div className="border-b border-zinc-800 p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -129,22 +149,42 @@ const MessagesPage = () => {
                 
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-zinc-400">{isVideoMode ? 'Video' : 'Text'}</span>
-                  <Switch checked={isVideoMode} onCheckedChange={setIsVideoMode} className="data-[state=checked]:bg-custom-pink text-[#e80ce8]" />
+                  <Switch 
+                    checked={isVideoMode} 
+                    onCheckedChange={setIsVideoMode} 
+                    className="data-[state=checked]:bg-custom-pink text-[#e80ce8]" 
+                  />
                 </div>
               </div>
             </div>
             
-            {/* Messages or Video Chat */}
-            {isVideoMode ? <VideoChat isActive={true} partnerName={selectedConversation.user.name} /> : <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {MESSAGES.map(message => <div key={message.id} className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[70%] rounded-lg p-3 ${message.sender === 'me' ? 'bg-custom-pink text-white' : 'bg-zinc-800 text-white'}`}>
-                      <p>{message.text}</p>
-                      <span className={`text-xs block mt-1 ${message.sender === 'me' ? 'text-custom-pink/70' : 'text-zinc-400'}`}>
-                        {message.time}
-                      </span>
+            {/* Messages or Video Chat - with animation */}
+            <div className="flex-1 relative overflow-hidden">
+              <div 
+                className={`absolute inset-0 transition-opacity duration-300 ${isVideoMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                style={{ zIndex: isVideoMode ? 0 : 1 }}
+              >
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 h-full">
+                  {MESSAGES.map(message => (
+                    <div key={message.id} className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[70%] rounded-lg p-3 ${message.sender === 'me' ? 'bg-custom-pink text-white' : 'bg-zinc-800 text-white'}`}>
+                        <p>{message.text}</p>
+                        <span className={`text-xs block mt-1 ${message.sender === 'me' ? 'text-custom-pink/70' : 'text-zinc-400'}`}>
+                          {message.time}
+                        </span>
+                      </div>
                     </div>
-                  </div>)}
-              </div>}
+                  ))}
+                </div>
+              </div>
+                
+              <div 
+                className={`absolute inset-0 transition-opacity duration-300 ${isVideoMode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                style={{ zIndex: isVideoMode ? 1 : 0 }}
+              >
+                <VideoChat isActive={isVideoMode} partnerName={selectedConversation.user.name} />
+              </div>
+            </div>
             
             {/* Message input */}
             <div className="border-t border-zinc-800 p-4">
@@ -153,12 +193,20 @@ const MessagesPage = () => {
                 <Button className="bg-custom-pink hover:bg-custom-pink/90">Send</Button>
               </div>
             </div>
-          </> : <div className="flex-1 flex items-center justify-center">
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
             <div className="text-center text-zinc-400">
               <p className="mb-2">Select a conversation to start messaging</p>
             </div>
-          </div>}
+          </div>
+        )}
       </div>
-    </div>;
+      
+      {/* Chat Functions Sidebar */}
+      <ChatSidebar isFriend={isFriend} onToggleFriend={handleToggleFriend} />
+    </div>
+  );
 };
+
 export default MessagesPage;

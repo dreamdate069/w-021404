@@ -12,6 +12,7 @@ import TermsPage from './pages/TermsPage';
 import BrowsePage from './pages/BrowsePage';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/toaster';
+import Chat from './pages/Chat';
 
 import './App.css';
 
@@ -31,6 +32,7 @@ function App() {
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/browse" element={<BrowsePage />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/settings" element={<div className="container p-8"><h1 className="text-3xl font-bold text-white">Settings</h1></div>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
