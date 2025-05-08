@@ -130,9 +130,7 @@ const SidebarNav = () => {
     >
       <div className="p-4 flex justify-center">
         <div className={cn("transition-transform duration-300", effectiveCollapsed ? "rotate-[270deg]" : "")}>
-          {!effectiveCollapsed ? <Logo /> : <div className="flex justify-center">
-            <span className="text-custom-pink text-xl font-bold">DD</span>
-          </div>}
+          <Logo />
         </div>
       </div>
 
