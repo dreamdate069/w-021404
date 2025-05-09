@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { MessageSquare, Heart, Users, Settings, Menu, LogIn, LogOut, UserPlus, Info, Newspaper, FileText, Globe, MapPin, UserCheck } from 'lucide-react';
@@ -127,14 +128,8 @@ const SidebarNav = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={cn(
-        "p-4 flex justify-center", 
-        effectiveCollapsed ? "h-[200px]" : ""
-      )}>
-        <div className={cn(
-          "transition-transform duration-300", 
-          effectiveCollapsed ? "rotate-[270deg] origin-center mt-16" : ""
-        )}>
+      <div className="p-4 flex justify-center">
+        <div className={cn("transition-transform duration-300", effectiveCollapsed ? "rotate-[270deg]" : "")}>
           <Logo />
         </div>
       </div>
