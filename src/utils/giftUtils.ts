@@ -1,4 +1,3 @@
-
 import { purchaseGift } from "./dreamCoinUtils";
 
 // Gift categories
@@ -149,6 +148,6 @@ export const sendGift = (giftId: string, recipientId: string): boolean => {
     return false;
   }
   
-  // Fixed the parameter mismatch by including all required parameters
-  return purchaseGift('current-user', giftId, gift.price, recipientId, gift.name);
+  // Updated to match the parameter order expected by purchaseGift
+  return purchaseGift('current-user', giftId, recipientId);
 };

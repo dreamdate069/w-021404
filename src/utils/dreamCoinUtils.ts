@@ -27,7 +27,7 @@ export const formatCoinAmount = (amount: number): string => {
 };
 
 // Purchase gift for another user
-export const purchaseGift = (senderId: string, giftId: string, price: number, recipientId: string, giftName: string): boolean => {
+export const purchaseGift = (senderId: string, giftId: string, recipientId: string): boolean => {
   try {
     const bank = DreamCoinBank.getInstance();
     bank.purchaseGift(senderId, giftId, recipientId);
