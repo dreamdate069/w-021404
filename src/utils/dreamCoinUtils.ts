@@ -77,3 +77,30 @@ export const transferCoins = (fromUserId: string, toUserId: string, amount: numb
   addCoins(toUserId, amount);
   return true;
 };
+
+/**
+ * Purchase a gift using DreamCoins
+ * @param userId ID of the user purchasing the gift
+ * @param giftId ID of the gift being purchased
+ * @param recipientId ID of the user receiving the gift
+ * @returns Gift details if purchase successful, null if insufficient funds
+ */
+export const purchaseGift = (userId: string, giftId: string, recipientId: string): any => {
+  // Import inside function to avoid circular dependency
+  const { getGiftById } = require('./giftUtils');
+  
+  const gift = getGiftById(giftId);
+  if (!gift) {
+    console.error(`Gift with ID ${giftId} not found`);
+    return null;
+  }
+  
+  // Check if user has enough coins
+  if (!removeCoins(userId, gift.price)) {
+    console.error(`User ${userId} has insufficient funds to purchase gift ${giftId}`);
+    return null;
+  }
+  
+  console.log(`User ${userId} purchased gift ${giftId} for user ${recipientId}`);
+  return gift;
+};

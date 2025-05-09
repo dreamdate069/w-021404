@@ -1,35 +1,46 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { Message, Conversation, MessageType, ChatParticipant } from '@/types/chat';
 import { DreamCoinBank } from './DreamCoinBank';
 import { storeFile, FileType } from './fileStorage';
+import { getMemberById } from '@/data/members';
 
-// Mock users data
-const USERS: Record<string, ChatParticipant> = {
-  'user-1': {
-    id: 'user-1',
-    name: 'Jessica',
-    profilePic: '/lovable-uploads/6d9b54c2-64d4-44f3-959b-b0c71fff7a04.png',
-    online: true,
-  },
-  'user-2': {
-    id: 'user-2',
-    name: 'Michael',
-    profilePic: '/placeholder.svg',
-    online: false,
-    lastActive: '2 hours ago'
-  },
-  'user-3': {
-    id: 'user-3',
-    name: 'Emma',
-    profilePic: '/lovable-uploads/7973c816-d414-4bfa-b312-1407036a6e21.png',
-    online: true
-  },
-  'current-user': {
-    id: 'current-user',
-    name: 'You',
-    profilePic: '/placeholder.svg',
-    online: true
+// Get user data from members data
+const createChatParticipant = (userId: string): ChatParticipant => {
+  if (userId === 'current-user') {
+    return {
+      id: 'current-user',
+      name: 'You',
+      profilePic: '/placeholder.svg',
+      online: true
+    };
   }
+  
+  const member = getMemberById(userId.replace('user-', ''));
+  if (member) {
+    return {
+      id: userId,
+      name: member.name,
+      profilePic: member.image,
+      online: member.online,
+      lastActive: member.lastActive
+    };
+  }
+  
+  return {
+    id: userId,
+    name: 'Unknown User',
+    profilePic: '/placeholder.svg',
+    online: false
+  };
+};
+
+// Mock users data - now derived from member data
+const USERS: Record<string, ChatParticipant> = {
+  'user-1': createChatParticipant('user-1'),
+  'user-2': createChatParticipant('user-2'),
+  'user-3': createChatParticipant('user-3'),
+  'current-user': createChatParticipant('current-user')
 };
 
 // Mock conversations data
@@ -147,12 +158,7 @@ export const initializeChatSystem = () => {
 
 // Get user by ID
 export const getUserById = (userId: string): ChatParticipant => {
-  return USERS[userId] || { 
-    id: userId, 
-    name: 'Unknown User', 
-    profilePic: '/placeholder.svg',
-    online: false 
-  };
+  return USERS[userId] || createChatParticipant(userId);
 };
 
 // Get conversations for current user

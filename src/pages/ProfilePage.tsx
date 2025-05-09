@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -23,122 +24,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-
-// Updated member data using real profile pictures
-const MEMBERS = {
-  '1': {
-    id: '1',
-    name: 'Jessica',
-    age: 28,
-    location: 'New York',
-    bio: 'Love hiking, photography, and trying new restaurants. Looking for someone who enjoys adventures and good conversation.',
-    images: [
-      '/user-uploads/profile-pics/1.png',
-      '/user-uploads/profile-pics/Untitled design (3).png',
-      '/user-uploads/profile-pics/Untitled design (4).png'
-    ],
-    interests: ['Travel', 'Photography', 'Cooking', 'Hiking', 'Movies'],
-    lastActive: 'Online now'
-  },
-  '2': {
-    id: '2',
-    name: 'Michael',
-    age: 32,
-    location: 'Los Angeles',
-    bio: 'Tech enthusiast and fitness lover. I enjoy outdoor activities and exploring new places. Looking for someone with similar interests.',
-    images: [
-      '/user-uploads/profile-pics/(3).png',
-      '/user-uploads/profile-pics/(4).png',
-      '/user-uploads/profile-pics/design (1).png'
-    ],
-    interests: ['Technology', 'Fitness', 'Travel', 'Music', 'Food'],
-    lastActive: '2 hours ago'
-  },
-  '3': {
-    id: '3',
-    name: 'Emma',
-    age: 26,
-    location: 'Chicago',
-    bio: 'Creative soul who loves art and music. Always up for coffee shop hopping and museum visits. Looking for genuine connections.',
-    images: [
-      '/user-uploads/profile-pics/(4).png',
-      '/user-uploads/profile-pics/Untitled design (1).png',
-      '/user-uploads/profile-pics/design (1).png'
-    ],
-    interests: ['Art', 'Music', 'Coffee', 'Reading', 'Museums'],
-    lastActive: 'Online now'
-  },
-  '4': {
-    id: '4',
-    name: 'James',
-    age: 30,
-    location: 'Miami',
-    bio: 'Beach lover and foodie. I enjoy trying new restaurants and exploring the outdoors. Looking for someone to share adventures with.',
-    images: [
-      '/user-uploads/profile-pics/Untitled design (1).png',
-      '/user-uploads/profile-pics/Untitled design (5).png',
-      '/user-uploads/profile-pics/design (1).png'
-    ],
-    interests: ['Beach', 'Food', 'Sports', 'Travel', 'Outdoors'],
-    lastActive: '1 day ago'
-  },
-  '5': {
-    id: '5',
-    name: 'Olivia',
-    age: 25,
-    location: 'Seattle',
-    bio: 'Coffee enthusiast and nature lover. I enjoy hiking and exploring the Pacific Northwest. Looking for someone who appreciates the outdoors.',
-    images: [
-      '/user-uploads/profile-pics/Untitled design (3).png',
-      '/user-uploads/profile-pics/Untitled design (4).png',
-      '/user-uploads/profile-pics/1.png'
-    ],
-    interests: ['Coffee', 'Hiking', 'Nature', 'Books', 'Photography'],
-    lastActive: 'Online now'
-  },
-  '6': {
-    id: '6',
-    name: 'Daniel',
-    age: 34,
-    location: 'Boston',
-    bio: 'History buff and food lover. I enjoy exploring historic sites and trying new cuisines. Looking for someone with similar interests.',
-    images: [
-      '/user-uploads/profile-pics/Untitled design (4).png',
-      '/user-uploads/profile-pics/design (1).png',
-      '/user-uploads/profile-pics/(3).png'
-    ],
-    interests: ['History', 'Food', 'Travel', 'Museums', 'Culture'],
-    lastActive: '3 hours ago'
-  },
-  '7': {
-    id: '7',
-    name: 'Sophia',
-    age: 27,
-    location: 'Austin',
-    bio: 'Music lover and foodie. I enjoy live concerts and exploring new restaurants. Looking for someone to share experiences with.',
-    images: [
-      '/user-uploads/profile-pics/Untitled design (5).png',
-      '/user-uploads/profile-pics/1.png',
-      '/user-uploads/profile-pics/Untitled design (3).png'
-    ],
-    interests: ['Music', 'Food', 'Concerts', 'Travel', 'Art'],
-    lastActive: 'Yesterday'
-  },
-  '8': {
-    id: '8',
-    name: 'William',
-    age: 29,
-    location: 'Denver',
-    bio: 'Outdoor enthusiast and craft beer lover. I enjoy hiking, camping, and trying local breweries. Looking for someone who appreciates adventure.',
-    images: [
-      '/user-uploads/profile-pics/design (1).png',
-      '/user-uploads/profile-pics/(3).png',
-      '/user-uploads/profile-pics/(4).png'
-    ],
-    interests: ['Hiking', 'Camping', 'Craft Beer', 'Mountains', 'Dogs'],
-    lastActive: 'Online now'
-  }
-};
+import { getMemberById } from '@/data/members';
 
 const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -147,7 +33,12 @@ const ProfilePage = () => {
   const [isLiked, setIsLiked] = useState(false);
   
   // Get the correct member data based on the ID parameter
-  const MEMBER = MEMBERS[id as keyof typeof MEMBERS] || MEMBERS['1'];
+  const MEMBER = getMemberById(id || '1');
+  
+  if (!MEMBER) {
+    navigate('/not-found');
+    return null;
+  }
   
   const handleLike = () => {
     setIsLiked(prev => !prev);
@@ -196,7 +87,7 @@ const ProfilePage = () => {
         <div className="space-y-4">
           <div className="bg-zinc-800 rounded-xl overflow-hidden relative">
             <img 
-              src={MEMBER.images[0]} 
+              src={MEMBER.images?.[0] || MEMBER.image} 
               alt={`${MEMBER.name}'s profile`}
               className="w-full aspect-[3/4] object-cover"
             />
@@ -222,7 +113,7 @@ const ProfilePage = () => {
           </div>
           
           <div className="grid grid-cols-3 gap-2">
-            {MEMBER.images.slice(1).map((image, i) => (
+            {MEMBER.images?.slice(1).map((image, i) => (
               <div key={i} className="bg-zinc-800 rounded-lg overflow-hidden aspect-square">
                 <img 
                   src={image}
@@ -317,7 +208,7 @@ const ProfilePage = () => {
             <TabsContent value="photos" className="pt-4">
               <h3 className="text-xl font-bold text-white mb-3">Photos</h3>
               <div className="grid grid-cols-3 gap-3">
-                {MEMBER.images.map((image, i) => (
+                {MEMBER.images?.map((image, i) => (
                   <div key={i} className="aspect-square rounded-lg overflow-hidden">
                     <img 
                       src={image} 
@@ -332,7 +223,7 @@ const ProfilePage = () => {
             <TabsContent value="interests" className="pt-4">
               <h3 className="text-xl font-bold text-white mb-3">Interests</h3>
               <div className="flex flex-wrap gap-2">
-                {MEMBER.interests.map((interest) => (
+                {MEMBER.interests?.map((interest) => (
                   <span 
                     key={interest} 
                     className="bg-zinc-700 text-white px-3 py-1 rounded-full text-sm"
