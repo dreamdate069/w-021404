@@ -4,27 +4,30 @@ import { Smile, Image, Gift, UserPlus, UserMinus, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
+import EmojiPicker from './EmojiPicker';
 
 interface ChatSidebarProps {
   isFriend: boolean;
   onToggleFriend: () => void;
+  onEmojiSelect: (emoji: string) => void;
+  onImageAttach: () => void;
+  onGiftSelect: () => void;
+  onCoinTransfer: () => void;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
   isFriend = false,
-  onToggleFriend
+  onToggleFriend,
+  onEmojiSelect,
+  onImageAttach,
+  onGiftSelect,
+  onCoinTransfer
 }) => {
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleEmoji = () => {
-    toast({
-      title: "Emoji Picker",
-      description: "Emoji picker would open here"
-    });
-  };
-
   const handleAttach = () => {
+    onImageAttach();
     toast({
       title: "Attach Media",
       description: "Media upload options would appear here"
@@ -32,6 +35,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   };
 
   const handleGiftShop = () => {
+    onGiftSelect();
     toast({
       title: "Gift Shop",
       description: "Gift shop would open here"
@@ -39,6 +43,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   };
 
   const handleCoinTransfer = () => {
+    onCoinTransfer();
     toast({
       title: "Coin Transfer",
       description: "Coin transfer dialog would open here"
@@ -73,9 +78,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
           <Image size={24} className="text-white" />
         </Button>
         
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleEmoji}>
+        <EmojiPicker
+          onEmojiSelect={onEmojiSelect}
+          triggerClassName="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors"
+        >
           <Smile size={24} className="text-white" />
-        </Button>
+        </EmojiPicker>
       </div>
     </div>;
 };

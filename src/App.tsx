@@ -1,5 +1,6 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import SidebarNav from './components/SidebarNav';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
@@ -13,10 +14,17 @@ import BrowsePage from './pages/BrowsePage';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/toaster';
 import Chat from './pages/Chat';
+import { getDreamCoinBalance } from './utils/dreamCoinUtils';
 
 import './App.css';
 
 function App() {
+  // Initialize the DreamCoin system on app start
+  useEffect(() => {
+    // Just calling this will initialize the coins if needed
+    getDreamCoinBalance();
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="flex">
