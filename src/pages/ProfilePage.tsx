@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -25,20 +24,120 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 
-// This is a temporary solution until connected to Supabase
-const MEMBER = {
-  id: '1',
-  name: 'Jessica',
-  age: 28,
-  location: 'New York',
-  bio: 'Love hiking, photography, and trying new restaurants. Looking for someone who enjoys adventures and good conversation.',
-  images: [
-    '/lovable-uploads/6d9b54c2-64d4-44f3-959b-b0c71fff7a04.png',
-    '/lovable-uploads/7973c816-d414-4bfa-b312-1407036a6e21.png',
-    '/placeholder.svg'
-  ],
-  interests: ['Travel', 'Photography', 'Cooking', 'Hiking', 'Movies'],
-  lastActive: 'Online now'
+// Updated member data using real profile pictures
+const MEMBERS = {
+  '1': {
+    id: '1',
+    name: 'Jessica',
+    age: 28,
+    location: 'New York',
+    bio: 'Love hiking, photography, and trying new restaurants. Looking for someone who enjoys adventures and good conversation.',
+    images: [
+      '/user-uploads/profile-pics/1.png',
+      '/user-uploads/profile-pics/Untitled design (3).png',
+      '/user-uploads/profile-pics/Untitled design (4).png'
+    ],
+    interests: ['Travel', 'Photography', 'Cooking', 'Hiking', 'Movies'],
+    lastActive: 'Online now'
+  },
+  '2': {
+    id: '2',
+    name: 'Michael',
+    age: 32,
+    location: 'Los Angeles',
+    bio: 'Tech enthusiast and fitness lover. I enjoy outdoor activities and exploring new places. Looking for someone with similar interests.',
+    images: [
+      '/user-uploads/profile-pics/(3).png',
+      '/user-uploads/profile-pics/(4).png',
+      '/user-uploads/profile-pics/design (1).png'
+    ],
+    interests: ['Technology', 'Fitness', 'Travel', 'Music', 'Food'],
+    lastActive: '2 hours ago'
+  },
+  '3': {
+    id: '3',
+    name: 'Emma',
+    age: 26,
+    location: 'Chicago',
+    bio: 'Creative soul who loves art and music. Always up for coffee shop hopping and museum visits. Looking for genuine connections.',
+    images: [
+      '/user-uploads/profile-pics/(4).png',
+      '/user-uploads/profile-pics/Untitled design (1).png',
+      '/user-uploads/profile-pics/design (1).png'
+    ],
+    interests: ['Art', 'Music', 'Coffee', 'Reading', 'Museums'],
+    lastActive: 'Online now'
+  },
+  '4': {
+    id: '4',
+    name: 'James',
+    age: 30,
+    location: 'Miami',
+    bio: 'Beach lover and foodie. I enjoy trying new restaurants and exploring the outdoors. Looking for someone to share adventures with.',
+    images: [
+      '/user-uploads/profile-pics/Untitled design (1).png',
+      '/user-uploads/profile-pics/Untitled design (5).png',
+      '/user-uploads/profile-pics/design (1).png'
+    ],
+    interests: ['Beach', 'Food', 'Sports', 'Travel', 'Outdoors'],
+    lastActive: '1 day ago'
+  },
+  '5': {
+    id: '5',
+    name: 'Olivia',
+    age: 25,
+    location: 'Seattle',
+    bio: 'Coffee enthusiast and nature lover. I enjoy hiking and exploring the Pacific Northwest. Looking for someone who appreciates the outdoors.',
+    images: [
+      '/user-uploads/profile-pics/Untitled design (3).png',
+      '/user-uploads/profile-pics/Untitled design (4).png',
+      '/user-uploads/profile-pics/1.png'
+    ],
+    interests: ['Coffee', 'Hiking', 'Nature', 'Books', 'Photography'],
+    lastActive: 'Online now'
+  },
+  '6': {
+    id: '6',
+    name: 'Daniel',
+    age: 34,
+    location: 'Boston',
+    bio: 'History buff and food lover. I enjoy exploring historic sites and trying new cuisines. Looking for someone with similar interests.',
+    images: [
+      '/user-uploads/profile-pics/Untitled design (4).png',
+      '/user-uploads/profile-pics/design (1).png',
+      '/user-uploads/profile-pics/(3).png'
+    ],
+    interests: ['History', 'Food', 'Travel', 'Museums', 'Culture'],
+    lastActive: '3 hours ago'
+  },
+  '7': {
+    id: '7',
+    name: 'Sophia',
+    age: 27,
+    location: 'Austin',
+    bio: 'Music lover and foodie. I enjoy live concerts and exploring new restaurants. Looking for someone to share experiences with.',
+    images: [
+      '/user-uploads/profile-pics/Untitled design (5).png',
+      '/user-uploads/profile-pics/1.png',
+      '/user-uploads/profile-pics/Untitled design (3).png'
+    ],
+    interests: ['Music', 'Food', 'Concerts', 'Travel', 'Art'],
+    lastActive: 'Yesterday'
+  },
+  '8': {
+    id: '8',
+    name: 'William',
+    age: 29,
+    location: 'Denver',
+    bio: 'Outdoor enthusiast and craft beer lover. I enjoy hiking, camping, and trying local breweries. Looking for someone who appreciates adventure.',
+    images: [
+      '/user-uploads/profile-pics/design (1).png',
+      '/user-uploads/profile-pics/(3).png',
+      '/user-uploads/profile-pics/(4).png'
+    ],
+    interests: ['Hiking', 'Camping', 'Craft Beer', 'Mountains', 'Dogs'],
+    lastActive: 'Online now'
+  }
 };
 
 const ProfilePage = () => {
@@ -47,11 +146,14 @@ const ProfilePage = () => {
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   
+  // Get the correct member data based on the ID parameter
+  const MEMBER = MEMBERS[id as keyof typeof MEMBERS] || MEMBERS['1'];
+  
   const handleLike = () => {
     setIsLiked(prev => !prev);
     toast({
       title: isLiked ? "Removed Like" : "Profile Liked",
-      description: isLiked ? "You've removed your like." : "You've liked Jessica's profile.",
+      description: isLiked ? "You've removed your like." : `You've liked ${MEMBER.name}'s profile.`,
     });
   };
   
@@ -72,7 +174,7 @@ const ProfilePage = () => {
   const handleBlock = () => {
     toast({
       title: "User Blocked",
-      description: "You won't see Jessica's profile anymore.",
+      description: `You won't see ${MEMBER.name}'s profile anymore.`,
       variant: "destructive",
     });
     // In a real app, we would make an API call to block the user
@@ -202,11 +304,11 @@ const ProfilePage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2 text-zinc-300">
                     <Calendar size={16} />
-                    <span>28 years old</span>
+                    <span>{MEMBER.age} years old</span>
                   </div>
                   <div className="flex items-center gap-2 text-zinc-300">
                     <MapPin size={16} />
-                    <span>Lives in New York</span>
+                    <span>Lives in {MEMBER.location}</span>
                   </div>
                 </div>
               </div>

@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Placeholder member data (will be replaced with Supabase data)
+// Updated member data with real profile picture paths
 const MEMBERS = [
   { 
     id: '1', 
     name: 'Jessica', 
     age: 28, 
     location: 'New York', 
-    image: '/lovable-uploads/6d9b54c2-64d4-44f3-959b-b0c71fff7a04.png',
+    image: '/user-uploads/profile-pics/1.png',
     online: true
   },
   { 
@@ -19,7 +19,7 @@ const MEMBERS = [
     name: 'Michael', 
     age: 32, 
     location: 'Los Angeles', 
-    image: '/placeholder.svg',
+    image: '/user-uploads/profile-pics/(3).png',
     online: false
   },
   { 
@@ -27,7 +27,7 @@ const MEMBERS = [
     name: 'Emma', 
     age: 26, 
     location: 'Chicago', 
-    image: '/placeholder.svg',
+    image: '/user-uploads/profile-pics/(4).png',
     online: true
   },
   { 
@@ -35,7 +35,7 @@ const MEMBERS = [
     name: 'James', 
     age: 30, 
     location: 'Miami', 
-    image: '/placeholder.svg',
+    image: '/user-uploads/profile-pics/Untitled design (1).png',
     online: false
   },
   { 
@@ -43,7 +43,7 @@ const MEMBERS = [
     name: 'Olivia', 
     age: 25, 
     location: 'Seattle', 
-    image: '/lovable-uploads/7973c816-d414-4bfa-b312-1407036a6e21.png',
+    image: '/user-uploads/profile-pics/Untitled design (3).png',
     online: true
   },
   { 
@@ -51,7 +51,7 @@ const MEMBERS = [
     name: 'Daniel', 
     age: 34, 
     location: 'Boston', 
-    image: '/placeholder.svg',
+    image: '/user-uploads/profile-pics/Untitled design (4).png',
     online: true
   },
   { 
@@ -59,7 +59,7 @@ const MEMBERS = [
     name: 'Sophia', 
     age: 27, 
     location: 'Austin', 
-    image: '/placeholder.svg',
+    image: '/user-uploads/profile-pics/Untitled design (5).png',
     online: false
   },
   { 
@@ -67,7 +67,7 @@ const MEMBERS = [
     name: 'William', 
     age: 29, 
     location: 'Denver', 
-    image: '/placeholder.svg',
+    image: '/user-uploads/profile-pics/design (1).png',
     online: true
   }
 ];
