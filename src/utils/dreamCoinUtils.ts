@@ -27,10 +27,10 @@ export const formatCoinAmount = (amount: number): string => {
 };
 
 // Purchase gift for another user
-export const purchaseGift = (giftId: string, price: number, recipientId: string, giftName: string): boolean => {
+export const purchaseGift = (senderId: string, giftId: string, price: number, recipientId: string, giftName: string): boolean => {
   try {
     const bank = DreamCoinBank.getInstance();
-    bank.purchaseGift('current-user', giftId, recipientId);
+    bank.purchaseGift(senderId, giftId, recipientId);
     return true;
   } catch (error) {
     console.error(`Failed to purchase gift: ${error}`);

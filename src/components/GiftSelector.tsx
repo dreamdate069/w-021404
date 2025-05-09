@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +13,7 @@ interface GiftSelectorProps {
   balance: number;
   onSelect?: (giftId: string) => void;
   onClose?: () => void;
+  recipientName?: string; // Add the recipientName prop
 }
 
 const GiftSelector: React.FC<GiftSelectorProps> = ({
@@ -20,7 +22,8 @@ const GiftSelector: React.FC<GiftSelectorProps> = ({
   onGiftSelect,
   balance,
   onSelect,
-  onClose
+  onClose,
+  recipientName
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<GiftCategory>(GiftCategory.ROMANTIC);
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
@@ -64,7 +67,9 @@ const GiftSelector: React.FC<GiftSelectorProps> = ({
     }}>
       <DialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-3xl h-[600px] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-white">Select a Gift</DialogTitle>
+          <DialogTitle className="text-white">
+            {recipientName ? `Select a Gift for ${recipientName}` : 'Select a Gift'}
+          </DialogTitle>
           <DialogDescription>
             Send a gift to express your interest. You have{' '}
             <span className="text-custom-pink font-bold">{balance.toLocaleString()}</span> DreamCoins.
