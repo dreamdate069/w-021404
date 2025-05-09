@@ -149,6 +149,6 @@ export const sendGift = (giftId: string, recipientId: string): boolean => {
     return false;
   }
   
-  // Updated to match the signature in DreamCoinBank
+  // Fixed the parameter mismatch by including all required parameters
   return purchaseGift('current-user', giftId, gift.price, recipientId, gift.name);
 };
