@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import DreamCoinBalance from '@/components/DreamCoinBalance';
 import VideoChat from '@/components/VideoChat';
 import ChatSidebar from '@/components/ChatSidebar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   getDreamCoinBalance, 
   deductMessageCost, 
@@ -88,11 +89,25 @@ const MessagesPage = () => {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [messageInput, setMessageInput] = useState('');
   
+  // Ref for message container to auto-scroll
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
   // Load dreamcoin balance on mount
   useEffect(() => {
     const balance = getDreamCoinBalance();
     setDreamCoinBalance(balance);
   }, []);
+  
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+  
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   
   const handleToggleFriend = () => {
     setIsFriend(!isFriend);
@@ -228,7 +243,7 @@ const MessagesPage = () => {
                   <Switch 
                     checked={isVideoMode} 
                     onCheckedChange={setIsVideoMode} 
-                    className="data-[state=checked]:bg-custom-pink text-[#e80ce8]" 
+                    className="data-[state=checked]:bg-custom-pink border border-custom-pink hover:border-custom-pink/80 text-[#e80ce8]" 
                   />
                 </div>
               </div>
@@ -240,18 +255,21 @@ const MessagesPage = () => {
                 className={`absolute inset-0 transition-opacity duration-300 ${isVideoMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                 style={{ zIndex: isVideoMode ? 0 : 1 }}
               >
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 h-full">
-                  {messages.map(message => (
-                    <div key={message.id} className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[70%] rounded-lg p-3 ${message.sender === 'me' ? 'bg-custom-pink text-white' : 'bg-zinc-800 text-white'}`}>
-                        <p>{message.text}</p>
-                        <span className={`text-xs block mt-1 ${message.sender === 'me' ? 'text-custom-pink/70' : 'text-zinc-400'}`}>
-                          {message.time}
-                        </span>
+                <ScrollArea className="h-full">
+                  <div className="flex-1 p-4 space-y-4 h-full">
+                    {messages.map(message => (
+                      <div key={message.id} className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                        <div className={`max-w-[70%] rounded-lg p-3 ${message.sender === 'me' ? 'bg-custom-pink text-white' : 'bg-zinc-800 text-white'}`}>
+                          <p>{message.text}</p>
+                          <span className={`text-xs block mt-1 ${message.sender === 'me' ? 'text-custom-pink/70' : 'text-zinc-400'}`}>
+                            {message.time}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </ScrollArea>
               </div>
                 
               <div 
@@ -290,7 +308,7 @@ const MessagesPage = () => {
                     disabled={isVideoMode}
                   />
                   <Button 
-                    className="bg-custom-pink hover:bg-custom-pink/90"
+                    className="bg-custom-pink hover:bg-custom-pink/90 border border-custom-pink"
                     onClick={handleSendMessage}
                     disabled={isVideoMode || !messageInput.trim()}
                   >
