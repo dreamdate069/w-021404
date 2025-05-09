@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MessageSquare, Send, Phone, VideoIcon } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import GiftSelector from '@/components/GiftSelector';
 import CoinTransfer from '@/components/CoinTransfer';
+import DreamCoinBalance from '@/components/DreamCoinBalance';
 import { Conversation, Message, MessageType } from '@/types/chat';
 import {
   initializeChatSystem,
@@ -459,7 +461,8 @@ const MessagesPage = () => {
                 </div>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                <DreamCoinBalance balance={getUserBalance(currentUserId)} className="mr-2" />
                 <Button size="icon" variant="ghost">
                   <Phone size={18} />
                 </Button>
