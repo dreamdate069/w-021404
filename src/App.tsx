@@ -14,7 +14,7 @@ import BrowsePage from './pages/BrowsePage';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/toaster';
 import Chat from './pages/Chat';
-import { getDreamCoinBalance } from './utils/dreamCoinUtils';
+import { getUserBalance } from './utils/dreamCoinUtils';
 import { initializeChatSystem } from './utils/chatUtils';
 
 import './App.css';
@@ -23,7 +23,7 @@ function App() {
   // Initialize the DreamCoin system and Chat system on app start
   useEffect(() => {
     // Initialize DreamCoin bank
-    getDreamCoinBalance();
+    getUserBalance('current-user');
     
     // Initialize chat system
     initializeChatSystem();

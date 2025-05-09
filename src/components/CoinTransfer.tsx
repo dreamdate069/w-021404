@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Coins } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -13,6 +12,8 @@ interface CoinTransferProps {
   onTransfer: (amount: number, message: string) => void;
   balance: number;
   recipientName: string;
+  // Add these props to match usage in MessagesPage
+  onClose?: () => void; 
 }
 
 const CoinTransfer: React.FC<CoinTransferProps> = ({
@@ -20,7 +21,8 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
   onOpenChange,
   onTransfer,
   balance,
-  recipientName
+  recipientName,
+  onClose
 }) => {
   const [amount, setAmount] = useState<number>(1000);
   const [message, setMessage] = useState<string>('');
@@ -41,7 +43,11 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
   const handleTransfer = () => {
     if (isValidAmount) {
       onTransfer(amount, message);
-      onOpenChange(false);
+      if (onClose) {
+        onClose();
+      } else {
+        onOpenChange(false);
+      }
       setAmount(1000);
       setMessage('');
     }
@@ -51,7 +57,13 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
   const predefinedAmounts = [1000, 5000, 10000, 25000, 50000];
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(value) => {
+      if (onClose && !value) {
+        onClose();
+      } else {
+        onOpenChange(value);
+      }
+    }}>
       <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">

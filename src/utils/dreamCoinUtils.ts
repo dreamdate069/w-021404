@@ -1,3 +1,4 @@
+
 import { DreamCoinBank, Transaction } from './DreamCoinBank';
 
 // Get user balance
@@ -23,4 +24,16 @@ export const formatCoinAmount = (amount: number): string => {
     return `${(amount / 1000).toFixed(1)}K`;
   }
   return amount.toString();
+};
+
+// Purchase gift for another user
+export const purchaseGift = (giftId: string, price: number, recipientId: string, giftName: string): boolean => {
+  try {
+    const bank = DreamCoinBank.getInstance();
+    bank.purchaseGift('current-user', giftId, recipientId);
+    return true;
+  } catch (error) {
+    console.error(`Failed to purchase gift: ${error}`);
+    return false;
+  }
 };

@@ -23,6 +23,9 @@ export interface Transaction {
   giftId?: string;
 }
 
+// Export the transfer fee percentage constant
+export const TRANSFER_FEE_PERCENTAGE = 20;
+
 // Available gift items
 const GIFT_ITEMS: GiftItem[] = [
   {

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,13 +10,17 @@ interface GiftSelectorProps {
   onOpenChange: (open: boolean) => void;
   onGiftSelect: (giftId: string) => void;
   balance: number;
+  onSelect?: (giftId: string) => void;
+  onClose?: () => void;
 }
 
 const GiftSelector: React.FC<GiftSelectorProps> = ({
   open,
   onOpenChange,
   onGiftSelect,
-  balance
+  balance,
+  onSelect,
+  onClose
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<GiftCategory>(GiftCategory.ROMANTIC);
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
@@ -33,14 +36,32 @@ const GiftSelector: React.FC<GiftSelectorProps> = ({
   // Handle gift purchase
   const handleGiftPurchase = () => {
     if (selectedGift) {
-      onGiftSelect(selectedGift.id);
-      onOpenChange(false);
+      // Use either onGiftSelect or onSelect (for backward compatibility)
+      if (onSelect) {
+        onSelect(selectedGift.id);
+      } else {
+        onGiftSelect(selectedGift.id);
+      }
+      
+      // Use either onOpenChange or onClose
+      if (onClose) {
+        onClose();
+      } else {
+        onOpenChange(false);
+      }
+      
       setSelectedGift(null);
     }
   };
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(value) => {
+      if (onClose && !value) {
+        onClose();
+      } else {
+        onOpenChange(value);
+      }
+    }}>
       <DialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-3xl h-[600px] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-white">Select a Gift</DialogTitle>
