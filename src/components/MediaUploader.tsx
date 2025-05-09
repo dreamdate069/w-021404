@@ -70,11 +70,9 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
         setPreviewUrl(null);
       }
 
-      // Store file with UUID name in appropriate directory
-      const filePath = await storeFile(file, fileType);
-      
-      // Call onFileSelect with the file and its storage path
-      onFileSelect(file, filePath);
+      // Pass the file directly to onFileSelect
+      // The filePath will be determined by the storeFile function later
+      onFileSelect(file);
     } catch (error) {
       console.error('Error processing file:', error);
       toast({

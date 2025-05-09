@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MessageSquare, Send, Phone, VideoIcon } from 'lucide-react';
@@ -175,8 +174,8 @@ const MessagesPage = () => {
     }
     
     // In a real app, we would upload the file to a server here
-    // For now, we'll just use the object URL
-    sendMediaMessage(selectedConversationId, fileUrl, mediaType);
+    // For now, we'll pass the actual file to sendMediaMessage
+    sendMediaMessage(selectedConversationId, file, mediaType);
     
     // Refresh conversations and messages
     loadConversations();

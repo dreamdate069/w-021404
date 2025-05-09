@@ -225,14 +225,22 @@ export const sendTextMessage = (conversationId: string, content: string): Messag
 // Send a media message
 export const sendMediaMessage = async (
   conversationId: string, 
-  mediaFile: File, 
+  mediaFileOrUrl: File | string, 
   mediaType: 'image' | 'video' | 'audio'
 ): Promise<Message> => {
   // Map mediaType to FileType
   const fileType: FileType = 'media';
   
-  // Store the file with UUID name in the appropriate directory
-  const mediaUrl = await storeFile(mediaFile, fileType);
+  // Process the media file or URL
+  let mediaUrl: string;
+  
+  if (typeof mediaFileOrUrl === 'string') {
+    // If it's already a URL string, use it directly
+    mediaUrl = mediaFileOrUrl;
+  } else {
+    // If it's a File object, store it with UUID name
+    mediaUrl = await storeFile(mediaFileOrUrl, fileType);
+  }
   
   const mediaFees = {
     'image': 10,
