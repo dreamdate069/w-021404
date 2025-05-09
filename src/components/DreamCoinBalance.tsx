@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DREAMCOIN_IMAGE_URL } from '@/utils/dreamCoinUtils';
 
 interface DreamCoinBalanceProps {
   balance: number;
@@ -17,7 +17,11 @@ const DreamCoinBalance: React.FC<DreamCoinBalanceProps> = ({
   
   return (
     <div className={cn("flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-full", className)}>
-      <Coins className="text-custom-pink" size={16} />
+      <img 
+        src={DREAMCOIN_IMAGE_URL} 
+        alt="DreamCoin" 
+        className="w-4 h-4 object-contain"
+      />
       <span className="text-white text-sm font-medium">{formattedBalance}</span>
     </div>
   );

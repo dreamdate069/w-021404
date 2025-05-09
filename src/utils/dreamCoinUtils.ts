@@ -37,3 +37,6 @@ export const purchaseGift = (senderId: string, giftId: string, recipientId: stri
     return false;
   }
 };
+
+// DreamCoin image URL
+export const DREAMCOIN_IMAGE_URL = '/lovable-uploads/66840c8c-e0ef-4733-9613-d03cd1a75d70.png';

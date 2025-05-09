@@ -1,31 +1,34 @@
-
 import React, { useState, useRef } from 'react';
 import { Upload, X, File, Image, Video, FileAudio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { storeFile, FileType } from '@/utils/fileStorage';
 
 interface MediaUploaderProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File, filePath?: string) => void;
   accept?: string;
   maxSize?: number; // in bytes
   className?: string;
+  fileType?: FileType;
 }
 
 const MediaUploader: React.FC<MediaUploaderProps> = ({
   onFileSelect,
   accept = 'image/*,video/*,audio/*',
   maxSize = 10 * 1024 * 1024, // 10MB default
-  className
+  className,
+  fileType = 'media'
 }) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<'image' | 'video' | 'audio' | 'file' | null>(null);
+  const [fileMediaType, setFileMediaType] = useState<'image' | 'video' | 'audio' | 'file' | null>(null);
   const [fileName, setFileName] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -38,33 +41,50 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
       return;
     }
 
-    processFile(file);
+    await processFile(file);
   };
 
-  const processFile = (file: File) => {
-    // Set file name
-    setFileName(file.name);
+  const processFile = async (file: File) => {
+    try {
+      setIsUploading(true);
+      
+      // Set file name
+      setFileName(file.name);
 
-    // Determine file type
-    if (file.type.startsWith('image/')) {
-      setFileType('image');
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else if (file.type.startsWith('video/')) {
-      setFileType('video');
-      setPreviewUrl(URL.createObjectURL(file));
-    } else if (file.type.startsWith('audio/')) {
-      setFileType('audio');
-      setPreviewUrl(null);
-    } else {
-      setFileType('file');
-      setPreviewUrl(null);
+      // Determine file type
+      if (file.type.startsWith('image/')) {
+        setFileMediaType('image');
+        const reader = new FileReader();
+        reader.onload = () => {
+          setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith('video/')) {
+        setFileMediaType('video');
+        setPreviewUrl(URL.createObjectURL(file));
+      } else if (file.type.startsWith('audio/')) {
+        setFileMediaType('audio');
+        setPreviewUrl(null);
+      } else {
+        setFileMediaType('file');
+        setPreviewUrl(null);
+      }
+
+      // Store file with UUID name in appropriate directory
+      const filePath = await storeFile(file, fileType);
+      
+      // Call onFileSelect with the file and its storage path
+      onFileSelect(file, filePath);
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error processing your file",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
     }
-
-    onFileSelect(file);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -77,7 +97,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
 
@@ -114,12 +134,12 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
       return;
     }
 
-    processFile(file);
+    await processFile(file);
   };
 
   const handleClearFile = () => {
     setPreviewUrl(null);
-    setFileType(null);
+    setFileMediaType(null);
     setFileName('');
     
     // Clear the file input
@@ -130,7 +150,13 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
 
   return (
     <div className={cn("relative", className)}>
-      {previewUrl || fileType ? (
+      {isUploading && (
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20 rounded-md">
+          <p className="text-white">Uploading...</p>
+        </div>
+      )}
+      
+      {previewUrl || fileMediaType ? (
         <div className="relative rounded-md overflow-hidden border border-zinc-800 p-2">
           <button 
             onClick={handleClearFile}
@@ -139,7 +165,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
             <X size={16} />
           </button>
           
-          {fileType === 'image' && previewUrl && (
+          {fileMediaType === 'image' && previewUrl && (
             <img 
               src={previewUrl} 
               alt="Preview" 
@@ -147,7 +173,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
             />
           )}
           
-          {fileType === 'video' && previewUrl && (
+          {fileMediaType === 'video' && previewUrl && (
             <video 
               src={previewUrl} 
               controls 
@@ -155,9 +181,9 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
             />
           )}
           
-          {(fileType === 'audio' || fileType === 'file') && (
+          {(fileMediaType === 'audio' || fileMediaType === 'file') && (
             <div className="flex items-center gap-2 p-2">
-              {fileType === 'audio' ? <FileAudio size={24} /> : <File size={24} />}
+              {fileMediaType === 'audio' ? <FileAudio size={24} /> : <File size={24} />}
               <span className="text-sm text-white truncate">{fileName}</span>
             </div>
           )}

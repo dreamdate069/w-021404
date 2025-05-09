@@ -1,7 +1,7 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { Message, Conversation, MessageType, ChatParticipant } from '@/types/chat';
 import { DreamCoinBank } from './DreamCoinBank';
+import { storeFile, FileType } from './fileStorage';
 
 // Mock users data
 const USERS: Record<string, ChatParticipant> = {
@@ -223,7 +223,17 @@ export const sendTextMessage = (conversationId: string, content: string): Messag
 };
 
 // Send a media message
-export const sendMediaMessage = (conversationId: string, mediaUrl: string, mediaType: 'image' | 'video' | 'audio'): Message => {
+export const sendMediaMessage = async (
+  conversationId: string, 
+  mediaFile: File, 
+  mediaType: 'image' | 'video' | 'audio'
+): Promise<Message> => {
+  // Map mediaType to FileType
+  const fileType: FileType = 'media';
+  
+  // Store the file with UUID name in the appropriate directory
+  const mediaUrl = await storeFile(mediaFile, fileType);
+  
   const mediaFees = {
     'image': 10,
     'video': 50,
