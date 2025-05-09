@@ -15,14 +15,21 @@ import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/toaster';
 import Chat from './pages/Chat';
 import { getDreamCoinBalance } from './utils/dreamCoinUtils';
+import { initializeChatSystem } from './utils/chatUtils';
 
 import './App.css';
 
 function App() {
-  // Initialize the DreamCoin system on app start
+  // Initialize the DreamCoin system and Chat system on app start
   useEffect(() => {
-    // Just calling this will initialize the coins if needed
+    // Initialize DreamCoin bank
     getDreamCoinBalance();
+    
+    // Initialize chat system
+    initializeChatSystem();
+    
+    // Create necessary folders for user uploads in public folder (this is mock code)
+    console.log("App initialized - In a real app, this would create storage folders");
   }, []);
 
   return (
