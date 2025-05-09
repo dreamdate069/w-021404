@@ -3,17 +3,11 @@
  * DreamCoin utility functions
  */
 
+import { DreamCoinBank } from './DreamCoinBank';
+
 // Constants
 export const DREAMCOIN_IMAGE_URL = '/lovable-uploads/66840c8c-e0ef-4733-9613-d03cd1a75d70.png';
 export const DREAMCOIN_NAME = 'DreamCoin';
-
-// Map of user balances - in a real app, this would be fetched from a database
-const userBalances: Record<string, number> = {
-  'current-user': 1500,
-  'user-1': 2500,
-  'user-2': 800,
-  'user-3': 3200,
-};
 
 /**
  * Get a user's DreamCoin balance
@@ -21,7 +15,7 @@ const userBalances: Record<string, number> = {
  * @returns Current balance or 0 if not found
  */
 export const getUserBalance = (userId: string): number => {
-  return userBalances[userId] || 0;
+  return DreamCoinBank.getInstance().getBalance(userId);
 };
 
 /**
@@ -30,7 +24,8 @@ export const getUserBalance = (userId: string): number => {
  * @param newBalance New balance to set
  */
 export const setUserBalance = (userId: string, newBalance: number): void => {
-  userBalances[userId] = newBalance;
+  // This function is no longer needed as we use DreamCoinBank
+  console.warn('setUserBalance is deprecated, use DreamCoinBank methods instead');
 };
 
 /**
@@ -40,7 +35,7 @@ export const setUserBalance = (userId: string, newBalance: number): void => {
  */
 export const addCoins = (userId: string, amount: number): void => {
   const currentBalance = getUserBalance(userId);
-  setUserBalance(userId, currentBalance + amount);
+  DreamCoinBank.getInstance().deductTransactionFee(userId, -amount, `Credit of ${amount} DreamCoins`);
 };
 
 /**
@@ -50,14 +45,7 @@ export const addCoins = (userId: string, amount: number): void => {
  * @returns true if successful, false if insufficient balance
  */
 export const removeCoins = (userId: string, amount: number): boolean => {
-  const currentBalance = getUserBalance(userId);
-  
-  if (currentBalance < amount) {
-    return false;
-  }
-  
-  setUserBalance(userId, currentBalance - amount);
-  return true;
+  return DreamCoinBank.getInstance().deductTransactionFee(userId, amount, `Debit of ${amount} DreamCoins`);
 };
 
 /**
@@ -68,14 +56,7 @@ export const removeCoins = (userId: string, amount: number): boolean => {
  * @returns true if successful, false if insufficient balance
  */
 export const transferCoins = (fromUserId: string, toUserId: string, amount: number): boolean => {
-  // Check if the sender has enough coins
-  if (!removeCoins(fromUserId, amount)) {
-    return false;
-  }
-  
-  // Add coins to recipient
-  addCoins(toUserId, amount);
-  return true;
+  return DreamCoinBank.getInstance().transferCoins(fromUserId, toUserId, amount);
 };
 
 /**
@@ -86,21 +67,10 @@ export const transferCoins = (fromUserId: string, toUserId: string, amount: numb
  * @returns Gift details if purchase successful, null if insufficient funds
  */
 export const purchaseGift = (userId: string, giftId: string, recipientId: string): any => {
-  // Import inside function to avoid circular dependency
-  const { getGiftById } = require('./giftUtils');
-  
-  const gift = getGiftById(giftId);
-  if (!gift) {
-    console.error(`Gift with ID ${giftId} not found`);
+  try {
+    return DreamCoinBank.getInstance().purchaseGift(userId, giftId, recipientId);
+  } catch (error) {
+    console.error(`Error purchasing gift: ${(error as Error).message}`);
     return null;
   }
-  
-  // Check if user has enough coins
-  if (!removeCoins(userId, gift.price)) {
-    console.error(`User ${userId} has insufficient funds to purchase gift ${giftId}`);
-    return null;
-  }
-  
-  console.log(`User ${userId} purchased gift ${giftId} for user ${recipientId}`);
-  return gift;
 };
