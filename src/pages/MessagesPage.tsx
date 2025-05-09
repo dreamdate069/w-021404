@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MessageSquare, Send, Phone, VideoIcon } from 'lucide-react';
@@ -552,6 +551,11 @@ const MessagesPage = () => {
             {/* Gift selector overlay */}
             {showGiftSelector && (
               <GiftSelector
+                open={showGiftSelector}
+                onOpenChange={setShowGiftSelector}
+                onGiftSelect={handleGiftSelect}
+                balance={getUserBalance(currentUserId)}
+                recipientName={otherParticipant.name}
                 onSelect={handleGiftSelect}
                 onClose={() => setShowGiftSelector(false)}
               />
@@ -560,7 +564,10 @@ const MessagesPage = () => {
             {/* Coin transfer overlay */}
             {showCoinTransfer && (
               <CoinTransfer
+                open={showCoinTransfer}
+                onOpenChange={setShowCoinTransfer}
                 balance={getUserBalance(currentUserId)}
+                recipientName={otherParticipant.name}
                 onTransfer={handleCoinTransfer}
                 onClose={() => setShowCoinTransfer(false)}
               />
