@@ -1,64 +1,83 @@
-import { toast } from "@/hooks/use-toast";
 
-// Total DreamCoins in circulation (1 billion)
-export const TOTAL_CIRCULATION = 1_000_000_000;
+import { v4 as uuidv4 } from 'uuid';
 
-// Fee percentages
-export const TRANSFER_FEE_PERCENTAGE = 20;
-export const GIFT_RECIPIENT_PERCENTAGE = 50;
-
-// Media costs
-export const MEDIA_COSTS = {
-  image: 499,
-  video: 999,
-  audio: 299,
-};
-
-// Transaction types
-export enum TransactionType {
-  WELCOME_PACKAGE = 'welcome_package',
-  SEND_MESSAGE = 'send_message',
-  TRANSFER = 'transfer',
-  GIFT_PURCHASE = 'gift_purchase',
-  MEDIA_ATTACHMENT = 'media_attachment',
-  SYSTEM = 'system',
+// Gift item interface
+export interface GiftItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: string;
 }
 
-// Transaction record structure
+// Transaction interface
 export interface Transaction {
   id: string;
-  type: TransactionType;
+  userId: string;
+  type: 'purchase' | 'transfer' | 'gift' | 'fee' | 'credit' | 'admin';
   amount: number;
-  senderId?: string;
-  recipientId?: string;
-  fee?: number;
   timestamp: number;
   description: string;
+  targetUserId?: string;
   giftId?: string;
-  mediaType?: 'image' | 'video' | 'audio';
 }
 
-// Storage keys
-const TRANSACTIONS_KEY = 'dreamCoinTransactions';
-const CIRCULATION_DATA_KEY = 'dreamCoinCirculationData';
+// Available gift items
+const GIFT_ITEMS: GiftItem[] = [
+  {
+    id: 'gift-1',
+    name: 'Rose',
+    description: 'A beautiful red rose',
+    price: 1000,
+    imageUrl: '/user-uploads/gifts/rose.png',
+    category: 'flowers'
+  },
+  {
+    id: 'gift-2',
+    name: 'Chocolate Box',
+    description: 'Delicious box of chocolates',
+    price: 2500,
+    imageUrl: '/user-uploads/gifts/chocolate.png',
+    category: 'food'
+  },
+  {
+    id: 'gift-3',
+    name: 'Diamond Ring',
+    description: 'Shiny diamond ring',
+    price: 50000,
+    imageUrl: '/user-uploads/gifts/ring.png',
+    category: 'jewelry'
+  },
+  {
+    id: 'gift-4',
+    name: 'Teddy Bear',
+    description: 'Soft teddy bear',
+    price: 3000,
+    imageUrl: '/user-uploads/gifts/teddy.png',
+    category: 'toys'
+  },
+  {
+    id: 'gift-5',
+    name: 'Heart',
+    description: 'Animated heart',
+    price: 1500,
+    imageUrl: '/user-uploads/gifts/heart.png',
+    category: 'animations'
+  }
+];
 
 export class DreamCoinBank {
   private static instance: DreamCoinBank;
+  private userBalances: Map<string, number> = new Map();
+  private transactions: Transaction[] = [];
+  private totalCirculation: number = 1000000000; // 1 billion DreamCoins
+  private initialDistributed: boolean = false;
 
-  // Private constructor for Singleton pattern
   private constructor() {
-    // Initialize circulation data if it doesn't exist
-    if (!localStorage.getItem(CIRCULATION_DATA_KEY)) {
-      this.initializeCirculationData();
-    }
-    
-    // Initialize transactions array if it doesn't exist
-    if (!localStorage.getItem(TRANSACTIONS_KEY)) {
-      localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify([]));
-    }
+    this.initializeSystem();
   }
 
-  // Get the singleton instance
   public static getInstance(): DreamCoinBank {
     if (!DreamCoinBank.instance) {
       DreamCoinBank.instance = new DreamCoinBank();
@@ -66,270 +85,189 @@ export class DreamCoinBank {
     return DreamCoinBank.instance;
   }
 
-  // Initialize circulation data
-  private initializeCirculationData() {
-    const circulationData = {
-      totalSupply: TOTAL_CIRCULATION,
-      inCirculation: 0,
-      systemReserve: TOTAL_CIRCULATION,
-      lastUpdated: Date.now(),
-    };
-    localStorage.setItem(CIRCULATION_DATA_KEY, JSON.stringify(circulationData));
-  }
-
-  // Get all transactions
-  public getTransactions(): Transaction[] {
-    const transactions = localStorage.getItem(TRANSACTIONS_KEY);
-    return transactions ? JSON.parse(transactions) : [];
-  }
-
-  // Get user's transactions
-  public getUserTransactions(userId: string): Transaction[] {
-    const allTransactions = this.getTransactions();
-    return allTransactions.filter(
-      t => t.senderId === userId || t.recipientId === userId
-    );
-  }
-
-  // Add a new transaction
-  private addTransaction(transaction: Omit<Transaction, 'id' | 'timestamp'>): Transaction {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: `txn-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      timestamp: Date.now(),
-    };
-
-    const transactions = this.getTransactions();
-    transactions.push(newTransaction);
-    localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
-    
-    return newTransaction;
-  }
-
-  // Transfer coins between users (with 20% fee)
-  public transferCoins(
-    amount: number, 
-    senderId: string, 
-    recipientId: string, 
-    description: string
-  ): boolean {
-    // Validate amount
-    if (amount <= 0) {
-      toast({
-        title: "Invalid amount",
-        description: "Transfer amount must be greater than zero",
-        variant: "destructive"
+  private initializeSystem(): void {
+    if (!this.initialDistributed) {
+      // Set initial balances for test users
+      this.userBalances.set('current-user', 10000);
+      this.userBalances.set('user-1', 5000);
+      this.userBalances.set('user-2', 3000);
+      this.userBalances.set('user-3', 7500);
+      
+      this.initialDistributed = true;
+      
+      // Add initial transaction records
+      this.transactions.push({
+        id: uuidv4(),
+        userId: 'admin',
+        type: 'admin',
+        amount: 10000,
+        timestamp: Date.now() - 86400000, // 1 day ago
+        description: 'Initial balance allocation to current-user'
       });
-      return false;
     }
+    
+    console.log('DreamCoin Bank initialized with 1,000,000,000 total coins in circulation');
+  }
 
-    // Calculate fee
-    const fee = Math.floor(amount * (TRANSFER_FEE_PERCENTAGE / 100));
-    const netAmount = amount - fee;
+  public getBalance(userId: string): number {
+    return this.userBalances.get(userId) || 0;
+  }
+  
+  public getGifts(): GiftItem[] {
+    return GIFT_ITEMS;
+  }
+  
+  public getGiftById(giftId: string): GiftItem | undefined {
+    return GIFT_ITEMS.find(gift => gift.id === giftId);
+  }
 
-    // Get current balances
+  public transferCoins(senderId: string, recipientId: string, amount: number): boolean {
     const senderBalance = this.getBalance(senderId);
     
-    // Check if sender has enough balance
-    if (senderBalance < amount) {
-      toast({
-        title: "Insufficient funds",
-        description: `You need ${amount.toLocaleString()} DreamCoins for this transfer.`,
-        variant: "destructive"
-      });
+    if (senderBalance < amount || amount <= 0) {
+      console.error('Insufficient funds or invalid amount');
       return false;
     }
-
+    
+    // Calculate the service fee (20%)
+    const serviceFee = amount * 0.2;
+    const amountAfterFee = amount - serviceFee;
+    
     // Update balances
-    this.setBalance(senderId, senderBalance - amount);
-    this.setBalance(recipientId, this.getBalance(recipientId) + netAmount);
-
-    // Add transaction record
-    this.addTransaction({
-      type: TransactionType.TRANSFER,
-      amount: amount,
-      senderId: senderId,
-      recipientId: recipientId,
-      fee: fee,
-      description: description
+    this.userBalances.set(senderId, senderBalance - amount);
+    this.userBalances.set(recipientId, this.getBalance(recipientId) + amountAfterFee);
+    
+    // Record transactions
+    this.transactions.push({
+      id: uuidv4(),
+      userId: senderId,
+      targetUserId: recipientId,
+      type: 'transfer',
+      amount: -amount,
+      timestamp: Date.now(),
+      description: `Sent ${amount} DreamCoins to user ${recipientId}`
     });
-
-    // Update circulation data
-    this.updateCirculationData(fee);
-
-    toast({
-      title: `${amount.toLocaleString()} DreamCoins Sent`,
-      description: `${netAmount.toLocaleString()} DreamCoins were transferred after a ${fee.toLocaleString()} DreamCoins service fee.`
+    
+    this.transactions.push({
+      id: uuidv4(),
+      userId: recipientId,
+      targetUserId: senderId,
+      type: 'transfer',
+      amount: amountAfterFee,
+      timestamp: Date.now(),
+      description: `Received ${amountAfterFee} DreamCoins from user ${senderId}`
     });
-
+    
+    this.transactions.push({
+      id: uuidv4(),
+      userId: 'system',
+      targetUserId: senderId,
+      type: 'fee',
+      amount: serviceFee,
+      timestamp: Date.now(),
+      description: `Service fee for ${amount} DreamCoins transfer`
+    });
+    
+    console.log(`Transfer completed: ${senderId} sent ${amount} DreamCoins to ${recipientId} (${amountAfterFee} after fees)`);
     return true;
   }
-
-  // Purchase gift for another user
-  public purchaseGift(
-    giftId: string,
-    giftPrice: number,
-    senderId: string,
-    recipientId: string,
-    giftName: string
-  ): boolean {
-    // Check sender's balance
-    const senderBalance = this.getBalance(senderId);
-    if (senderBalance < giftPrice) {
-      toast({
-        title: "Insufficient funds",
-        description: `You need ${giftPrice.toLocaleString()} DreamCoins to purchase this gift.`,
-        variant: "destructive"
-      });
-      return false;
+  
+  public purchaseGift(senderId: string, giftId: string, recipientId: string): GiftItem {
+    const gift = this.getGiftById(giftId);
+    
+    if (!gift) {
+      throw new Error('Gift not found');
     }
-
-    // Calculate recipient's reward (50% of gift price)
-    const recipientReward = Math.floor(giftPrice * (GIFT_RECIPIENT_PERCENTAGE / 100));
     
-    // Deduct cost from sender
-    this.setBalance(senderId, senderBalance - giftPrice);
+    const senderBalance = this.getBalance(senderId);
     
-    // Add reward to recipient
-    this.setBalance(recipientId, this.getBalance(recipientId) + recipientReward);
+    if (senderBalance < gift.price) {
+      throw new Error('Insufficient funds');
+    }
     
-    // System keeps the rest (50%)
-    const systemFee = giftPrice - recipientReward;
+    // Calculate recipient credit (50% of gift price)
+    const recipientCredit = gift.price * 0.5;
     
-    // Add transaction
-    this.addTransaction({
-      type: TransactionType.GIFT_PURCHASE,
-      amount: giftPrice,
-      senderId: senderId,
-      recipientId: recipientId,
-      fee: systemFee,
-      description: `Gift: ${giftName}`,
-      giftId: giftId
+    // Update balances
+    this.userBalances.set(senderId, senderBalance - gift.price);
+    this.userBalances.set(recipientId, this.getBalance(recipientId) + recipientCredit);
+    
+    // Record transactions
+    this.transactions.push({
+      id: uuidv4(),
+      userId: senderId,
+      targetUserId: recipientId,
+      type: 'gift',
+      amount: -gift.price,
+      timestamp: Date.now(),
+      description: `Purchased ${gift.name} gift for user ${recipientId}`,
+      giftId: gift.id
     });
     
-    // Update circulation data
-    this.updateCirculationData(systemFee);
-    
-    toast({
-      title: "Gift Sent!",
-      description: `You sent a ${giftName} worth ${giftPrice.toLocaleString()} DreamCoins.`
+    this.transactions.push({
+      id: uuidv4(),
+      userId: recipientId,
+      targetUserId: senderId,
+      type: 'credit',
+      amount: recipientCredit,
+      timestamp: Date.now(),
+      description: `Received ${recipientCredit} DreamCoins from ${gift.name} gift`,
+      giftId: gift.id
     });
     
-    return true;
+    this.transactions.push({
+      id: uuidv4(),
+      userId: 'system',
+      type: 'fee',
+      amount: gift.price - recipientCredit,
+      timestamp: Date.now(),
+      description: `System fee for gift purchase`,
+      giftId: gift.id
+    });
+    
+    console.log(`Gift purchase completed: ${senderId} sent ${gift.name} to ${recipientId} (${recipientCredit} coins credited)`);
+    return gift;
   }
-
-  // Charge for media attachment
-  public chargeForMedia(
-    userId: string,
-    mediaType: 'image' | 'video' | 'audio',
-    recipientId?: string
-  ): boolean {
-    const cost = MEDIA_COSTS[mediaType];
+  
+  public deductTransactionFee(userId: string, amount: number, reason: string): boolean {
     const userBalance = this.getBalance(userId);
     
-    if (userBalance < cost) {
-      toast({
-        title: "Insufficient funds",
-        description: `You need ${cost.toLocaleString()} DreamCoins to send this ${mediaType}.`,
-        variant: "destructive"
-      });
+    if (userBalance < amount) {
+      console.error('Insufficient funds for transaction fee');
       return false;
     }
     
-    // Update balance
-    this.setBalance(userId, userBalance - cost);
+    this.userBalances.set(userId, userBalance - amount);
     
-    // Add transaction
-    this.addTransaction({
-      type: TransactionType.MEDIA_ATTACHMENT,
-      amount: cost,
-      senderId: userId,
-      recipientId: recipientId,
-      description: `${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)} attachment`,
-      mediaType: mediaType
-    });
-    
-    // Update circulation data
-    this.updateCirculationData(cost);
-    
-    toast({
-      title: `${cost.toLocaleString()} DreamCoins Spent`,
-      description: `You sent a ${mediaType} attachment.`
+    this.transactions.push({
+      id: uuidv4(),
+      userId: userId,
+      type: 'fee',
+      amount: -amount,
+      timestamp: Date.now(),
+      description: reason
     });
     
     return true;
   }
-
-  // Get user balance
-  public getBalance(userId: string): number {
-    const balanceKey = `dreamCoinBalance_${userId}`;
-    const storedBalance = localStorage.getItem(balanceKey);
-    return storedBalance ? parseInt(storedBalance, 10) : 0;
-  }
-
-  // Set user balance
-  public setBalance(userId: string, balance: number): void {
-    const balanceKey = `dreamCoinBalance_${userId}`;
-    localStorage.setItem(balanceKey, balance.toString());
-  }
-
-  // Add welcome package for new user
-  public giveWelcomePackage(userId: string, amount: number): void {
-    this.setBalance(userId, amount);
-    
-    // Record transaction
-    this.addTransaction({
-      type: TransactionType.WELCOME_PACKAGE,
-      amount: amount,
-      recipientId: userId,
-      description: "Welcome package for new user"
-    });
-    
-    // Update circulation data
-    this.updateCirculationFromReserve(amount);
-    
-    toast({
-      title: "Welcome to DreamDate!",
-      description: `You've received ${amount.toLocaleString()} DreamCoins as a welcome gift!`
-    });
-  }
-
-  // Update circulation data when coins are sent to system reserve
-  private updateCirculationData(amount: number): void {
-    const circulationDataStr = localStorage.getItem(CIRCULATION_DATA_KEY);
-    if (!circulationDataStr) return;
-    
-    const circulationData = JSON.parse(circulationDataStr);
-    
-    // System reserve increases, circulation decreases
-    circulationData.inCirculation -= amount;
-    circulationData.systemReserve += amount;
-    circulationData.lastUpdated = Date.now();
-    
-    localStorage.setItem(CIRCULATION_DATA_KEY, JSON.stringify(circulationData));
+  
+  public getTransactionHistory(userId: string): Transaction[] {
+    return this.transactions
+      .filter(transaction => transaction.userId === userId || transaction.targetUserId === userId)
+      .sort((a, b) => b.timestamp - a.timestamp);
   }
   
-  // Update circulation data when coins are added to circulation from reserve
-  private updateCirculationFromReserve(amount: number): void {
-    const circulationDataStr = localStorage.getItem(CIRCULATION_DATA_KEY);
-    if (!circulationDataStr) return;
-    
-    const circulationData = JSON.parse(circulationDataStr);
-    
-    // System reserve decreases, circulation increases
-    circulationData.inCirculation += amount;
-    circulationData.systemReserve -= amount;
-    circulationData.lastUpdated = Date.now();
-    
-    localStorage.setItem(CIRCULATION_DATA_KEY, JSON.stringify(circulationData));
+  // Method to check total circulation
+  public getTotalCirculation(): number {
+    return this.totalCirculation;
   }
   
-  // Get circulation data
-  public getCirculationData() {
-    const circulationDataStr = localStorage.getItem(CIRCULATION_DATA_KEY);
-    return circulationDataStr ? JSON.parse(circulationDataStr) : null;
+  // Method to check total distributed coins
+  public getTotalDistributedCoins(): number {
+    let totalDistributed = 0;
+    this.userBalances.forEach(balance => {
+      totalDistributed += balance;
+    });
+    return totalDistributed;
   }
 }
-
-// Export an instance of the bank
-export const dreamCoinBank = DreamCoinBank.getInstance();

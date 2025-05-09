@@ -1,525 +1,428 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, PaperclipIcon } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { MessageSquare, Send, Phone, VideoIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from "@/hooks/use-toast";
-import DreamCoinBalance from '@/components/DreamCoinBalance';
-import VideoChat from '@/components/VideoChat';
-import ChatSidebar from '@/components/ChatSidebar';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import MediaUploader from '@/components/MediaUploader';
+import ChatSidebar from '@/components/ChatSidebar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 import GiftSelector from '@/components/GiftSelector';
 import CoinTransfer from '@/components/CoinTransfer';
-import MessageBubble from '@/components/MessageBubble';
-import { 
-  getDreamCoinBalance, 
-  deductMessageCost, 
-  MESSAGE_COST 
-} from '@/utils/dreamCoinUtils';
-
-// Safe URL creator for media files
-const createUploadUrl = (file: File): { url: string, thumbnailUrl?: string } => {
-  // This is a mock function for demonstration purposes
-  // In a real application, you'd upload to Supabase or another storage service
-  // and get back a URL
-  const mockUrl = `/user-uploads/media/${file.name.replace(/\s+/g, '-')}`;
-  
-  // For images and videos, generate a thumbnail URL (same for now)
-  if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
-    return {
-      url: mockUrl,
-      thumbnailUrl: mockUrl
-    };
-  }
-  
-  return { url: mockUrl };
-};
-
-// The placeholder conversations from the original file with the required structure
-// In a real app, these would come from your backend
-const SAMPLE_CONVERSATIONS: Conversation[] = [{
-  id: '1',
-  participants: ['current-user', 'jessica'],
-  lastMessage: {
-    id: '4',
-    conversationId: '1',
-    sender: 'jessica',
-    receiver: 'current-user',
-    type: MessageType.TEXT,
-    content: "Hey there! How's your day going so far?",
-    timestamp: Date.now() - 3600000, // 1 hour ago
-    isRead: false
-  },
-  unreadCount: 2,
-  createdAt: Date.now() - 86400000, // 1 day ago
-  updatedAt: Date.now() - 3600000,
-  isActive: true
-}, {
-  id: '2',
-  participants: ['current-user', 'michael'],
-  lastMessage: {
-    id: 'm2',
-    conversationId: '2',
-    sender: 'michael',
-    receiver: 'current-user',
-    type: MessageType.TEXT,
-    content: 'That sounds like an amazing trip!',
-    timestamp: Date.now() - 86400000, // 1 day ago
-    isRead: true
-  },
-  unreadCount: 0,
-  createdAt: Date.now() - 172800000, // 2 days ago
-  updatedAt: Date.now() - 86400000,
-  isActive: true
-}, {
-  id: '3',
-  participants: ['current-user', 'emma'],
-  lastMessage: {
-    id: 'm3',
-    conversationId: '3',
-    sender: 'emma',
-    receiver: 'current-user',
-    type: MessageType.TEXT,
-    content: 'Would you like to meet for coffee this weekend?',
-    timestamp: Date.now() - 86400000, // 1 day ago
-    isRead: false
-  },
-  unreadCount: 1,
-  createdAt: Date.now() - 259200000, // 3 days ago
-  updatedAt: Date.now() - 86400000,
-  isActive: true
-}, {
-  id: '4',
-  participants: ['current-user', 'olivia'],
-  lastMessage: {
-    id: 'm4',
-    conversationId: '4',
-    sender: 'olivia',
-    receiver: 'current-user',
-    type: MessageType.TEXT,
-    content: 'Thanks for the restaurant recommendation!',
-    timestamp: Date.now() - 172800000, // 2 days ago
-    isRead: true
-  },
-  unreadCount: 0,
-  createdAt: Date.now() - 345600000, // 4 days ago
-  updatedAt: Date.now() - 172800000,
-  isActive: true
-}];
-
-// Placeholder messages for the initial conversation
-const SAMPLE_MESSAGES: Message[] = [{
-  id: '1',
-  conversationId: '1',
-  sender: 'jessica',
-  receiver: 'current-user',
-  type: MessageType.TEXT,
-  content: "Hey there! I noticed we have a lot in common. How's your day going?",
-  timestamp: Date.now() - 86400000, // 1 day ago
-  isRead: true
-}, {
-  id: '2',
-  conversationId: '1',
-  sender: 'current-user',
-  receiver: 'jessica',
-  type: MessageType.TEXT,
-  content: "Hi Jessica! It's going well, thanks for asking. I'm just finishing up some work. How about you?",
-  timestamp: Date.now() - 82800000, // 23 hours ago
-  isRead: true
-}, {
-  id: '3',
-  conversationId: '1',
-  sender: 'jessica',
-  receiver: 'current-user',
-  type: MessageType.TEXT,
-  content: 'Pretty good! I just got back from a hike with my dog. Do you like hiking too?',
-  timestamp: Date.now() - 7200000, // 2 hours ago
-  isRead: true
-}, {
-  id: '4',
-  conversationId: '1',
-  sender: 'jessica',
-  receiver: 'current-user',
-  type: MessageType.TEXT,
-  content: 'I saw in your profile you enjoy outdoor activities!',
-  timestamp: Date.now() - 3600000, // 1 hour ago
-  isRead: false
-}];
-
-// User data mapping for the sample conversations
-const USERS: Record<string, { name: string, image: string, online: boolean }> = {
-  'jessica': {
-    name: 'Jessica',
-    image: '/lovable-uploads/6d9b54c2-64d4-44f3-959b-b0c71fff7a04.png',
-    online: true
-  },
-  'michael': {
-    name: 'Michael',
-    image: '/placeholder.svg',
-    online: false
-  },
-  'emma': {
-    name: 'Emma',
-    image: '/placeholder.svg',
-    online: true
-  },
-  'olivia': {
-    name: 'Olivia',
-    image: '/lovable-uploads/7973c816-d414-4bfa-b312-1407036a6e21.png',
-    online: false
-  }
-};
+import { Conversation, Message, MessageType } from '@/types/chat';
+import {
+  initializeChatSystem,
+  getUserById,
+  getUserConversations,
+  getConversationMessages,
+  markConversationAsRead,
+  sendTextMessage,
+  sendMediaMessage,
+  sendGiftMessage,
+  sendCoinTransferMessage
+} from '@/utils/chatUtils';
+import { getUserBalance } from '@/utils/dreamCoinUtils';
 
 const MessagesPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
+  
+  // State
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [isVideoMode, setIsVideoMode] = useState(false);
-  const [dreamCoinBalance, setDreamCoinBalance] = useState(0);
-  const [isFriend, setIsFriend] = useState(true);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isGiftSelectorOpen, setIsGiftSelectorOpen] = useState(false);
-  const [isCoinTransferOpen, setIsCoinTransferOpen] = useState(false);
-  const [isMediaUploaderOpen, setIsMediaUploaderOpen] = useState(false);
+  const [currentUserId] = useState('current-user');
+  const [showGiftSelector, setShowGiftSelector] = useState(false);
+  const [showCoinTransfer, setShowCoinTransfer] = useState(false);
+  const [showMediaUploader, setShowMediaUploader] = useState(false);
+  const [isFriend, setIsFriend] = useState(false);
   
-  // Ref for message container to auto-scroll
+  // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Initialize chat system on mount
+  // Sample conversation data
+  const exampleConversations: Conversation[] = [
+    {
+      id: 'conv-1',
+      participants: ['current-user', 'user-1'],
+      unreadCount: 0,
+      updatedAt: Date.now() - 1000 * 60 * 10 // 10 minutes ago
+    },
+    {
+      id: 'conv-2',
+      participants: ['current-user', 'user-2'],
+      unreadCount: 2,
+      updatedAt: Date.now() - 1000 * 60 * 60 // 1 hour ago
+    },
+    {
+      id: 'conv-3',
+      participants: ['current-user', 'user-3'],
+      unreadCount: 0,
+      updatedAt: Date.now() - 1000 * 60 * 60 * 24 // 1 day ago
+    }
+  ];
+  
+  // Sample message data
+  const exampleMessages: Message[] = [
+    {
+      id: '1',
+      conversationId: 'conv-1',
+      senderId: 'user-1',
+      content: 'Hey, how are you doing?',
+      timestamp: Date.now() - 1000 * 60 * 30, // 30 minutes ago
+      read: true,
+      type: MessageType.TEXT
+    },
+    {
+      id: '2',
+      conversationId: 'conv-1',
+      senderId: 'current-user',
+      content: 'I\'m good! Just checking out this new chat feature.',
+      timestamp: Date.now() - 1000 * 60 * 25, // 25 minutes ago
+      read: true,
+      type: MessageType.TEXT
+    },
+    {
+      id: '3',
+      conversationId: 'conv-1',
+      senderId: 'user-1',
+      content: 'It looks amazing! Love the design.',
+      timestamp: Date.now() - 1000 * 60 * 20, // 20 minutes ago
+      read: true,
+      type: MessageType.TEXT
+    }
+  ];
+
+  // Initialize chat
   useEffect(() => {
+    // Initialize chat system
     initializeChatSystem();
     
-    // Load sample data into localStorage for demo purposes
-    // In a real app, you'd fetch this from your backend
-    if (localStorage.getItem('dreamDate_conversations') === null) {
-      localStorage.setItem('dreamDate_conversations', JSON.stringify(SAMPLE_CONVERSATIONS));
-    }
+    // Load conversations
+    loadConversations();
     
-    if (localStorage.getItem('dreamDate_messages') === null) {
-      localStorage.setItem('dreamDate_messages', JSON.stringify(SAMPLE_MESSAGES));
+    // Check URL for conversation ID
+    const urlUserId = searchParams.get('userId');
+    if (urlUserId) {
+      // Find or create conversation with this user
+      const conversation = exampleConversations.find(
+        c => c.participants.includes(urlUserId)
+      );
+      
+      if (conversation) {
+        setSelectedConversationId(conversation.id);
+        loadMessages(conversation.id);
+      }
     }
-    
-    // Load user's conversations
+  }, [searchParams]);
+  
+  // Load conversations
+  const loadConversations = () => {
     const userConversations = getUserConversations();
     setConversations(userConversations);
     
-    // Select the first conversation by default
-    if (userConversations.length > 0) {
-      const firstConversation = userConversations[0];
-      setSelectedConversation(firstConversation);
-      
-      // Load messages for this conversation
-      const conversationMessages = getConversationMessages(firstConversation.id);
-      setMessages(conversationMessages);
-      
-      // Mark conversation as read
-      markConversationAsRead(firstConversation.id);
-    }
-    
-    // Load dreamcoin balance
-    const balance = getDreamCoinBalance();
-    setDreamCoinBalance(balance);
-  }, []);
-  
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-  
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (userConversations.length > 0 && !selectedConversationId) {
+      setSelectedConversationId(userConversations[0].id);
+      loadMessages(userConversations[0].id);
     }
   };
   
-  const handleToggleFriend = () => {
-    setIsFriend(!isFriend);
-    
-    toast({
-      title: isFriend ? "Removed from friends" : "Added to friends",
-      description: isFriend 
-        ? "You've removed this user from your friends list." 
-        : "You've added this user to your friends list."
-    });
-  };
-
-  const handleSendMessage = () => {
-    if (!messageInput.trim() && !selectedFile) return;
-    if (!selectedConversation) return;
-    
-    const otherParticipant = selectedConversation.participants.find(
-      p => p !== 'current-user'
-    );
-    
-    if (!otherParticipant) return;
-    
-    // If there's a file to send
-    if (selectedFile) {
-      // Determine media type
-      let mediaType: 'image' | 'video' | 'audio';
-      if (selectedFile.type.startsWith('image/')) {
-        mediaType = 'image';
-      } else if (selectedFile.type.startsWith('video/')) {
-        mediaType = 'video';
-      } else {
-        mediaType = 'audio';
-      }
-      
-      // In a real app, you'd upload the file here and get a URL
-      const { url, thumbnailUrl } = createUploadUrl(selectedFile);
-      
-      // Send the media message
-      const newMessage = sendMediaMessage(
-        selectedConversation.id,
-        'current-user',
-        otherParticipant,
-        mediaType,
-        url,
-        messageInput,
-        thumbnailUrl
-      );
-      
-      if (newMessage) {
-        // Add the message to the UI
-        setMessages([...messages, newMessage]);
-        
-        // Clear inputs
-        setMessageInput('');
-        setSelectedFile(null);
-        setIsMediaUploaderOpen(false);
-        
-        // Update balance
-        setDreamCoinBalance(getDreamCoinBalance());
-        
-        // Refresh conversation list for updated timestamp and last message
-        const updatedConversations = getUserConversations();
-        setConversations(updatedConversations);
-      }
-      
-      return;
-    }
-    
-    // Otherwise, send a text message
-    const newMessage = sendTextMessage(
-      selectedConversation.id,
-      'current-user',
-      otherParticipant,
-      messageInput
-    );
-    
-    if (newMessage) {
-      // Add the message to the UI
-      setMessages([...messages, newMessage]);
-      setMessageInput('');
-      
-      // Update balance
-      setDreamCoinBalance(getDreamCoinBalance());
-      
-      // Refresh conversation list for updated timestamp and last message
-      const updatedConversations = getUserConversations();
-      setConversations(updatedConversations);
-    }
-  };
-
-  const handleEmojiSelect = (emoji: string) => {
-    setMessageInput(prev => prev + emoji);
-  };
-  
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-  };
-  
-  const handleImageAttach = () => {
-    setIsMediaUploaderOpen(!isMediaUploaderOpen);
-  };
-  
-  const handleGiftSelect = (giftId: string) => {
-    if (!selectedConversation) return;
-    
-    const otherParticipant = selectedConversation.participants.find(
-      p => p !== 'current-user'
-    );
-    
-    if (!otherParticipant) return;
-    
-    // Send gift message
-    const newMessage = sendGiftMessage(
-      selectedConversation.id,
-      'current-user',
-      otherParticipant,
-      giftId,
-      messageInput
-    );
-    
-    if (newMessage) {
-      // Add the message to the UI
-      setMessages([...messages, newMessage]);
-      
-      // Clear message input
-      setMessageInput('');
-      
-      // Update balance
-      setDreamCoinBalance(getDreamCoinBalance());
-      
-      // Refresh conversation list for updated timestamp and last message
-      const updatedConversations = getUserConversations();
-      setConversations(updatedConversations);
-    }
-  };
-  
-  const handleCoinTransfer = (amount: number, transferMessage: string) => {
-    if (!selectedConversation) return;
-    
-    const otherParticipant = selectedConversation.participants.find(
-      p => p !== 'current-user'
-    );
-    
-    if (!otherParticipant) return;
-    
-    // Send coin transfer message
-    const newMessage = sendCoinTransferMessage(
-      selectedConversation.id,
-      'current-user',
-      otherParticipant,
-      amount,
-      transferMessage
-    );
-    
-    if (newMessage) {
-      // Add the message to the UI
-      setMessages([...messages, newMessage]);
-      
-      // Update balance
-      setDreamCoinBalance(getDreamCoinBalance());
-      
-      // Refresh conversation list for updated timestamp and last message
-      const updatedConversations = getUserConversations();
-      setConversations(updatedConversations);
-    }
-  };
-  
-  const handleConversationSelect = (conversation: Conversation) => {
-    setSelectedConversation(conversation);
-    
-    // Load messages for this conversation
-    const conversationMessages = getConversationMessages(conversation.id);
+  // Load messages for selected conversation
+  const loadMessages = (conversationId: string) => {
+    const conversationMessages = getConversationMessages(conversationId);
     setMessages(conversationMessages);
     
     // Mark conversation as read
-    markConversationAsRead(conversation.id);
+    markConversationAsRead(conversationId);
     
-    // Refresh conversation list (for unread count)
+    // Update conversations list (to reflect read status)
     const updatedConversations = getUserConversations();
     setConversations(updatedConversations);
     
-    // Reset UI states
-    setIsMediaUploaderOpen(false);
-    setSelectedFile(null);
+    // Scroll to bottom of messages
+    setTimeout(() => scrollToBottom(), 100);
   };
   
-  // Get user info for the selected conversation
-  const getOtherParticipantInfo = () => {
-    if (!selectedConversation) return null;
-    
-    const otherParticipantId = selectedConversation.participants.find(
-      p => p !== 'current-user'
+  // Get other participant in conversation
+  const getOtherParticipant = (conversation: Conversation) => {
+    const otherParticipantId = conversation.participants.find(
+      id => id !== currentUserId
     );
-    
-    if (!otherParticipantId) return null;
-    
-    return USERS[otherParticipantId] || {
-      name: 'Unknown User',
-      image: '/placeholder.svg',
-      online: false
-    };
+    return otherParticipantId ? getUserById(otherParticipantId) : null;
   };
   
-  const otherParticipant = getOtherParticipantInfo();
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  // Handle file select 
+  const handleFileSelect = (file: File) => {
+    if (!selectedConversationId) return;
+    
+    // Create object URL for preview
+    const fileUrl = URL.createObjectURL(file);
+    
+    // Determine media type
+    let mediaType: 'image' | 'video' | 'audio' = 'image';
+    if (file.type.startsWith('video/')) {
+      mediaType = 'video';
+    } else if (file.type.startsWith('audio/')) {
+      mediaType = 'audio';
+    }
+    
+    // In a real app, we would upload the file to a server here
+    // For now, we'll just use the object URL
+    sendMediaMessage(selectedConversationId, fileUrl, mediaType);
+    
+    // Refresh conversations and messages
+    loadConversations();
+    loadMessages(selectedConversationId);
+    
+    // Hide media uploader
+    setShowMediaUploader(false);
+    
+    toast({
+      title: "Media sent",
+      description: `Your ${mediaType} has been sent`
+    });
+  };
+  
+  // Handle send message
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!messageInput.trim() || !selectedConversationId) return;
+    
+    // Send message
+    sendTextMessage(selectedConversationId, messageInput);
+    
+    // Clear input
+    setMessageInput('');
+    
+    // Refresh conversations and messages
+    loadConversations();
+    loadMessages(selectedConversationId);
+    
+    // Scroll to bottom
+    setTimeout(() => scrollToBottom(), 100);
+  };
+  
+  // Handle gift selection
+  const handleGiftSelect = (giftId: string) => {
+    if (!selectedConversationId) return;
+    
+    try {
+      // Get other participant
+      const conversation = conversations.find(c => c.id === selectedConversationId);
+      if (!conversation) return;
+      
+      const otherParticipant = getOtherParticipant(conversation);
+      if (!otherParticipant) return;
+      
+      // Send gift
+      sendGiftMessage(selectedConversationId, giftId, otherParticipant.id);
+      
+      // Refresh conversations and messages
+      loadConversations();
+      loadMessages(selectedConversationId);
+      
+      // Hide gift selector
+      setShowGiftSelector(false);
+      
+      toast({
+        title: "Gift sent",
+        description: "Your gift has been delivered!"
+      });
+    } catch (error) {
+      toast({
+        title: "Error sending gift",
+        description: (error as Error).message,
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Handle coin transfer
+  const handleCoinTransfer = (amount: number) => {
+    if (!selectedConversationId) return;
+    
+    try {
+      // Get other participant
+      const conversation = conversations.find(c => c.id === selectedConversationId);
+      if (!conversation) return;
+      
+      const otherParticipant = getOtherParticipant(conversation);
+      if (!otherParticipant) return;
+      
+      // Send coins
+      sendCoinTransferMessage(selectedConversationId, amount, otherParticipant.id);
+      
+      // Refresh conversations and messages
+      loadConversations();
+      loadMessages(selectedConversationId);
+      
+      // Hide coin transfer
+      setShowCoinTransfer(false);
+      
+      toast({
+        title: "DreamCoins sent",
+        description: `You sent ${amount} DreamCoins (${amount * 0.8} after service fee)`
+      });
+    } catch (error) {
+      toast({
+        title: "Error sending DreamCoins",
+        description: (error as Error).message,
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Render message content based on type
+  const renderMessageContent = (message: Message) => {
+    switch (message.type) {
+      case MessageType.TEXT:
+        return <p>{message.content}</p>;
+      
+      case MessageType.MEDIA:
+        if (message.mediaType === 'image') {
+          return (
+            <div className="mt-2">
+              <img 
+                src={message.mediaUrl} 
+                alt="Image" 
+                className="max-w-[200px] rounded-lg" 
+              />
+            </div>
+          );
+        } else if (message.mediaType === 'video') {
+          return (
+            <div className="mt-2">
+              <video 
+                src={message.mediaUrl} 
+                controls 
+                className="max-w-[200px] rounded-lg" 
+              />
+            </div>
+          );
+        } else if (message.mediaType === 'audio') {
+          return (
+            <div className="mt-2">
+              <audio 
+                src={message.mediaUrl} 
+                controls 
+                className="max-w-[200px]" 
+              />
+            </div>
+          );
+        }
+        return <p>{message.content}</p>;
+      
+      case MessageType.GIFT:
+        return (
+          <div className="mt-2 flex flex-col items-center">
+            <p>{message.content}</p>
+            <img 
+              src="/user-uploads/gifts/heart.png" 
+              alt="Gift" 
+              className="w-24 h-24 mt-2" 
+            />
+          </div>
+        );
+      
+      case MessageType.COIN_TRANSFER:
+        return (
+          <div className="mt-2">
+            <p className="font-medium">{message.content}</p>
+            <p className="text-sm text-zinc-400">
+              Transaction ID: {message.id.slice(0, 8)}...
+            </p>
+          </div>
+        );
+      
+      case MessageType.NOTIFICATION:
+      case MessageType.SYSTEM:
+        return <p className="text-sm text-zinc-400">{message.content}</p>;
+      
+      default:
+        return <p>{message.content}</p>;
+    }
+  };
+  
+  const selectedConversation = conversations.find(
+    c => c.id === selectedConversationId
+  );
+  
+  const otherParticipant = selectedConversation 
+    ? getOtherParticipant(selectedConversation) 
+    : null;
   
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="h-full flex flex-col md:flex-row">
       {/* Conversations sidebar */}
-      <div className="w-full md:w-80 border-r border-zinc-800 overflow-y-auto bg-zinc-900">
+      <div className="md:w-1/4 lg:w-1/5 border-r border-zinc-800 overflow-y-auto pb-20 md:pb-0">
         <div className="p-4 border-b border-zinc-800">
-          <h2 className="text-xl font-bold text-white mb-4">Messages</h2>
-          <div className="relative">
-            <Input placeholder="Search messages..." className="pl-10 bg-zinc-800 border-zinc-700 text-white" />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
-          </div>
+          <h1 className="text-2xl font-bold text-white">Messages</h1>
         </div>
         
-        <div>
+        <div className="overflow-y-auto">
           {conversations.map(conversation => {
-            // Get the other participant's info
-            const otherParticipantId = conversation.participants.find(
-              p => p !== 'current-user'
-            );
-            const user = otherParticipantId && USERS[otherParticipantId];
-            if (!user) return null; // Skip if user not found
-            
-            // Format the time
-            const time = conversation.lastMessage 
-              ? new Date(conversation.lastMessage.timestamp).toLocaleString([], {
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  month: 'short',
-                  day: 'numeric',
-                })
-              : '';
-            
-            // Get last message preview based on type
-            let lastMessagePreview = '';
-            if (conversation.lastMessage) {
-              switch(conversation.lastMessage.type) {
-                case MessageType.TEXT:
-                  lastMessagePreview = conversation.lastMessage.content;
-                  break;
-                case MessageType.IMAGE:
-                  lastMessagePreview = '📷 Image';
-                  break;
-                case MessageType.VIDEO:
-                  lastMessagePreview = '🎥 Video';
-                  break;
-                case MessageType.AUDIO:
-                  lastMessagePreview = '🔊 Audio';
-                  break;
-                case MessageType.GIFT:
-                  lastMessagePreview = '🎁 Gift';
-                  break;
-                case MessageType.COINS:
-                  lastMessagePreview = '💰 DreamCoins';
-                  break;
-                default:
-                  lastMessagePreview = 'New message';
-              }
-            }
+            const otherUser = getOtherParticipant(conversation);
+            if (!otherUser) return null;
             
             return (
-              <div 
-                key={conversation.id} 
-                className={`flex items-center gap-3 p-4 hover:bg-zinc-800 cursor-pointer ${selectedConversation?.id === conversation.id ? 'bg-zinc-800' : ''}`} 
-                onClick={() => handleConversationSelect(conversation)}
+              <div
+                key={conversation.id}
+                className={`flex items-center gap-3 p-4 cursor-pointer hover:bg-zinc-800 transition-colors ${
+                  selectedConversationId === conversation.id
+                    ? "bg-zinc-800"
+                    : ""
+                }`}
+                onClick={() => {
+                  setSelectedConversationId(conversation.id);
+                  loadMessages(conversation.id);
+                }}
               >
                 <div className="relative">
-                  <img src={user.image} alt={user.name} className="w-12 h-12 rounded-full object-cover" />
-                  {user.online && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-900" />
+                  <Avatar>
+                    <AvatarImage src={otherUser.profilePic} alt={otherUser.name} />
+                    <AvatarFallback>{otherUser.name[0]}</AvatarFallback>
+                  </Avatar>
+                  
+                  {otherUser.online && (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-900" />
                   )}
                 </div>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-white font-medium truncate">{user.name}</h3>
-                    <span className="text-xs text-zinc-400">{time}</span>
+                    <h3 className="font-medium text-white truncate">
+                      {otherUser.name}
+                    </h3>
+                    
+                    {conversation.lastMessage && (
+                      <span className="text-xs text-zinc-500">
+                        {new Date(conversation.lastMessage.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-zinc-400 text-sm truncate">{lastMessagePreview}</p>
+                  
+                  <div className="flex items-center justify-between">
+                    {conversation.lastMessage ? (
+                      <p className="text-sm text-zinc-400 truncate">
+                        {conversation.lastMessage.content}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-zinc-500 italic">No messages yet</p>
+                    )}
+                    
                     {conversation.unreadCount > 0 && (
-                      <span className="ml-2 bg-custom-pink text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      <span className="bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2">
                         {conversation.unreadCount}
                       </span>
                     )}
@@ -531,147 +434,186 @@ const MessagesPage = () => {
         </div>
       </div>
       
-      {/* Messages */}
-      <div className="flex-1 flex flex-col">
+      {/* Chat area */}
+      <div className="flex-1 flex flex-col h-full">
         {selectedConversation && otherParticipant ? (
           <>
-            {/* Header */}
-            <div className="border-b border-zinc-800 p-4 flex items-center justify-between">
+            {/* Chat header */}
+            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img src={otherParticipant.image} alt={otherParticipant.name} className="w-10 h-10 rounded-full object-cover" />
+                <div className="relative">
+                  <Avatar>
+                    <AvatarImage src={otherParticipant.profilePic} alt={otherParticipant.name} />
+                    <AvatarFallback>{otherParticipant.name[0]}</AvatarFallback>
+                  </Avatar>
+                  
+                  {otherParticipant.online && (
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-900" />
+                  )}
+                </div>
+                
                 <div>
-                  <h3 className="text-white font-medium">{otherParticipant.name}</h3>
-                  <span className="text-xs text-zinc-400">
-                    {otherParticipant.online ? 'Online' : 'Offline'}
-                  </span>
+                  <h2 className="font-medium text-white">{otherParticipant.name}</h2>
+                  <p className="text-xs text-zinc-400">
+                    {otherParticipant.online ? 'Online now' : otherParticipant.lastActive || 'Offline'}
+                  </p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
-                <DreamCoinBalance balance={dreamCoinBalance} />
-                
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-zinc-400">{isVideoMode ? 'Video' : 'Text'}</span>
-                  <Switch 
-                    checked={isVideoMode} 
-                    onCheckedChange={setIsVideoMode} 
-                    className="data-[state=checked]:bg-custom-pink border border-custom-pink hover:border-custom-pink/80 text-[#e80ce8]" 
-                  />
-                </div>
+              <div className="flex gap-2">
+                <Button size="icon" variant="ghost">
+                  <Phone size={18} />
+                </Button>
+                <Button size="icon" variant="ghost">
+                  <VideoIcon size={18} />
+                </Button>
               </div>
             </div>
             
-            {/* Messages or Video Chat - with animation */}
-            <div className="flex-1 relative overflow-hidden">
-              <div 
-                className={`absolute inset-0 transition-opacity duration-300 ${isVideoMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-                style={{ zIndex: isVideoMode ? 0 : 1 }}
-              >
-                <ScrollArea className="h-full">
-                  <div className="flex-1 p-4 space-y-4 h-full">
-                    {messages.map(message => (
-                      <MessageBubble 
-                        key={message.id} 
-                        message={message} 
-                        isCurrentUser={message.sender === 'current-user'} 
-                      />
-                    ))}
-                    <div ref={messagesEndRef} />
-                    
-                    {/* Media uploader */}
-                    {isMediaUploaderOpen && (
-                      <div className="mb-4 animate-fade-in">
-                        <MediaUploader 
-                          onFileSelect={handleFileSelect} 
-                          maxSize={5 * 1024 * 1024} // 5MB limit
-                        />
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              </div>
+            {/* Messages area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((message) => {
+                const isCurrentUser = message.senderId === currentUserId;
+                const isSystem = message.senderId === 'system';
+                const messageUser = isCurrentUser 
+                  ? getUserById(currentUserId) 
+                  : (isSystem ? null : getUserById(message.senderId));
                 
-              <div 
-                className={`absolute inset-0 transition-opacity duration-300 ${isVideoMode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                style={{ zIndex: isVideoMode ? 1 : 0 }}
-              >
-                <VideoChat isActive={isVideoMode} partnerName={otherParticipant.name} />
-              </div>
+                if (isSystem) {
+                  return (
+                    <div key={message.id} className="flex justify-center">
+                      <div className="bg-zinc-800 rounded-md px-4 py-2 max-w-[80%]">
+                        <p className="text-sm text-zinc-400">{message.content}</p>
+                      </div>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div
+                    key={message.id}
+                    className={`flex items-start gap-3 ${
+                      isCurrentUser ? "flex-row-reverse" : ""
+                    }`}
+                  >
+                    <Avatar className="mt-1">
+                      <AvatarImage 
+                        src={messageUser?.profilePic} 
+                        alt={messageUser?.name || 'User'} 
+                      />
+                      <AvatarFallback>
+                        {messageUser?.name?.[0] || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div
+                      className={`rounded-lg px-4 py-2 max-w-[70%] ${
+                        isCurrentUser
+                          ? "bg-rose-500 text-white"
+                          : "bg-zinc-800 text-white"
+                      }`}
+                    >
+                      {renderMessageContent(message)}
+                      <div className="text-xs mt-1 opacity-70">
+                        {new Date(message.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
             </div>
+            
+            {/* Media uploader overlay */}
+            {showMediaUploader && (
+              <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
+                <div className="bg-zinc-900 p-6 rounded-lg max-w-md w-full">
+                  <h3 className="text-xl font-bold mb-4">Upload Media</h3>
+                  <MediaUploader 
+                    onFileSelect={handleFileSelect}
+                    accept="image/*,video/*,audio/*"
+                    maxSize={10 * 1024 * 1024} // 10MB
+                  />
+                  <div className="mt-4 flex justify-end">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowMediaUploader(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Gift selector overlay */}
+            {showGiftSelector && (
+              <GiftSelector
+                onSelect={handleGiftSelect}
+                onClose={() => setShowGiftSelector(false)}
+              />
+            )}
+            
+            {/* Coin transfer overlay */}
+            {showCoinTransfer && (
+              <CoinTransfer
+                balance={getUserBalance(currentUserId)}
+                onTransfer={handleCoinTransfer}
+                onClose={() => setShowCoinTransfer(false)}
+              />
+            )}
             
             {/* Message input */}
-            <div className="border-t border-zinc-800 p-4">
-              <div className="flex flex-col">
-                {!isVideoMode && (
-                  <div className="mb-2 text-xs text-zinc-400 flex justify-between items-center">
-                    <span>
-                      Sending a message costs <span className="text-custom-pink font-medium">{MESSAGE_COST.toLocaleString()} DreamCoins</span>
-                    </span>
-                    <span>
-                      Balance: <span className="text-white font-medium">{dreamCoinBalance.toLocaleString()} DreamCoins</span>
-                    </span>
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <Input 
-                    placeholder="Type a message..." 
-                    className="bg-zinc-800 border-zinc-700 text-white" 
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    disabled={isVideoMode}
-                  />
-                  <Button 
-                    className="bg-custom-pink hover:bg-custom-pink/90 border border-custom-pink"
-                    onClick={handleSendMessage}
-                    disabled={isVideoMode || (!messageInput.trim() && !selectedFile)}
-                  >
-                    Send
-                  </Button>
-                </div>
-              </div>
+            <div className="p-4 border-t border-zinc-800">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  placeholder="Type a message..."
+                  className="flex-1"
+                />
+                <Button type="submit">
+                  <Send size={18} />
+                </Button>
+              </form>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center text-zinc-400">
-              <p className="mb-2">Select a conversation to start messaging</p>
-            </div>
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+            <MessageSquare size={48} className="text-zinc-500 mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Your Messages</h2>
+            <p className="text-zinc-400 mb-4">
+              Select a conversation to start chatting
+            </p>
+            <Link to="/browse">
+              <Button>Browse Profiles</Button>
+            </Link>
           </div>
         )}
       </div>
       
-      {/* Chat Functions Sidebar */}
-      <ChatSidebar 
-        isFriend={isFriend} 
-        onToggleFriend={handleToggleFriend}
-        onEmojiSelect={handleEmojiSelect}
-        onImageAttach={handleImageAttach}
-        onGiftSelect={() => setIsGiftSelectorOpen(true)}
-        onCoinTransfer={() => setIsCoinTransferOpen(true)}
-      />
-      
-      {/* Gift Selector Dialog */}
-      <GiftSelector 
-        open={isGiftSelectorOpen}
-        onOpenChange={setIsGiftSelectorOpen}
-        onGiftSelect={handleGiftSelect}
-        balance={dreamCoinBalance}
-      />
-      
-      {/* Coin Transfer Dialog */}
+      {/* Chat sidebar with actions */}
       {selectedConversation && otherParticipant && (
-        <CoinTransfer 
-          open={isCoinTransferOpen}
-          onOpenChange={setIsCoinTransferOpen}
-          onTransfer={handleCoinTransfer}
-          balance={dreamCoinBalance}
-          recipientName={otherParticipant.name}
+        <ChatSidebar
+          isFriend={isFriend}
+          onToggleFriend={() => {
+            setIsFriend(!isFriend);
+            toast({
+              title: isFriend ? "Friend removed" : "Friend added",
+              description: isFriend
+                ? `${otherParticipant.name} has been removed from your friends`
+                : `${otherParticipant.name} has been added to your friends`
+            });
+          }}
+          onEmojiSelect={(emoji) => {
+            setMessageInput(prev => prev + emoji);
+          }}
+          onImageAttach={() => setShowMediaUploader(true)}
+          onGiftSelect={() => setShowGiftSelector(true)}
+          onCoinTransfer={() => setShowCoinTransfer(true)}
         />
       )}
     </div>
