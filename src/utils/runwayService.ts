@@ -1,28 +1,44 @@
 
 /**
- * Runway API Service
+ * API Services
  * 
- * This service handles all interactions with the Runway API for image generation
- * and manipulation, including profile picture generation and customization.
+ * This service handles all interactions with various APIs for AI features
+ * including image generation, text processing, and more.
  */
 
-// API Base URL
+// API Base URLs
 const RUNWAY_API_BASE = 'https://api.runwayml.com/v1';
+const OPENROUTER_API_BASE = 'https://api.openrouter.ai/api/v1';
+const HUGGINGFACE_API_BASE = 'https://api-inference.huggingface.co/models';
 
 /**
- * Get the API key from local storage
- * @returns API key or null if not set
+ * Get API keys from local storage
  */
 export const getRunwayApiKey = (): string | null => {
   return localStorage.getItem('runway_api_key');
 };
 
+export const getOpenRouterApiKey = (): string | null => {
+  return localStorage.getItem('openrouter_api_key');
+};
+
+export const getHuggingFaceApiKey = (): string | null => {
+  return localStorage.getItem('huggingface_api_key');
+};
+
 /**
- * Check if the Runway API key is configured
- * @returns boolean indicating if the key is available
+ * Check if API keys are configured
  */
 export const isRunwayConfigured = (): boolean => {
   return !!getRunwayApiKey();
+};
+
+export const isOpenRouterConfigured = (): boolean => {
+  return !!getOpenRouterApiKey();
+};
+
+export const isHuggingFaceConfigured = (): boolean => {
+  return !!getHuggingFaceApiKey();
 };
 
 /**
@@ -84,7 +100,63 @@ export const generateImage = async (
 };
 
 /**
- * Validate the Runway API key
+ * Generate text using OpenRouter API
+ * @param prompt Text prompt for generation
+ * @param model Model to use (optional)
+ * @returns Generated text or null if failed
+ */
+export const generateText = async (
+  prompt: string,
+  model: string = 'openai/gpt-4o'
+): Promise<string | null> => {
+  const apiKey = getOpenRouterApiKey();
+  
+  if (!apiKey) {
+    console.error('OpenRouter API key not configured');
+    return null;
+  }
+  
+  try {
+    console.log(`Generating text with prompt: ${prompt} using model: ${model}`);
+    
+    // Mock response - in a real implementation, this would call the OpenRouter API
+    return `This is a mock response for the prompt: "${prompt}"`;
+  } catch (error) {
+    console.error('Error generating text:', error);
+    return null;
+  }
+};
+
+/**
+ * Run inference on a HuggingFace model
+ * @param modelId ID of the model to use
+ * @param inputs Input data for the model
+ * @returns Model output or null if failed
+ */
+export const runHuggingFaceInference = async (
+  modelId: string,
+  inputs: any
+): Promise<any | null> => {
+  const apiKey = getHuggingFaceApiKey();
+  
+  if (!apiKey) {
+    console.error('HuggingFace API key not configured');
+    return null;
+  }
+  
+  try {
+    console.log(`Running inference on model: ${modelId}`);
+    
+    // Mock response - in a real implementation, this would call the HuggingFace API
+    return { result: "Mock result from HuggingFace model" };
+  } catch (error) {
+    console.error('Error running HuggingFace inference:', error);
+    return null;
+  }
+};
+
+/**
+ * Validate the API key
  * @param apiKey API key to validate
  * @returns Promise resolving to boolean indicating if key is valid
  */
