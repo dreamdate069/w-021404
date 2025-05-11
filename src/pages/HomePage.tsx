@@ -1,11 +1,16 @@
+
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MemberGrid } from '@/components/MemberGrid';
+import ButtonPrimary from '@/components/ButtonPrimary';
+import ButtonSecondary from '@/components/ButtonSecondary';
+
 type QuizStep = {
   question: string;
   options: string[];
 };
+
 const quizSteps: QuizStep[] = [{
   question: "I am...",
   options: ["A man", "A woman", "Non-binary"]
@@ -16,10 +21,12 @@ const quizSteps: QuizStep[] = [{
   question: "My age is...",
   options: ["18-24", "25-34", "35-45", "46+"]
 }];
+
 const HomePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [showQuiz, setShowQuiz] = useState(true);
+
   const handleAnswerSelect = (answer: string) => {
     const newAnswers = [...answers, answer];
     setAnswers(newAnswers);
@@ -30,6 +37,7 @@ const HomePage = () => {
       setShowQuiz(false);
     }
   };
+
   return <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <div className="relative h-[500px] bg-cover bg-center bg-no-repeat" style={{
@@ -54,26 +62,37 @@ const HomePage = () => {
               <div className="mb-6">
                 <h4 className="text-lg font-medium text-white mb-3">{quizSteps[currentStep].question}</h4>
                 <div className="space-y-2">
-                  {quizSteps[currentStep].options.map(option => <Button key={option} variant="outline" onClick={() => handleAnswerSelect(option)} className="w-full justify-between border-zinc-600 hover:bg-zinc-700 text-slate-300">
+                  {quizSteps[currentStep].options.map(option => (
+                    <Button 
+                      key={option} 
+                      variant="outline" 
+                      onClick={() => handleAnswerSelect(option)} 
+                      className="w-full justify-between border-zinc-600 hover:bg-zinc-700 text-slate-300"
+                    >
                       <span>{option}</span>
                       <ChevronDown size={16} />
-                    </Button>)}
+                    </Button>
+                  ))}
                 </div>
               </div>
               
               <div className="flex items-center justify-between text-sm text-white">
                 <span>{currentStep + 1}/{quizSteps.length} questions</span>
-                <Button variant="link" className="text-custom-pink hover:text-custom-pink/80 p-0" onClick={() => setShowQuiz(false)}>
+                <Button 
+                  variant="link" 
+                  className="text-custom-pink hover:text-custom-pink/80 p-0" 
+                  onClick={() => setShowQuiz(false)}
+                >
                   Skip for now
                 </Button>
               </div>
             </div> : <div className="flex gap-4">
-              <Button className="bg-custom-pink hover:bg-custom-pink/90 text-white px-8 py-6 rounded-lg text-lg">
+              <ButtonPrimary onClick={() => {}}>
                 Create Account
-              </Button>
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black px-8 py-6 rounded-lg text-lg">
+              </ButtonPrimary>
+              <ButtonSecondary onClick={() => {}}>
                 Browse Matches
-              </Button>
+              </ButtonSecondary>
             </div>}
         </div>
       </div>
@@ -113,4 +132,5 @@ const HomePage = () => {
       </div>
     </div>;
 };
+
 export default HomePage;
