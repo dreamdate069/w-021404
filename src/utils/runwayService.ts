@@ -42,6 +42,49 @@ export const isHuggingFaceConfigured = (): boolean => {
 };
 
 /**
+ * Validate API keys
+ */
+export const validateApiKey = async (apiKey: string): Promise<boolean> => {
+  try {
+    // This would be replaced with an actual API call to verify the key
+    // For now, just simulate a successful validation if the key exists and meets length criteria
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network request
+    return apiKey.length >= 10;
+  } catch (error) {
+    console.error('Error validating Runway API key:', error);
+    return false;
+  }
+};
+
+export const validateOpenRouterApiKey = async (apiKey: string): Promise<boolean> => {
+  try {
+    // In production, you would make a lightweight API call to OpenRouter to validate the key
+    // For now, simulate a network request and simple validation
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network request
+    
+    // Basic validation - In production, use actual API validation
+    return apiKey.startsWith('sk-') && apiKey.length > 20;
+  } catch (error) {
+    console.error('Error validating OpenRouter API key:', error);
+    return false;
+  }
+};
+
+export const validateHuggingFaceApiKey = async (apiKey: string): Promise<boolean> => {
+  try {
+    // In production, you would make a lightweight API call to HuggingFace to validate the key
+    // For now, simulate a network request and simple validation
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network request
+    
+    // Basic validation - In production, use actual API validation
+    return apiKey.length >= 8;
+  } catch (error) {
+    console.error('Error validating HuggingFace API key:', error);
+    return false;
+  }
+};
+
+/**
  * Generate an AI profile picture based on description
  * @param prompt Text description for the image
  * @returns URL to the generated image or null if failed
@@ -156,17 +199,65 @@ export const runHuggingFaceInference = async (
 };
 
 /**
- * Validate the API key
- * @param apiKey API key to validate
- * @returns Promise resolving to boolean indicating if key is valid
+ * OpenRouter specific functions 
  */
-export const validateApiKey = async (apiKey: string): Promise<boolean> => {
+
+/**
+ * Get available models from OpenRouter
+ * @returns List of available models or null if failed
+ */
+export const getOpenRouterModels = async (): Promise<any[] | null> => {
+  const apiKey = getOpenRouterApiKey();
+  
+  if (!apiKey) {
+    console.error('OpenRouter API key not configured');
+    return null;
+  }
+  
   try {
-    // This would be replaced with an actual API call to verify the key
-    // For now, just simulate a successful validation if the key exists
-    return apiKey.length > 10;
+    console.log('Fetching available models from OpenRouter');
+    
+    // Mock response
+    return [
+      { id: 'openai/gpt-4o', name: 'GPT-4o' },
+      { id: 'anthropic/claude-3-opus', name: 'Claude 3 Opus' },
+      { id: 'anthropic/claude-3-sonnet', name: 'Claude 3 Sonnet' },
+      { id: 'mistral/mistral-large', name: 'Mistral Large' }
+    ];
   } catch (error) {
-    console.error('Error validating API key:', error);
-    return false;
+    console.error('Error fetching OpenRouter models:', error);
+    return null;
+  }
+};
+
+/**
+ * HuggingFace specific functions
+ */
+
+/**
+ * Get featured models from HuggingFace
+ * @param task Task type (e.g., 'text-generation', 'image-classification')
+ * @returns List of featured models or null if failed
+ */
+export const getHuggingFaceFeaturedModels = async (task: string): Promise<any[] | null> => {
+  const apiKey = getHuggingFaceApiKey();
+  
+  if (!apiKey) {
+    console.error('HuggingFace API key not configured');
+    return null;
+  }
+  
+  try {
+    console.log(`Fetching featured models for task: ${task}`);
+    
+    // Mock response
+    return [
+      { id: 'gpt2', name: 'GPT-2' },
+      { id: 'bert-base-uncased', name: 'BERT Base Uncased' },
+      { id: 'facebook/bart-large-cnn', name: 'BART Large CNN' }
+    ];
+  } catch (error) {
+    console.error('Error fetching HuggingFace models:', error);
+    return null;
   }
 };

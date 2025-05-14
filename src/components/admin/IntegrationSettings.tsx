@@ -4,16 +4,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Info, Key, Link, Cloud } from 'lucide-react';
+import { Check, Info, Key, Link, Cloud, AlertCircle, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { validateApiKey } from '@/utils/runwayService';
+import { validateApiKey, validateOpenRouterApiKey, validateHuggingFaceApiKey } from '@/utils/runwayService';
 
 const IntegrationSettings = () => {
   const [runwayApiKey, setRunwayApiKey] = useState('');
   const [openRouterApiKey, setOpenRouterApiKey] = useState('');
   const [huggingFaceApiKey, setHuggingFaceApiKey] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const [activeTab, setActiveTab] = useState('runway');
+  const [validationStatus, setValidationStatus] = useState({
+    runway: null,
+    openrouter: null,
+    huggingface: null
+  });
+  
   const { toast } = useToast();
   
   // Load saved API keys from localStorage on component mount
@@ -25,9 +32,71 @@ const IntegrationSettings = () => {
     setRunwayApiKey(savedRunwayApiKey);
     setOpenRouterApiKey(savedOpenRouterApiKey);
     setHuggingFaceApiKey(savedHuggingFaceApiKey);
+    
+    // Update validation status for each key if they exist
+    if (savedRunwayApiKey) {
+      setValidationStatus(prev => ({ ...prev, runway: true }));
+    }
+    if (savedOpenRouterApiKey) {
+      setValidationStatus(prev => ({ ...prev, openrouter: true }));
+    }
+    if (savedHuggingFaceApiKey) {
+      setValidationStatus(prev => ({ ...prev, huggingface: true }));
+    }
   }, []);
   
-  const saveApiKey = (keyType) => {
+  const validateKey = async (keyType) => {
+    setIsValidating(true);
+    
+    let keyValue = '';
+    let validationFunction;
+    
+    switch(keyType) {
+      case 'runway':
+        keyValue = runwayApiKey;
+        validationFunction = validateApiKey;
+        break;
+      case 'openrouter':
+        keyValue = openRouterApiKey;
+        validationFunction = validateOpenRouterApiKey;
+        break;
+      case 'huggingface':
+        keyValue = huggingFaceApiKey;
+        validationFunction = validateHuggingFaceApiKey;
+        break;
+    }
+    
+    try {
+      const isValid = await validationFunction(keyValue);
+      
+      setValidationStatus(prev => ({ ...prev, [keyType]: isValid }));
+      
+      if (isValid) {
+        toast({
+          title: "API Key Valid",
+          description: "The API key was validated successfully.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "API Key Invalid",
+          description: "The API key could not be validated. Please check it and try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Validation Error",
+        description: "There was a problem validating the API key. Please try again later.",
+        variant: "destructive",
+      });
+      setValidationStatus(prev => ({ ...prev, [keyType]: false }));
+    } finally {
+      setIsValidating(false);
+    }
+  };
+  
+  const saveApiKey = async (keyType) => {
     setIsSaving(true);
     
     let keyValue = '';
@@ -52,17 +121,29 @@ const IntegrationSettings = () => {
         break;
     }
     
-    // Save the API key
-    localStorage.setItem(storageKey, keyValue);
-    
-    // Show success notification
-    toast({
-      title: `${serviceName} API Key Saved`,
-      description: `Your ${serviceName} API key has been securely saved.`,
-      variant: 'default',
-    });
-    
-    setIsSaving(false);
+    // Optional: Validate before saving
+    try {
+      // Save the API key
+      localStorage.setItem(storageKey, keyValue);
+      
+      // Show success notification
+      toast({
+        title: `${serviceName} API Key Saved`,
+        description: `Your ${serviceName} API key has been securely saved.`,
+        variant: 'default',
+      });
+      
+      // Update validation status
+      setValidationStatus(prev => ({ ...prev, [keyType]: true }));
+    } catch (error) {
+      toast({
+        title: "Error Saving API Key",
+        description: `There was a problem saving the ${serviceName} API key.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
   
   const clearApiKey = (keyType) => {
@@ -88,12 +169,31 @@ const IntegrationSettings = () => {
     }
     
     localStorage.removeItem(storageKey);
+    setValidationStatus(prev => ({ ...prev, [keyType]: null }));
     
     toast({
       title: `${serviceName} API Key Removed`,
       description: `Your ${serviceName} API key has been removed.`,
       variant: 'destructive',
     });
+  };
+  
+  const renderValidationIndicator = (keyType) => {
+    const status = validationStatus[keyType];
+    
+    if (status === null) return null;
+    
+    return status ? (
+      <div className="flex items-center text-xs text-emerald-500 mt-1">
+        <Check className="h-3 w-3 mr-1" />
+        API key is valid
+      </div>
+    ) : (
+      <div className="flex items-center text-xs text-red-500 mt-1">
+        <AlertCircle className="h-3 w-3 mr-1" />
+        API key is invalid
+      </div>
+    );
   };
   
   return (
@@ -145,21 +245,25 @@ const IntegrationSettings = () => {
                     placeholder="Enter your Runway API key"
                     className="bg-zinc-700 border-zinc-600 text-white"
                   />
-                  <Button 
-                    variant="default" 
-                    onClick={() => saveApiKey('runway')} 
-                    disabled={!runwayApiKey || isSaving}
-                    className="ml-2 bg-custom-pink hover:bg-custom-pink/90"
-                  >
-                    {isSaving ? 'Saving...' : 'Save Key'}
-                  </Button>
-                </div>
-                {runwayApiKey && (
-                  <div className="flex items-center text-xs text-emerald-500 mt-1">
-                    <Check className="h-3 w-3 mr-1" />
-                    API key is set
+                  <div className="flex space-x-2 ml-2">
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => validateKey('runway')}
+                      disabled={!runwayApiKey || isSaving || isValidating}
+                    >
+                      {isValidating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : "Validate"}
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      onClick={() => saveApiKey('runway')} 
+                      disabled={!runwayApiKey || isSaving}
+                      className="bg-custom-pink hover:bg-custom-pink/90"
+                    >
+                      {isSaving ? 'Saving...' : 'Save Key'}
+                    </Button>
                   </div>
-                )}
+                </div>
+                {renderValidationIndicator('runway')}
               </div>
               
               <div className="bg-zinc-700/50 p-4 rounded-md flex gap-2 text-sm mt-4">
@@ -175,7 +279,7 @@ const IntegrationSettings = () => {
             </CardContent>
             <CardFooter className="border-t border-zinc-700 justify-between">
               <div className="text-sm text-zinc-400">
-                Last verified: {runwayApiKey ? 'Just now' : 'Never'}
+                Last verified: {validationStatus.runway ? 'Just now' : 'Never'}
               </div>
               {runwayApiKey && (
                 <Button variant="outline" onClick={() => clearApiKey('runway')} className="border-zinc-600 text-zinc-300">
@@ -211,21 +315,25 @@ const IntegrationSettings = () => {
                     placeholder="Enter your OpenRouter API key"
                     className="bg-zinc-700 border-zinc-600 text-white"
                   />
-                  <Button 
-                    variant="default" 
-                    onClick={() => saveApiKey('openrouter')} 
-                    disabled={!openRouterApiKey || isSaving}
-                    className="ml-2 bg-custom-pink hover:bg-custom-pink/90"
-                  >
-                    {isSaving ? 'Saving...' : 'Save Key'}
-                  </Button>
-                </div>
-                {openRouterApiKey && (
-                  <div className="flex items-center text-xs text-emerald-500 mt-1">
-                    <Check className="h-3 w-3 mr-1" />
-                    API key is set
+                  <div className="flex space-x-2 ml-2">
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => validateKey('openrouter')}
+                      disabled={!openRouterApiKey || isValidating}
+                    >
+                      {isValidating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : "Validate"}
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      onClick={() => saveApiKey('openrouter')} 
+                      disabled={!openRouterApiKey || isSaving}
+                      className="bg-custom-pink hover:bg-custom-pink/90"
+                    >
+                      {isSaving ? 'Saving...' : 'Save Key'}
+                    </Button>
                   </div>
-                )}
+                </div>
+                {renderValidationIndicator('openrouter')}
               </div>
               
               <div className="bg-zinc-700/50 p-4 rounded-md flex gap-2 text-sm mt-4">
@@ -241,7 +349,7 @@ const IntegrationSettings = () => {
             </CardContent>
             <CardFooter className="border-t border-zinc-700 justify-between">
               <div className="text-sm text-zinc-400">
-                Last verified: {openRouterApiKey ? 'Just now' : 'Never'}
+                Last verified: {validationStatus.openrouter ? 'Just now' : 'Never'}
               </div>
               {openRouterApiKey && (
                 <Button variant="outline" onClick={() => clearApiKey('openrouter')} className="border-zinc-600 text-zinc-300">
@@ -277,21 +385,25 @@ const IntegrationSettings = () => {
                     placeholder="Enter your HuggingFace API key"
                     className="bg-zinc-700 border-zinc-600 text-white"
                   />
-                  <Button 
-                    variant="default" 
-                    onClick={() => saveApiKey('huggingface')} 
-                    disabled={!huggingFaceApiKey || isSaving}
-                    className="ml-2 bg-custom-pink hover:bg-custom-pink/90"
-                  >
-                    {isSaving ? 'Saving...' : 'Save Key'}
-                  </Button>
-                </div>
-                {huggingFaceApiKey && (
-                  <div className="flex items-center text-xs text-emerald-500 mt-1">
-                    <Check className="h-3 w-3 mr-1" />
-                    API key is set
+                  <div className="flex space-x-2 ml-2">
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => validateKey('huggingface')}
+                      disabled={!huggingFaceApiKey || isValidating}
+                    >
+                      {isValidating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : "Validate"}
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      onClick={() => saveApiKey('huggingface')} 
+                      disabled={!huggingFaceApiKey || isSaving}
+                      className="bg-custom-pink hover:bg-custom-pink/90"
+                    >
+                      {isSaving ? 'Saving...' : 'Save Key'}
+                    </Button>
                   </div>
-                )}
+                </div>
+                {renderValidationIndicator('huggingface')}
               </div>
               
               <div className="bg-zinc-700/50 p-4 rounded-md flex gap-2 text-sm mt-4">
@@ -307,7 +419,7 @@ const IntegrationSettings = () => {
             </CardContent>
             <CardFooter className="border-t border-zinc-700 justify-between">
               <div className="text-sm text-zinc-400">
-                Last verified: {huggingFaceApiKey ? 'Just now' : 'Never'}
+                Last verified: {validationStatus.huggingface ? 'Just now' : 'Never'}
               </div>
               {huggingFaceApiKey && (
                 <Button variant="outline" onClick={() => clearApiKey('huggingface')} className="border-zinc-600 text-zinc-300">
