@@ -19,16 +19,16 @@ const ProfileInfoColumn = ({ participant, messages }: ProfileInfoColumnProps) =>
   return (
     <div className="w-full h-full border-r border-zinc-800 bg-zinc-900/50 flex flex-col">
       {/* Profile section */}
-      <div className="p-4 border-b border-zinc-800">
-        <div className="flex flex-col items-center">
-          <Avatar className="h-24 w-24 mb-4 rounded-md">
+      <div className="p-6 border-b border-zinc-800">
+        <div className="flex flex-col items-center w-full">
+          <Avatar className="h-48 w-48 mb-5 rounded-md">
             <AvatarImage src={participant.profilePic} alt={participant.name} className="rounded-md" />
-            <AvatarFallback className="text-2xl rounded-md">{participant.name[0]}</AvatarFallback>
+            <AvatarFallback className="text-3xl rounded-md">{participant.name[0]}</AvatarFallback>
           </Avatar>
           
-          <h2 className="text-xl font-bold text-white mb-1">{participant.name}</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">{participant.name}</h2>
           
-          <div className="flex items-center justify-center gap-1 text-xs text-zinc-400 mb-3">
+          <div className="flex items-center justify-center gap-1 text-sm text-zinc-400 mb-4">
             <span className={`w-2 h-2 rounded-full ${participant.online ? 'bg-green-500' : 'bg-zinc-500'}`}></span>
             <span>{participant.online ? 'Online now' : participant.lastActive || 'Offline'}</span>
           </div>
@@ -38,7 +38,7 @@ const ProfileInfoColumn = ({ participant, messages }: ProfileInfoColumnProps) =>
       {/* Shared Media */}
       <div className="p-4 border-b border-zinc-800">
         <h3 className="font-medium text-zinc-200 mb-3">Shared Media</h3>
-        <ScrollArea className="h-[calc(100vh-320px)]">
+        <ScrollArea className="h-[calc(100vh-420px)]">
           {mediaMessages.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
               {mediaMessages.map((message) => (
