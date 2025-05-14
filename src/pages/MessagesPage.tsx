@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +14,8 @@ import {
   sendTextMessage,
   sendMediaMessage,
   sendGiftMessage,
-  sendCoinTransferMessage
+  sendCoinTransferMessage,
+  sendSystemMessage
 } from '@/utils/chatUtils';
 
 // Import components
@@ -29,6 +29,7 @@ import ChatHeader from '@/components/messages/ChatHeader';
 import MessageList from '@/components/messages/MessageList';
 import MessageInput from '@/components/messages/MessageInput';
 import EmptyMessages from '@/components/messages/EmptyMessages';
+import MessageFooter from '@/components/messages/MessageFooter';
 import { getUserBalance } from '@/utils/dreamCoinUtils';
 
 const MessagesPage = () => {
@@ -210,6 +211,41 @@ const MessagesPage = () => {
     }
   };
   
+  // Handle poke
+  const handlePoke = () => {
+    if (!selectedConversationId) return;
+    
+    try {
+      // Get other participant
+      const conversation = conversations.find(c => c.id === selectedConversationId);
+      if (!conversation) return;
+      
+      const otherParticipant = getOtherParticipant(conversation);
+      if (!otherParticipant) return;
+      
+      // Send system message about poke
+      sendSystemMessage(
+        selectedConversationId, 
+        `You poked ${otherParticipant.name}! They'll be notified.`
+      );
+      
+      // Refresh conversations and messages
+      loadConversations();
+      loadMessages(selectedConversationId);
+      
+      toast({
+        title: "Poke sent",
+        description: `You poked ${otherParticipant.name}!`
+      });
+    } catch (error) {
+      toast({
+        title: "Error sending poke",
+        description: (error as Error).message,
+        variant: "destructive"
+      });
+    }
+  };
+  
   const selectedConversation = conversations.find(
     c => c.id === selectedConversationId
   );
@@ -219,119 +255,134 @@ const MessagesPage = () => {
     : null;
   
   return (
-    <div className="h-full flex flex-col md:flex-row">
-      {/* Conversations sidebar */}
-      <ConversationList 
-        conversations={conversations}
-        selectedConversationId={selectedConversationId}
-        onSelectConversation={(convId) => {
-          setSelectedConversationId(convId);
-          loadMessages(convId);
-        }}
-        getOtherParticipant={getOtherParticipant}
-      />
-      
-      {/* Profile info column */}
-      {selectedConversation && otherParticipant ? (
-        <div className="hidden md:block md:w-1/4 lg:w-1/5">
-          <ProfileInfoColumn 
-            participant={otherParticipant} 
-            messages={messages}
-          />
-        </div>
-      ) : null}
-      
-      {/* Chat area */}
-      <div className="flex-1 flex flex-col h-full">
-        {selectedConversation && otherParticipant ? (
-          <>
-            {/* Chat header */}
-            <ChatHeader 
-              participant={otherParticipant} 
-              currentUserId={currentUserId} 
-            />
-            
-            {/* Messages */}
-            <MessageList
-              messages={messages}
-              currentUserId={currentUserId}
-              getUserById={getUserById}
-            />
-            
-            {/* Media uploader overlay */}
-            {showMediaUploader && (
-              <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
-                <div className="bg-zinc-900 p-6 rounded-lg max-w-md w-full">
-                  <h3 className="text-xl font-bold mb-4">Upload Media</h3>
-                  <MediaUploader 
-                    onFileSelect={handleFileSelect}
-                    accept="image/*,video/*,audio/*"
-                    maxSize={10 * 1024 * 1024} // 10MB
-                  />
-                  <div className="mt-4 flex justify-end">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowMediaUploader(false)}
-                    >
-                      Cancel
-                    </Button>
+    <div className="h-screen flex flex-col">
+      <div className="flex-1 flex overflow-hidden">
+        {/* Conversations sidebar */}
+        <ConversationList 
+          conversations={conversations}
+          selectedConversationId={selectedConversationId}
+          onSelectConversation={(convId) => {
+            setSelectedConversationId(convId);
+            loadMessages(convId);
+          }}
+          getOtherParticipant={getOtherParticipant}
+        />
+        
+        {/* Chat area */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          {selectedConversation && otherParticipant ? (
+            <>
+              {/* Chat header */}
+              <ChatHeader 
+                participant={otherParticipant} 
+                currentUserId={currentUserId} 
+              />
+              
+              {/* Messages */}
+              <MessageList
+                messages={messages}
+                currentUserId={currentUserId}
+                getUserById={getUserById}
+              />
+              
+              {/* Media uploader overlay */}
+              {showMediaUploader && (
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
+                  <div className="bg-zinc-900 p-6 rounded-lg max-w-md w-full">
+                    <h3 className="text-xl font-bold mb-4">Upload Media</h3>
+                    <MediaUploader 
+                      onFileSelect={handleFileSelect}
+                      accept="image/*,video/*,audio/*"
+                      maxSize={10 * 1024 * 1024} // 10MB
+                    />
+                    <div className="mt-4 flex justify-end">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowMediaUploader(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            
-            {/* Gift selector overlay */}
-            {showGiftSelector && (
-              <GiftSelector
-                open={showGiftSelector}
-                onOpenChange={setShowGiftSelector}
-                onGiftSelect={handleGiftSelect}
-                balance={getUserBalance(currentUserId)}
-                recipientName={otherParticipant.name}
-              />
-            )}
-            
-            {/* Coin transfer overlay */}
-            {showCoinTransfer && (
-              <CoinTransfer
-                open={showCoinTransfer}
-                onOpenChange={setShowCoinTransfer}
-                balance={getUserBalance(currentUserId)}
-                recipientName={otherParticipant.name}
-                onTransfer={handleCoinTransfer}
-              />
-            )}
-            
-            {/* Message input */}
-            <MessageInput onSendMessage={handleSendMessage} />
-          </>
-        ) : (
-          <EmptyMessages />
+              )}
+              
+              {/* Gift selector overlay */}
+              {showGiftSelector && (
+                <GiftSelector
+                  open={showGiftSelector}
+                  onOpenChange={setShowGiftSelector}
+                  onGiftSelect={handleGiftSelect}
+                  balance={getUserBalance(currentUserId)}
+                  recipientName={otherParticipant.name}
+                />
+              )}
+              
+              {/* Coin transfer overlay */}
+              {showCoinTransfer && (
+                <CoinTransfer
+                  open={showCoinTransfer}
+                  onOpenChange={setShowCoinTransfer}
+                  balance={getUserBalance(currentUserId)}
+                  recipientName={otherParticipant.name}
+                  onTransfer={handleCoinTransfer}
+                />
+              )}
+              
+              {/* Message input */}
+              <MessageInput onSendMessage={handleSendMessage} />
+            </>
+          ) : (
+            <EmptyMessages />
+          )}
+        </div>
+        
+        {/* Profile info column */}
+        {selectedConversation && otherParticipant ? (
+          <div className="hidden md:block md:w-1/4 lg:w-1/5">
+            <ProfileInfoColumn 
+              participant={otherParticipant} 
+              messages={messages}
+              isFriend={isFriend}
+              onToggleFriend={() => {
+                setIsFriend(!isFriend);
+                toast({
+                  title: isFriend ? "Friend removed" : "Friend added",
+                  description: isFriend
+                    ? `${otherParticipant.name} has been removed from your friends`
+                    : `${otherParticipant.name} has been added to your friends`
+                });
+              }}
+              onPoke={handlePoke}
+            />
+          </div>
+        ) : null}
+        
+        {/* Chat sidebar with actions */}
+        {selectedConversation && otherParticipant && (
+          <ChatSidebar
+            isFriend={isFriend}
+            onToggleFriend={() => {
+              setIsFriend(!isFriend);
+              toast({
+                title: isFriend ? "Friend removed" : "Friend added",
+                description: isFriend
+                  ? `${otherParticipant.name} has been removed from your friends`
+                  : `${otherParticipant.name} has been added to your friends`
+              });
+            }}
+            onEmojiSelect={(emoji) => {
+              handleSendMessage(emoji);
+            }}
+            onImageAttach={() => setShowMediaUploader(true)}
+            onGiftSelect={() => setShowGiftSelector(true)}
+            onCoinTransfer={() => setShowCoinTransfer(true)}
+          />
         )}
       </div>
       
-      {/* Chat sidebar with actions */}
-      {selectedConversation && otherParticipant && (
-        <ChatSidebar
-          isFriend={isFriend}
-          onToggleFriend={() => {
-            setIsFriend(!isFriend);
-            toast({
-              title: isFriend ? "Friend removed" : "Friend added",
-              description: isFriend
-                ? `${otherParticipant.name} has been removed from your friends`
-                : `${otherParticipant.name} has been added to your friends`
-            });
-          }}
-          onEmojiSelect={(emoji) => {
-            // This will be handled by MessageInput component in a real implementation
-            handleSendMessage(emoji);
-          }}
-          onImageAttach={() => setShowMediaUploader(true)}
-          onGiftSelect={() => setShowGiftSelector(true)}
-          onCoinTransfer={() => setShowCoinTransfer(true)}
-        />
-      )}
+      {/* Footer */}
+      <MessageFooter />
     </div>
   );
 };
