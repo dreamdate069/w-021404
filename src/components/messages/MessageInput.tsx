@@ -21,7 +21,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
   };
 
   return (
-    <div className="p-4 border-t border-zinc-800">
+    <div className="sticky bottom-0 p-4 border-t border-zinc-800 bg-zinc-900 z-10">
       <form onSubmit={handleSendMessage} className="flex gap-2">
         <Input
           value={messageInput}
