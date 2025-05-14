@@ -58,7 +58,7 @@ const ProfileInfoColumn = ({
               
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" className="flex-1" onClick={onPoke}>
+                  <Button variant="outline" onClick={onPoke} className="flex-1">
                     <MessageSquareHeart className="mr-2 h-4 w-4" />
                     <span>Poke</span>
                   </Button>
