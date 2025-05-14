@@ -2,7 +2,7 @@
 import { DreamCoinBank } from './dreamCoin';
 
 export const getUserBalance = (userId: string): number => {
-  return DreamCoinBank.getInstance().getUserBalance(userId);
+  return DreamCoinBank.getInstance().getBalance(userId);
 };
 
 export const transferCoins = (

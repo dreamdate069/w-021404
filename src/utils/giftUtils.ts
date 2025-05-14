@@ -1,3 +1,4 @@
+
 import { purchaseGift } from "./dreamCoinUtils";
 
 // Gift categories
@@ -140,6 +141,7 @@ export const getGiftById = (giftId: string): Gift | undefined => {
 
 /**
  * Send a gift to a user
+ * @returns true if successful, false otherwise
  */
 export const sendGift = (giftId: string, recipientId: string): boolean => {
   const gift = getGiftById(giftId);
@@ -148,6 +150,6 @@ export const sendGift = (giftId: string, recipientId: string): boolean => {
     return false;
   }
   
-  // Updated to match the parameter order expected by purchaseGift
+  // Call purchaseGift with the correct parameters
   return purchaseGift('current-user', giftId, recipientId);
 };

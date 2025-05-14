@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { MediaUploader } from '@/components/MediaUploader';
-import { GiftSelector } from '@/components/GiftSelector';
-import { CoinTransfer } from '@/components/CoinTransfer';
+import MediaUploader from '@/components/MediaUploader';
+import GiftSelector from '@/components/GiftSelector';
+import CoinTransfer from '@/components/CoinTransfer';
 import { getUserBalance } from '@/utils/dreamCoinUtils';
 
 interface ChatOverlaysProps {
