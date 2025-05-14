@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import MediaUploader from '@/components/MediaUploader';
 import ChatSidebar from '@/components/ChatSidebar';
+import ProfileInfoColumn from '@/components/ProfileInfoColumn';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import GiftSelector from '@/components/GiftSelector';
@@ -22,7 +23,6 @@ import {
   sendGiftMessage,
   sendCoinTransferMessage
 } from '@/utils/chatUtils';
-import { getUserBalance } from '@/utils/dreamCoinUtils';
 
 const MessagesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -433,6 +433,16 @@ const MessagesPage = () => {
           })}
         </div>
       </div>
+      
+      {/* New Profile info column */}
+      {selectedConversation && otherParticipant ? (
+        <div className="hidden md:block md:w-1/4 lg:w-1/5">
+          <ProfileInfoColumn 
+            participant={otherParticipant} 
+            messages={messages}
+          />
+        </div>
+      ) : null}
       
       {/* Chat area */}
       <div className="flex-1 flex flex-col h-full">

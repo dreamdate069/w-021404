@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { Message, Conversation, MessageType, ChatParticipant } from '@/types/chat';
 import { DreamCoinBank } from './DreamCoinBank';
@@ -12,7 +11,8 @@ const createChatParticipant = (userId: string): ChatParticipant => {
       id: 'current-user',
       name: 'You',
       profilePic: '/placeholder.svg',
-      online: true
+      online: true,
+      bio: 'This is your profile'
     };
   }
   
@@ -23,7 +23,8 @@ const createChatParticipant = (userId: string): ChatParticipant => {
       name: member.name,
       profilePic: member.image,
       online: member.online,
-      lastActive: member.lastActive
+      lastActive: member.lastActive,
+      bio: member.bio || `Hi, I'm ${member.name}! Let's chat.`
     };
   }
   
@@ -31,7 +32,8 @@ const createChatParticipant = (userId: string): ChatParticipant => {
     id: userId,
     name: 'Unknown User',
     profilePic: '/placeholder.svg',
-    online: false
+    online: false,
+    bio: 'No information available'
   };
 };
 

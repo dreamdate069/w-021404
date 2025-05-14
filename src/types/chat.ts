@@ -36,4 +36,5 @@ export interface ChatParticipant {
   profilePic: string;
   online: boolean;
   lastActive?: string;
+  bio?: string; // Added bio field
 }
