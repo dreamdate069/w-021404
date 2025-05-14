@@ -152,6 +152,15 @@ const updateLastMessages = () => {
   });
 };
 
+// Helper functions for saving data
+const saveConversationMessages = (conversationId: string, messages: Message[]) => {
+  MESSAGES[conversationId] = messages;
+};
+
+const saveUserConversations = (conversations: Conversation[]) => {
+  CONVERSATIONS = conversations;
+};
+
 // Initialize the chat system
 export const initializeChatSystem = () => {
   updateLastMessages();
@@ -378,6 +387,42 @@ export const sendCoinTransferMessage = (conversationId: string, amount: number, 
   };
   
   MESSAGES[conversationId].push(systemMessage);
+  
+  updateLastMessages();
+  return newMessage;
+};
+
+// Send a system message
+export const sendSystemMessage = (conversationId: string, content: string): Message => {
+  // Create new system message
+  const newMessage: Message = {
+    id: uuidv4(),
+    conversationId,
+    senderId: 'system',
+    content,
+    timestamp: Date.now(),
+    read: true,
+    type: MessageType.NOTIFICATION
+  };
+  
+  if (!MESSAGES[conversationId]) {
+    MESSAGES[conversationId] = [];
+  }
+  
+  // Add message to conversation
+  MESSAGES[conversationId].push(newMessage);
+  
+  // Update conversation
+  CONVERSATIONS = CONVERSATIONS.map(conv => {
+    if (conv.id === conversationId) {
+      return {
+        ...conv,
+        lastMessage: newMessage,
+        updatedAt: newMessage.timestamp
+      };
+    }
+    return conv;
+  });
   
   updateLastMessages();
   return newMessage;
