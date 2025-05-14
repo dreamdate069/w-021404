@@ -1,0 +1,91 @@
+
+import React from 'react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Conversation, ChatParticipant } from '@/types/chat';
+
+interface ConversationListProps {
+  conversations: Conversation[];
+  selectedConversationId: string | null;
+  onSelectConversation: (conversationId: string) => void;
+  getOtherParticipant: (conversation: Conversation) => ChatParticipant | null;
+}
+
+const ConversationList: React.FC<ConversationListProps> = ({
+  conversations,
+  selectedConversationId,
+  onSelectConversation,
+  getOtherParticipant,
+}) => {
+  return (
+    <div className="md:w-1/4 lg:w-1/5 border-r border-zinc-800 overflow-y-auto pb-20 md:pb-0">
+      <div className="p-4 border-b border-zinc-800">
+        <h1 className="text-2xl font-bold text-white">Messages</h1>
+      </div>
+      
+      <div className="overflow-y-auto">
+        {conversations.map(conversation => {
+          const otherUser = getOtherParticipant(conversation);
+          if (!otherUser) return null;
+          
+          return (
+            <div
+              key={conversation.id}
+              className={`flex items-center gap-3 p-4 cursor-pointer hover:bg-zinc-800 transition-colors ${
+                selectedConversationId === conversation.id
+                  ? "bg-zinc-800"
+                  : ""
+              }`}
+              onClick={() => onSelectConversation(conversation.id)}
+            >
+              <div className="relative">
+                <Avatar>
+                  <AvatarImage src={otherUser.profilePic} alt={otherUser.name} />
+                  <AvatarFallback>{otherUser.name[0]}</AvatarFallback>
+                </Avatar>
+                
+                {otherUser.online && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-900" />
+                )}
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-medium text-white truncate">
+                    {otherUser.name}
+                  </h3>
+                  
+                  {conversation.lastMessage && (
+                    <span className="text-xs text-zinc-500">
+                      {new Date(conversation.lastMessage.timestamp).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  )}
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  {conversation.lastMessage ? (
+                    <p className="text-sm text-zinc-400 truncate">
+                      {conversation.lastMessage.content}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-zinc-500 italic">No messages yet</p>
+                  )}
+                  
+                  {conversation.unreadCount > 0 && (
+                    <span className="bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2">
+                      {conversation.unreadCount}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default ConversationList;

@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Smile, Image, Gift, UserPlus, UserMinus, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Heart, Gift, DollarSign, Image, Smile } from 'lucide-react';
 import EmojiPicker from './EmojiPicker';
+import { getUserBalance } from '@/utils/dreamCoinUtils';
 
 interface ChatSidebarProps {
   isFriend: boolean;
@@ -16,76 +16,83 @@ interface ChatSidebarProps {
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
-  isFriend = false,
+  isFriend,
   onToggleFriend,
   onEmojiSelect,
   onImageAttach,
   onGiftSelect,
   onCoinTransfer
 }) => {
-  const { toast } = useToast();
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const handleAttach = () => {
-    onImageAttach();
-    toast({
-      title: "Attach Media",
-      description: "Media upload options would appear here"
-    });
-  };
-
-  const handleGiftShop = () => {
-    onGiftSelect();
-    toast({
-      title: "Gift Shop",
-      description: "Gift shop would open here"
-    });
-  };
-
-  const handleCoinTransfer = () => {
-    onCoinTransfer();
-    toast({
-      title: "Coin Transfer",
-      description: "Coin transfer dialog would open here"
-    });
-  };
-
-  return <div className="sticky top-0 right-0 h-screen flex flex-col items-center justify-between gap-6 py-8 relative" 
-              onMouseEnter={() => setIsExpanded(true)} 
-              onMouseLeave={() => setIsExpanded(false)} 
-              onTouchStart={() => setIsExpanded(true)}>
-      {/* Background element with opacity */}
-      <div className={cn("absolute inset-0 bg-zinc-900 border-l border-zinc-800 transition-opacity duration-300 z-0", isExpanded ? "opacity-100" : "opacity-[0.13]")}></div>
+  const [activeTab, setActiveTab] = useState<string>('emojis');
+  
+  return (
+    <div className="w-12 md:w-16 border-l border-zinc-800 flex flex-col items-center py-4 bg-zinc-900">
+      <Tabs 
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full flex flex-col items-center"
+      >
+        <TabsList className="flex flex-col gap-2 bg-transparent">
+          <TabsTrigger 
+            value="emojis"
+            className={`rounded-full p-2 ${activeTab === 'emojis' ? 'bg-zinc-800' : ''}`}
+          >
+            <Smile size={20} />
+          </TabsTrigger>
+          <TabsTrigger 
+            value="images" 
+            className={`rounded-full p-2 ${activeTab === 'images' ? 'bg-zinc-800' : ''}`}
+            onClick={() => {
+              onImageAttach();
+              // Don't actually switch tabs - just trigger the image attach action
+              setActiveTab('emojis');
+            }}
+          >
+            <Image size={20} />
+          </TabsTrigger>
+          <TabsTrigger 
+            value="gifts" 
+            className={`rounded-full p-2 ${activeTab === 'gifts' ? 'bg-zinc-800' : ''}`}
+            onClick={() => {
+              onGiftSelect();
+              // Don't actually switch tabs - just trigger the gift select action
+              setActiveTab('emojis');
+            }}
+          >
+            <Gift size={20} />
+          </TabsTrigger>
+          <TabsTrigger 
+            value="coins" 
+            className={`rounded-full p-2 ${activeTab === 'coins' ? 'bg-zinc-800' : ''}`}
+            onClick={() => {
+              onCoinTransfer();
+              // Don't actually switch tabs - just trigger the coin transfer action
+              setActiveTab('emojis');
+            }}
+          >
+            <DollarSign size={20} />
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
       
-      {/* Empty div to push buttons to bottom */}
-      <div className="flex-1"></div>
-      
-      {/* Buttons with full opacity - Reversed order */}
-      <div className="flex flex-col items-center justify-end gap-6 z-10 relative">
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleCoinTransfer}>
-          <Coins size={24} className="text-white" />
-        </Button>
-        
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={onToggleFriend}>
-          {isFriend ? <UserMinus size={24} className="text-white" /> : <UserPlus size={24} className="text-white" />}
-        </Button>
-        
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleGiftShop}>
-          <Gift size={24} className="text-white" />
-        </Button>
-        
-        <Button variant="ghost" className="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors" onClick={handleAttach}>
-          <Image size={24} className="text-white" />
-        </Button>
-        
-        <EmojiPicker
-          onEmojiSelect={onEmojiSelect}
-          triggerClassName="rounded-full p-3 bg-zinc-800 hover:bg-custom-pink transition-colors"
+      <div className="mt-auto">
+        <Button 
+          variant="ghost"
+          size="icon"
+          onClick={onToggleFriend}
+          className={`rounded-full ${isFriend ? 'text-rose-500' : 'text-zinc-400'}`}
         >
-          <Smile size={24} className="text-white" />
-        </EmojiPicker>
+          <Heart size={20} fill={isFriend ? 'currentColor' : 'none'} />
+        </Button>
       </div>
-    </div>;
+      
+      {activeTab === 'emojis' && (
+        <div className="absolute right-16 bottom-20 z-10">
+          <EmojiPicker onEmojiSelect={onEmojiSelect} />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default ChatSidebar;

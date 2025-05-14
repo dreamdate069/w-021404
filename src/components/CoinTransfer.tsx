@@ -1,19 +1,20 @@
+
 import React, { useState } from 'react';
-import { Coins } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { DollarSign, Info } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { getUserBalance } from '@/utils/dreamCoinUtils';
 import { TRANSFER_FEE_PERCENTAGE } from '@/utils/DreamCoinBank';
 
 interface CoinTransferProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onTransfer: (amount: number, message: string) => void;
+  onTransfer: (amount: number) => void;
   balance: number;
   recipientName: string;
-  // Add these props to match usage in MessagesPage
-  onClose?: () => void; 
 }
 
 const CoinTransfer: React.FC<CoinTransferProps> = ({
@@ -21,128 +22,132 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
   onOpenChange,
   onTransfer,
   balance,
-  recipientName,
-  onClose
+  recipientName
 }) => {
-  const [amount, setAmount] = useState<number>(1000);
-  const [message, setMessage] = useState<string>('');
+  const [amount, setAmount] = useState<number>(100);
   
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value >= 0) {
-      setAmount(value);
+  // Calculate fee
+  const fee = Math.round(amount * (TRANSFER_FEE_PERCENTAGE / 100));
+  const recipientAmount = amount - fee;
+  
+  // Quick amount options
+  const quickAmounts = [100, 500, 1000, 5000, 10000];
+  
+  const handleAmountChange = (value: number[] | number) => {
+    if (Array.isArray(value)) {
+      setAmount(value[0]);
     } else {
-      setAmount(0);
+      setAmount(value);
     }
   };
-  
-  const serviceFee = Math.floor(amount * (TRANSFER_FEE_PERCENTAGE / 100));
-  const recipientReceives = amount - serviceFee;
-  const isValidAmount = amount > 0 && amount <= balance;
   
   const handleTransfer = () => {
-    if (isValidAmount) {
-      onTransfer(amount, message);
-      if (onClose) {
-        onClose();
-      } else {
-        onOpenChange(false);
-      }
-      setAmount(1000);
-      setMessage('');
-    }
+    onTransfer(amount);
   };
   
-  // Predefined amounts
-  const predefinedAmounts = [1000, 5000, 10000, 25000, 50000];
-  
   return (
-    <Dialog open={open} onOpenChange={(value) => {
-      if (onClose && !value) {
-        onClose();
-      } else {
-        onOpenChange(value);
-      }
-    }}>
-      <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
-            <Coins size={18} className="text-custom-pink" />
-            Send DreamCoins
-          </DialogTitle>
-          <DialogDescription>
-            Send DreamCoins to {recipientName}. A {TRANSFER_FEE_PERCENTAGE}% service fee applies.
+          <DialogTitle>Send DreamCoins</DialogTitle>
+          <DialogDescription className="text-zinc-400">
+            Send DreamCoins to {recipientName}
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1 text-zinc-400">
+            <DollarSign className="w-4 h-4 text-amber-400" />
+            <span>
+              Your balance: <span className="font-medium text-white">{balance.toLocaleString()}</span>
+            </span>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm text-white">Amount to send</label>
-            <Input
-              type="number"
-              value={amount}
-              onChange={handleAmountChange}
-              className="bg-zinc-800 border-zinc-700 text-white"
-            />
-            
-            <div className="flex flex-wrap gap-2 mt-2">
-              {predefinedAmounts.map((presetAmount) => (
+            <Label htmlFor="amount">Amount</Label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-amber-400" />
+              <Input
+                id="amount"
+                type="number"
+                min={1}
+                max={balance}
+                value={amount}
+                onChange={(e) => handleAmountChange(Number(e.target.value))}
+                className="pl-10 bg-zinc-800 border-zinc-700"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Quick Select</Label>
+            <div className="flex flex-wrap gap-2">
+              {quickAmounts.map(amt => (
                 <Button
-                  key={presetAmount}
-                  type="button"
+                  key={amt}
                   variant="outline"
-                  className="text-xs"
-                  onClick={() => setAmount(presetAmount)}
+                  size="sm"
+                  onClick={() => handleAmountChange(Math.min(amt, balance))}
+                  disabled={amt > balance}
+                  className={amt === amount ? 'bg-rose-500 border-rose-500 text-white' : 'bg-zinc-800 border-zinc-700'}
                 >
-                  {presetAmount.toLocaleString()}
+                  {amt.toLocaleString()}
                 </Button>
               ))}
             </div>
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm text-white">Message (optional)</label>
-            <Textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Add a message with your transfer..."
-              className="bg-zinc-800 border-zinc-700 text-white resize-none h-20"
+            <Label>Adjust amount</Label>
+            <Slider
+              min={1}
+              max={Math.min(10000, balance)}
+              step={1}
+              value={[amount]}
+              onValueChange={handleAmountChange}
+              className="py-4"
             />
           </div>
           
-          <div className="bg-zinc-800 rounded-md p-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Your balance</span>
-              <span className="text-white">{balance.toLocaleString()} DC</span>
+          <div className="bg-zinc-800 p-3 rounded-md space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Amount to send:</span>
+              <span>{amount.toLocaleString()} DC</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Amount to send</span>
-              <span className="text-white">{amount.toLocaleString()} DC</span>
+            <div className="flex justify-between text-zinc-400">
+              <span>Service fee ({TRANSFER_FEE_PERCENTAGE}%):</span>
+              <span>-{fee.toLocaleString()} DC</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Service fee ({TRANSFER_FEE_PERCENTAGE}%)</span>
-              <span className="text-red-400">-{serviceFee.toLocaleString()} DC</span>
+            <div className="flex justify-between font-medium pt-1 border-t border-zinc-700">
+              <span>{recipientName} receives:</span>
+              <span className="text-emerald-400">{recipientAmount.toLocaleString()} DC</span>
             </div>
-            <hr className="border-zinc-700" />
-            <div className="flex justify-between font-bold">
-              <span className="text-zinc-200">{recipientName} receives</span>
-              <span className="text-custom-pink">{recipientReceives.toLocaleString()} DC</span>
-            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 p-2 bg-zinc-800 rounded-md text-zinc-400 text-xs">
+            <Info className="h-4 w-4 text-zinc-500 flex-shrink-0" />
+            <p>All DreamCoin transfers have a {TRANSFER_FEE_PERCENTAGE}% service fee.</p>
           </div>
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <div className="flex items-center justify-end gap-2 mt-4">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Cancel
           </Button>
-          <Button 
-            className="bg-custom-pink hover:bg-custom-pink/90"
+          <Button
+            variant="default"
             onClick={handleTransfer}
-            disabled={!isValidAmount}
+            disabled={amount <= 0 || amount > balance}
+            className="bg-rose-500 hover:bg-rose-600"
           >
-            Send DreamCoins
+            Send {amount.toLocaleString()} DreamCoins
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -1,19 +1,26 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Gift, GiftCategory, GIFT_CATALOG, getGiftsByCategory } from '@/utils/giftUtils';
-import { cn } from '@/lib/utils';
+import { DollarSign } from 'lucide-react';
+import { getUserBalance } from '@/utils/dreamCoinUtils';
+import { DreamCoinBank } from '@/utils/DreamCoinBank';
+
+interface Gift {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+}
 
 interface GiftSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onGiftSelect: (giftId: string) => void;
   balance: number;
-  onSelect?: (giftId: string) => void;
-  onClose?: () => void;
-  recipientName?: string; // Add the recipientName prop
+  recipientName: string;
 }
 
 const GiftSelector: React.FC<GiftSelectorProps> = ({
@@ -21,162 +28,112 @@ const GiftSelector: React.FC<GiftSelectorProps> = ({
   onOpenChange,
   onGiftSelect,
   balance,
-  onSelect,
-  onClose,
   recipientName
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<GiftCategory>(GiftCategory.ROMANTIC);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
   
-  // Filter gifts by category
-  const categoryGifts = getGiftsByCategory(selectedCategory);
+  // Get available gifts from the DreamCoin system
+  const availableGifts = DreamCoinBank.getInstance().getGifts();
   
-  // Handle gift selection
+  // Get categories
+  const categories = ['all', ...new Set(availableGifts.map(gift => gift.category))];
+  
+  // Filter gifts by category
+  const filteredGifts = selectedCategory === 'all'
+    ? availableGifts
+    : availableGifts.filter(gift => gift.category === selectedCategory);
+  
   const handleGiftSelect = (gift: Gift) => {
     setSelectedGift(gift);
   };
   
-  // Handle gift purchase
-  const handleGiftPurchase = () => {
+  const handleConfirmSelection = () => {
     if (selectedGift) {
-      // Use either onGiftSelect or onSelect (for backward compatibility)
-      if (onSelect) {
-        onSelect(selectedGift.id);
-      } else {
-        onGiftSelect(selectedGift.id);
-      }
-      
-      // Use either onOpenChange or onClose
-      if (onClose) {
-        onClose();
-      } else {
-        onOpenChange(false);
-      }
-      
-      setSelectedGift(null);
+      onGiftSelect(selectedGift.id);
     }
   };
   
   return (
-    <Dialog open={open} onOpenChange={(value) => {
-      if (onClose && !value) {
-        onClose();
-      } else {
-        onOpenChange(value);
-      }
-    }}>
-      <DialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-3xl h-[600px] flex flex-col">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">
-            {recipientName ? `Select a Gift for ${recipientName}` : 'Select a Gift'}
-          </DialogTitle>
-          <DialogDescription>
-            Send a gift to express your interest. You have{' '}
-            <span className="text-custom-pink font-bold">{balance.toLocaleString()}</span> DreamCoins.
+          <DialogTitle>Send a Gift</DialogTitle>
+          <DialogDescription className="text-zinc-400">
+            Choose a gift to send to {recipientName}
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue={GiftCategory.ROMANTIC} className="flex-1 flex flex-col">
-          <TabsList className="grid grid-cols-5 bg-zinc-800">
-            <TabsTrigger 
-              value={GiftCategory.ROMANTIC}
-              onClick={() => setSelectedCategory(GiftCategory.ROMANTIC)}
-              className="data-[state=active]:bg-custom-pink"
-            >
-              Romantic
-            </TabsTrigger>
-            <TabsTrigger 
-              value={GiftCategory.FUN}
-              onClick={() => setSelectedCategory(GiftCategory.FUN)}
-              className="data-[state=active]:bg-custom-pink"
-            >
-              Fun
-            </TabsTrigger>
-            <TabsTrigger 
-              value={GiftCategory.LUXURY}
-              onClick={() => setSelectedCategory(GiftCategory.LUXURY)}
-              className="data-[state=active]:bg-custom-pink"
-            >
-              Luxury
-            </TabsTrigger>
-            <TabsTrigger 
-              value={GiftCategory.SPECIAL}
-              onClick={() => setSelectedCategory(GiftCategory.SPECIAL)}
-              className="data-[state=active]:bg-custom-pink"
-            >
-              Special
-            </TabsTrigger>
-            <TabsTrigger 
-              value={GiftCategory.SEASONAL}
-              onClick={() => setSelectedCategory(GiftCategory.SEASONAL)}
-              className="data-[state=active]:bg-custom-pink"
-            >
-              Seasonal
-            </TabsTrigger>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-1 text-zinc-400">
+            <DollarSign className="w-4 h-4 text-amber-400" />
+            <span>
+              Your balance: <span className="font-medium text-white">{balance.toLocaleString()}</span>
+            </span>
+          </div>
+        </div>
+        
+        <Tabs defaultValue={selectedCategory} onValueChange={setSelectedCategory}>
+          <TabsList className="bg-zinc-800 grid grid-flow-col auto-cols-fr overflow-x-auto scrollbar-hide">
+            {categories.map((category) => (
+              <TabsTrigger 
+                key={category} 
+                value={category}
+                className="capitalize data-[state=active]:bg-rose-500 data-[state=active]:text-white"
+              >
+                {category}
+              </TabsTrigger>
+            ))}
           </TabsList>
           
-          {Object.values(GiftCategory).map((category) => (
-            <TabsContent 
-              key={category}
-              value={category}
-              className="flex-1 overflow-y-auto mt-4"
-            >
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {getGiftsByCategory(category).map((gift) => (
-                  <div 
-                    key={gift.id} 
-                    className={cn(
-                      "border rounded-md p-4 flex flex-col items-center cursor-pointer transition-colors",
-                      selectedGift?.id === gift.id 
-                        ? "border-custom-pink bg-zinc-800" 
-                        : "border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/50",
-                      balance < gift.price && "opacity-50 cursor-not-allowed"
-                    )}
-                    onClick={() => balance >= gift.price && handleGiftSelect(gift)}
+          <TabsContent value={selectedCategory} className="mt-4">
+            <div className="grid grid-cols-3 gap-3">
+              {filteredGifts.map((gift) => {
+                const canAfford = balance >= gift.price;
+                
+                return (
+                  <div
+                    key={gift.id}
+                    className={`rounded-lg p-2 border-2 cursor-pointer flex flex-col items-center justify-center transition-colors
+                      ${selectedGift?.id === gift.id ? 'border-rose-500 bg-rose-500/10' : 'border-zinc-800'}
+                      ${!canAfford ? 'opacity-50 cursor-not-allowed' : 'hover:border-rose-500/50'}`}
+                    onClick={() => canAfford && handleGiftSelect(gift)}
                   >
-                    <div className="w-24 h-24 mb-2 flex items-center justify-center">
+                    <div className="w-14 h-14 flex items-center justify-center">
                       <img 
-                        src={gift.imageUrl || '/placeholder.svg'} 
+                        src={gift.imageUrl} 
                         alt={gift.name} 
-                        className="max-w-full max-h-full object-contain"
+                        className="max-w-full max-h-full" 
                       />
                     </div>
-                    <h3 className="text-white text-center font-medium">{gift.name}</h3>
-                    <p className="text-zinc-400 text-xs text-center mt-1">{gift.description}</p>
-                    <div className="mt-2 text-custom-pink font-bold">
-                      {gift.price.toLocaleString()} DC
+                    <h3 className="text-sm font-medium mt-2">{gift.name}</h3>
+                    <div className="flex items-center gap-0.5 text-xs text-zinc-400">
+                      <DollarSign className="w-3 h-3 text-amber-400" />
+                      <span>{gift.price.toLocaleString()}</span>
                     </div>
-                    {balance < gift.price && (
-                      <p className="text-red-500 text-xs mt-1">Insufficient funds</p>
-                    )}
                   </div>
-                ))}
-              </div>
-            </TabsContent>
-          ))}
+                );
+              })}
+            </div>
+          </TabsContent>
         </Tabs>
         
-        <DialogFooter className="flex justify-between items-center">
-          <div className="text-sm">
-            {selectedGift && (
-              <span>
-                Selected: <span className="font-bold">{selectedGift.name}</span> ({selectedGift.price.toLocaleString()} DC)
-              </span>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button 
-              className="bg-custom-pink hover:bg-custom-pink/90"
-              onClick={handleGiftPurchase}
-              disabled={!selectedGift || selectedGift.price > balance}
-            >
-              {selectedGift ? `Send Gift (${selectedGift.price.toLocaleString()} DC)` : 'Send Gift'}
-            </Button>
-          </div>
-        </DialogFooter>
+        <div className="flex items-center justify-end gap-2 mt-4">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="default"
+            onClick={handleConfirmSelection}
+            disabled={!selectedGift || balance < (selectedGift?.price || 0)}
+            className="bg-rose-500 hover:bg-rose-600"
+          >
+            {selectedGift ? `Send for ${selectedGift.price.toLocaleString()} DC` : 'Select a gift'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

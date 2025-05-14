@@ -1,28 +1,28 @@
 
 import React from 'react';
-import { cn } from '@/lib/utils';
-import { DREAMCOIN_IMAGE_URL } from '@/utils/dreamCoinUtils';
+import { DollarSign } from 'lucide-react';
+import { getUserBalance } from '@/utils/dreamCoinUtils';
 
 interface DreamCoinBalanceProps {
-  balance: number;
+  balance?: number;
   className?: string;
 }
 
 const DreamCoinBalance: React.FC<DreamCoinBalanceProps> = ({ 
-  balance,
-  className
+  balance: propBalance,
+  className = '' 
 }) => {
-  // Format the balance with commas
-  const formattedBalance = balance.toLocaleString();
+  // If balance is provided via props, use that, otherwise get from DreamCoin system
+  const balance = propBalance !== undefined 
+    ? propBalance 
+    : getUserBalance('current-user');
   
   return (
-    <div className={cn("flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-full", className)}>
-      <img 
-        src={DREAMCOIN_IMAGE_URL} 
-        alt="DreamCoin" 
-        className="w-4 h-4 object-contain"
-      />
-      <span className="text-white text-sm font-medium">{formattedBalance}</span>
+    <div className={`flex items-center gap-1 text-white px-2 py-1 rounded-full bg-zinc-800 ${className}`}>
+      <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+      <span className="text-sm font-medium">
+        {balance.toLocaleString()}
+      </span>
     </div>
   );
 };
