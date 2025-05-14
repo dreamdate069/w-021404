@@ -21,9 +21,9 @@ const ProfileInfoColumn = ({ participant, messages }: ProfileInfoColumnProps) =>
       {/* Profile section */}
       <div className="p-4 border-b border-zinc-800">
         <div className="flex flex-col items-center">
-          <Avatar className="h-24 w-24 mb-4">
-            <AvatarImage src={participant.profilePic} alt={participant.name} />
-            <AvatarFallback className="text-2xl">{participant.name[0]}</AvatarFallback>
+          <Avatar className="h-24 w-24 mb-4 rounded-md">
+            <AvatarImage src={participant.profilePic} alt={participant.name} className="rounded-md" />
+            <AvatarFallback className="text-2xl rounded-md">{participant.name[0]}</AvatarFallback>
           </Avatar>
           
           <h2 className="text-xl font-bold text-white mb-1">{participant.name}</h2>
