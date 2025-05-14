@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Phone, VideoIcon } from 'lucide-react';
 import { ChatParticipant } from '@/types/chat';
 import DreamCoinBalance from '@/components/DreamCoinBalance';
+import { getUserBalance } from '@/utils/dreamCoinUtils';
 
 interface ChatHeaderProps {
   participant: ChatParticipant;

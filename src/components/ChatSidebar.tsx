@@ -24,6 +24,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onCoinTransfer
 }) => {
   const [activeTab, setActiveTab] = useState<string>('emojis');
+  const [showEmojis, setShowEmojis] = useState(false);
   
   return (
     <div className="w-12 md:w-16 border-l border-zinc-800 flex flex-col items-center py-4 bg-zinc-900">
@@ -36,6 +37,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
           <TabsTrigger 
             value="emojis"
             className={`rounded-full p-2 ${activeTab === 'emojis' ? 'bg-zinc-800' : ''}`}
+            onClick={() => setShowEmojis(!showEmojis)}
           >
             <Smile size={20} />
           </TabsTrigger>
@@ -86,9 +88,14 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         </Button>
       </div>
       
-      {activeTab === 'emojis' && (
+      {showEmojis && (
         <div className="absolute right-16 bottom-20 z-10">
-          <EmojiPicker onEmojiSelect={onEmojiSelect} />
+          <EmojiPicker onEmojiSelect={(emoji: string) => {
+            onEmojiSelect(emoji);
+            setShowEmojis(false);
+          }}>
+            <div className="emoji-container"></div>
+          </EmojiPicker>
         </div>
       )}
     </div>

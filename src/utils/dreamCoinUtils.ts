@@ -3,7 +3,7 @@
  * DreamCoin utility functions
  */
 
-import { DreamCoinBank } from './DreamCoinBank';
+import { DreamCoinBank } from './dreamCoin/DreamCoinBank';
 
 // Constants
 export const DREAMCOIN_IMAGE_URL = '/lovable-uploads/66840c8c-e0ef-4733-9613-d03cd1a75d70.png';

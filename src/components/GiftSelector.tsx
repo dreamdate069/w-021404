@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { DollarSign } from 'lucide-react';
 import { getUserBalance } from '@/utils/dreamCoinUtils';
-import { DreamCoinBank } from '@/utils/DreamCoinBank';
+import { DreamCoinBank } from '@/utils/dreamCoin';
 
 interface Gift {
   id: string;

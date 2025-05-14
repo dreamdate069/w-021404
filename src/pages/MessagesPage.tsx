@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Conversation, Message, MessageType } from '@/types/chat';
+import { Button } from '@/components/ui/button';
 
 // Import utility functions
 import {
@@ -287,8 +288,6 @@ const MessagesPage = () => {
                 onGiftSelect={handleGiftSelect}
                 balance={getUserBalance(currentUserId)}
                 recipientName={otherParticipant.name}
-                onSelect={handleGiftSelect}
-                onClose={() => setShowGiftSelector(false)}
               />
             )}
             
@@ -300,7 +299,6 @@ const MessagesPage = () => {
                 balance={getUserBalance(currentUserId)}
                 recipientName={otherParticipant.name}
                 onTransfer={handleCoinTransfer}
-                onClose={() => setShowCoinTransfer(false)}
               />
             )}
             

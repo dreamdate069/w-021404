@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { DollarSign, Info } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { getUserBalance } from '@/utils/dreamCoinUtils';
-import { TRANSFER_FEE_PERCENTAGE } from '@/utils/DreamCoinBank';
+import { TRANSFER_FEE_PERCENTAGE } from '@/utils/dreamCoin';
 
 interface CoinTransferProps {
   open: boolean;
