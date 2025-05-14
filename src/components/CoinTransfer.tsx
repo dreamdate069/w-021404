@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,6 @@ import { DollarSign, Info } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { getUserBalance } from '@/utils/dreamCoinUtils';
 import { TRANSFER_FEE_PERCENTAGE } from '@/utils/dreamCoin';
-
 interface CoinTransferProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -16,7 +14,6 @@ interface CoinTransferProps {
   balance: number;
   recipientName: string;
 }
-
 const CoinTransfer: React.FC<CoinTransferProps> = ({
   open,
   onOpenChange,
@@ -25,14 +22,13 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
   recipientName
 }) => {
   const [amount, setAmount] = useState<number>(100);
-  
+
   // Calculate fee
   const fee = Math.round(amount * (TRANSFER_FEE_PERCENTAGE / 100));
   const recipientAmount = amount - fee;
-  
+
   // Quick amount options
   const quickAmounts = [100, 500, 1000, 5000, 10000];
-  
   const handleAmountChange = (value: number[] | number) => {
     if (Array.isArray(value)) {
       setAmount(value[0]);
@@ -40,13 +36,10 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
       setAmount(value);
     }
   };
-  
   const handleTransfer = () => {
     onTransfer(amount);
   };
-  
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+  return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Send DreamCoins</DialogTitle>
@@ -69,46 +62,22 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
             <Label htmlFor="amount">Amount</Label>
             <div className="relative">
               <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-amber-400" />
-              <Input
-                id="amount"
-                type="number"
-                min={1}
-                max={balance}
-                value={amount}
-                onChange={(e) => handleAmountChange(Number(e.target.value))}
-                className="pl-10 bg-zinc-800 border-zinc-700"
-              />
+              <Input id="amount" type="number" min={1} max={balance} value={amount} onChange={e => handleAmountChange(Number(e.target.value))} className="pl-10 bg-zinc-800 border-zinc-700" />
             </div>
           </div>
           
           <div className="space-y-2">
             <Label>Quick Select</Label>
             <div className="flex flex-wrap gap-2">
-              {quickAmounts.map(amt => (
-                <Button
-                  key={amt}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleAmountChange(Math.min(amt, balance))}
-                  disabled={amt > balance}
-                  className={amt === amount ? 'bg-rose-500 border-rose-500 text-white' : 'bg-zinc-800 border-zinc-700'}
-                >
+              {quickAmounts.map(amt => <Button key={amt} variant="outline" size="sm" onClick={() => handleAmountChange(Math.min(amt, balance))} disabled={amt > balance} className={amt === amount ? 'bg-rose-500 border-rose-500 text-white' : 'bg-zinc-800 border-zinc-700'}>
                   {amt.toLocaleString()}
-                </Button>
-              ))}
+                </Button>)}
             </div>
           </div>
           
           <div className="space-y-2">
             <Label>Adjust amount</Label>
-            <Slider
-              min={1}
-              max={Math.min(10000, balance)}
-              step={1}
-              value={[amount]}
-              onValueChange={handleAmountChange}
-              className="py-4"
-            />
+            <Slider min={1} max={Math.min(10000, balance)} step={1} value={[amount]} onValueChange={handleAmountChange} className="py-4" />
           </div>
           
           <div className="bg-zinc-800 p-3 rounded-md space-y-2 text-sm">
@@ -133,24 +102,14 @@ const CoinTransfer: React.FC<CoinTransferProps> = ({
         </div>
         
         <div className="flex items-center justify-end gap-2 mt-4">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="">
             Cancel
           </Button>
-          <Button
-            variant="default"
-            onClick={handleTransfer}
-            disabled={amount <= 0 || amount > balance}
-            className="bg-rose-500 hover:bg-rose-600"
-          >
+          <Button variant="default" onClick={handleTransfer} disabled={amount <= 0 || amount > balance} className="bg-rose-500 hover:bg-rose-600">
             Send {amount.toLocaleString()} DreamCoins
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default CoinTransfer;
