@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -255,9 +256,9 @@ const MessagesPage = () => {
     : null;
   
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 flex overflow-hidden">
-        {/* Conversations sidebar */}
+        {/* Conversations sidebar - collapsed by default */}
         <ConversationList 
           conversations={conversations}
           selectedConversationId={selectedConversationId}
@@ -278,14 +279,19 @@ const MessagesPage = () => {
                 currentUserId={currentUserId} 
               />
               
-              {/* Messages */}
-              <MessageList
-                messages={messages}
-                currentUserId={currentUserId}
-                getUserById={getUserById}
-              />
+              {/* Messages with independent scrolling */}
+              <div className="flex-1 relative overflow-hidden">
+                <MessageList
+                  messages={messages}
+                  currentUserId={currentUserId}
+                  getUserById={getUserById}
+                />
               
-              {/* Media uploader overlay */}
+                {/* Message input - sticky to bottom */}
+                <MessageInput onSendMessage={handleSendMessage} />
+              </div>
+              
+              {/* Overlay components */}
               {showMediaUploader && (
                 <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
                   <div className="bg-zinc-900 p-6 rounded-lg max-w-md w-full">
@@ -328,16 +334,13 @@ const MessagesPage = () => {
                   onTransfer={handleCoinTransfer}
                 />
               )}
-              
-              {/* Message input */}
-              <MessageInput onSendMessage={handleSendMessage} />
             </>
           ) : (
             <EmptyMessages />
           )}
         </div>
         
-        {/* Profile info column */}
+        {/* Profile info column - sticky */}
         {selectedConversation && otherParticipant ? (
           <div className="hidden md:block md:w-1/4 lg:w-1/5">
             <ProfileInfoColumn 
@@ -381,7 +384,7 @@ const MessagesPage = () => {
         )}
       </div>
       
-      {/* Footer */}
+      {/* Transparent Footer */}
       <MessageFooter />
     </div>
   );
