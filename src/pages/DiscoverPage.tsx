@@ -1,53 +1,40 @@
-
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, MapPin, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MemberGrid } from '@/components/MemberGrid';
 import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from '@/components/ui/slider';
-import {
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger
-} from "@/components/ui/tabs";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const DiscoverPage = () => {
   const [ageRange, setAgeRange] = useState<number[]>([18, 45]);
   const [distance, setDistance] = useState<number[]>([50]);
   const [activeTab, setActiveTab] = useState("nearby");
-  
-  const locations = [
-    { name: "New York, NY", distance: "< 1 mile" },
-    { name: "Brooklyn, NY", distance: "4 miles" },
-    { name: "Queens, NY", distance: "7 miles" },
-  ];
-
+  const locations = [{
+    name: "New York, NY",
+    distance: "< 1 mile"
+  }, {
+    name: "Brooklyn, NY",
+    distance: "4 miles"
+  }, {
+    name: "Queens, NY",
+    distance: "7 miles"
+  }];
   const onlineCount = 132;
-
-  return (
-    <div className="container mx-auto p-6">
+  return <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
         <h1 className="text-3xl font-bold text-white">Discover</h1>
         
         <div className="flex w-full md:w-auto gap-2">
           <div className="relative flex-1 md:w-[300px]">
-            <Input
-              placeholder="Search by name, location..."
-              className="pl-10 bg-zinc-800 border-zinc-700 text-white"
-            />
+            <Input placeholder="Search by name, location..." className="pl-10 bg-zinc-800 border-zinc-700 text-white" />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
           </div>
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="">
                 <SlidersHorizontal size={18} />
               </Button>
             </PopoverTrigger>
@@ -56,13 +43,7 @@ const DiscoverPage = () => {
                 <div>
                   <h4 className="text-white font-medium mb-2">Age Range</h4>
                   <div className="mt-6 px-1">
-                    <Slider
-                      defaultValue={ageRange}
-                      max={80}
-                      min={18}
-                      step={1}
-                      onValueChange={setAgeRange}
-                    />
+                    <Slider defaultValue={ageRange} max={80} min={18} step={1} onValueChange={setAgeRange} />
                     <div className="flex justify-between mt-2 text-zinc-400 text-sm">
                       <span>{ageRange[0]}</span>
                       <span>{ageRange[1]}</span>
@@ -73,13 +54,7 @@ const DiscoverPage = () => {
                 <div>
                   <h4 className="text-white font-medium mb-2">Distance (miles)</h4>
                   <div className="mt-6 px-1">
-                    <Slider
-                      defaultValue={distance}
-                      max={100}
-                      min={1}
-                      step={1}
-                      onValueChange={setDistance}
-                    />
+                    <Slider defaultValue={distance} max={100} min={1} step={1} onValueChange={setDistance} />
                     <div className="flex justify-between mt-2 text-zinc-400 text-sm">
                       <span>1</span>
                       <span className="text-white">{distance[0]}</span>
@@ -116,15 +91,9 @@ const DiscoverPage = () => {
               Near Your Location
             </h3>
             <div className="flex flex-wrap gap-2">
-              {locations.map(location => (
-                <Badge 
-                  key={location.name}
-                  variant="outline" 
-                  className="bg-zinc-700 hover:bg-zinc-600 cursor-pointer border-zinc-600"
-                >
+              {locations.map(location => <Badge key={location.name} variant="outline" className="bg-zinc-700 hover:bg-zinc-600 cursor-pointer border-zinc-600">
                   {location.name} <span className="ml-1 text-zinc-400">({location.distance})</span>
-                </Badge>
-              ))}
+                </Badge>)}
             </div>
           </div>
         </TabsContent>
@@ -143,8 +112,6 @@ const DiscoverPage = () => {
       </Tabs>
       
       <MemberGrid />
-    </div>
-  );
+    </div>;
 };
-
 export default DiscoverPage;
