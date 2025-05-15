@@ -40,7 +40,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 onClick={toggleSidebar} 
                 variant="ghost" 
                 size="icon"
-                className={`${isOpen ? 'ml-auto' : 'mx-auto'}`}
+                className={`text-white ${isOpen ? 'ml-auto' : 'mx-auto'}`}
               >
                 {isOpen ? <ChevronLeft /> : <ChevronRight />}
               </Button>

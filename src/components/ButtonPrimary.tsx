@@ -11,7 +11,7 @@ interface ButtonPrimaryProps {
 
 const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({ 
   children, 
-  icon = false, 
+  icon = true, // Changed default to true to ensure icons show
   onClick,
   className = ""
 }) => {

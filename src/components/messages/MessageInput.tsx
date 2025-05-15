@@ -29,7 +29,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
           placeholder="Type a message..."
           className="flex-1"
         />
-        <Button type="submit">
+        <Button type="submit" className="send-button">
           <Send size={18} />
         </Button>
       </form>

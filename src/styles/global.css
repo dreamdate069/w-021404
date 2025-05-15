@@ -1,0 +1,146 @@
+
+/* Global style system for DreamDate.online
+   Organizing all UI elements with consistent styling */
+
+/* ======= 1. NAVIGATION ELEMENTS ======= */
+
+/* Navigation menu buttons */
+.nav-item {
+  @apply text-zinc-400 hover:text-white transition-colors duration-200;
+}
+
+.nav-item.active {
+  @apply bg-zinc-800 text-white;
+}
+
+/* Sidebar toggle buttons */
+.sidebar-toggle {
+  @apply text-white bg-transparent hover:bg-zinc-800 transition-colors;
+}
+
+/* ======= 2. BUTTON SYSTEM ======= */
+
+/* Primary Action Buttons - For main calls to action */
+.button-primary {
+  @apply bg-custom-pink text-white font-medium rounded-full px-6 py-3
+    transition-all duration-300 hover:bg-slate-900 hover:text-white
+    flex items-center gap-2;
+}
+
+/* Secondary Action Buttons - For secondary actions */
+.button-secondary {
+  @apply border border-slate-900/50 hover:border-custom-purple/70 bg-adam-gray/50
+    text-white font-medium rounded-full px-6 py-3
+    transition-all duration-300 hover:bg-slate-900 hover:text-white hover:shadow-lg
+    flex items-center gap-2;
+}
+
+/* Ghost/Icon Buttons - For utility actions in dark contexts */
+.button-ghost-dark {
+  @apply text-zinc-400 hover:text-white bg-transparent hover:bg-zinc-800
+    transition-colors duration-200 rounded-md;
+}
+
+/* Ghost/Icon Buttons - For utility actions in light contexts */
+.button-ghost-light {
+  @apply text-slate-700 hover:text-slate-900 bg-transparent hover:bg-slate-100
+    transition-colors duration-200 rounded-md;
+}
+
+/* Destructive Buttons - For delete/cancel actions */
+.button-destructive {
+  @apply bg-rose-500 text-white font-medium rounded-full px-6 py-3
+    transition-all duration-300 hover:bg-rose-600
+    flex items-center gap-2;
+}
+
+/* Link Buttons - For navigation actions */
+.button-link {
+  @apply text-custom-pink hover:text-custom-purple transition-colors duration-200
+    underline-offset-4 hover:underline;
+}
+
+/* Icon Buttons - For icon-only buttons */
+.button-icon {
+  @apply p-2 rounded-full bg-zinc-800 text-white hover:bg-zinc-700
+    transition-colors duration-200 flex items-center justify-center;
+}
+
+/* ======= 3. FORM ELEMENTS ======= */
+
+/* Input fields */
+.input-field {
+  @apply bg-zinc-800 border border-zinc-700 text-white rounded-md px-4 py-2
+    focus:outline-none focus:ring-2 focus:ring-custom-pink focus:border-transparent
+    transition-all duration-200;
+}
+
+/* Form labels */
+.form-label {
+  @apply text-zinc-300 font-medium mb-1 block;
+}
+
+/* ======= 4. INTERACTIVE ELEMENTS ======= */
+
+/* Like/Reaction buttons */
+.interaction-button {
+  @apply text-zinc-400 hover:text-custom-pink transition-colors duration-200;
+}
+
+/* Send buttons */
+.send-button {
+  @apply bg-custom-pink text-white p-2 rounded-md hover:bg-custom-purple
+    transition-colors duration-200;
+}
+
+/* Notification indicators */
+.notification-badge {
+  @apply bg-rose-500 text-white text-xs rounded-full w-5 h-5 
+    flex items-center justify-center;
+}
+
+/* ======= 5. MESSAGING COMPONENTS ======= */
+
+/* Message bubbles - Sent */
+.message-bubble-sent {
+  @apply bg-custom-pink text-white rounded-lg rounded-tr-none px-4 py-2;
+}
+
+/* Message bubbles - Received */
+.message-bubble-received {
+  @apply bg-zinc-800 text-white rounded-lg rounded-tl-none px-4 py-2;
+}
+
+/* ======= 6. LAYOUT COMPONENTS ======= */
+
+/* Cards */
+.card {
+  @apply bg-zinc-900 border border-zinc-800 rounded-lg p-4;
+}
+
+/* Section headers */
+.section-header {
+  @apply text-2xl font-bold text-white mb-6;
+}
+
+/* Dividers */
+.divider {
+  @apply border-t border-zinc-800 my-4;
+}
+
+/* ======= 7. UTILITY CLASSES ======= */
+
+/* Text gradient */
+.text-gradient {
+  @apply bg-gradient-to-br from-custom-pink to-custom-purple bg-clip-text text-transparent;
+}
+
+/* Glow effects */
+.glow-effect {
+  @apply shadow-lg shadow-custom-pink/20;
+}
+
+/* Hover transitions */
+.hover-lift {
+  @apply transition-transform duration-200 hover:-translate-y-1;
+}

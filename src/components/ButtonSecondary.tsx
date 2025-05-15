@@ -11,7 +11,7 @@ interface ButtonSecondaryProps {
 
 const ButtonSecondary: React.FC<ButtonSecondaryProps> = ({ 
   children, 
-  icon = false, 
+  icon = true, // Changed default to true to ensure icons show
   onClick,
   className = ""
 }) => {
