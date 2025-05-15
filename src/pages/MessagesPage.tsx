@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -269,6 +268,27 @@ const MessagesPage = () => {
           getOtherParticipant={getOtherParticipant}
         />
         
+        {/* Profile info column - moved to left side */}
+        {selectedConversation && otherParticipant ? (
+          <div className="hidden md:block md:w-1/4 lg:w-1/5">
+            <ProfileInfoColumn 
+              participant={otherParticipant} 
+              messages={messages}
+              isFriend={isFriend}
+              onToggleFriend={() => {
+                setIsFriend(!isFriend);
+                toast({
+                  title: isFriend ? "Friend removed" : "Friend added",
+                  description: isFriend
+                    ? `${otherParticipant.name} has been removed from your friends`
+                    : `${otherParticipant.name} has been added to your friends`
+                });
+              }}
+              onPoke={handlePoke}
+            />
+          </div>
+        ) : null}
+        
         {/* Chat area */}
         <div className="flex-1 flex flex-col h-full overflow-hidden">
           {selectedConversation && otherParticipant ? (
@@ -339,27 +359,6 @@ const MessagesPage = () => {
             <EmptyMessages />
           )}
         </div>
-        
-        {/* Profile info column - sticky */}
-        {selectedConversation && otherParticipant ? (
-          <div className="hidden md:block md:w-1/4 lg:w-1/5">
-            <ProfileInfoColumn 
-              participant={otherParticipant} 
-              messages={messages}
-              isFriend={isFriend}
-              onToggleFriend={() => {
-                setIsFriend(!isFriend);
-                toast({
-                  title: isFriend ? "Friend removed" : "Friend added",
-                  description: isFriend
-                    ? `${otherParticipant.name} has been removed from your friends`
-                    : `${otherParticipant.name} has been added to your friends`
-                });
-              }}
-              onPoke={handlePoke}
-            />
-          </div>
-        ) : null}
         
         {/* Chat sidebar with actions */}
         {selectedConversation && otherParticipant && (

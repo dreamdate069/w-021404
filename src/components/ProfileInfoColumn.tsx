@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { FileImage, FileVideo, User, UserPlus, UserX, MessageSquareHeart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
 interface ProfileInfoColumnProps {
   participant: ChatParticipant;
   messages: Message[];
@@ -12,6 +13,7 @@ interface ProfileInfoColumnProps {
   onToggleFriend?: () => void;
   onPoke?: () => void;
 }
+
 const ProfileInfoColumn = ({
   participant,
   messages,
@@ -21,7 +23,9 @@ const ProfileInfoColumn = ({
 }: ProfileInfoColumnProps) => {
   // Extract media from messages
   const mediaMessages = messages.filter(message => message.type === MessageType.MEDIA && message.mediaUrl);
-  return <div className="w-full h-full border-l border-zinc-800 bg-zinc-900/50 flex flex-col sticky top-0 max-h-screen overflow-hidden">
+  
+  return (
+    <div className="w-full h-full border-r border-zinc-800 bg-zinc-900/50 flex flex-col sticky top-0 max-h-screen overflow-hidden">
       <TooltipProvider>
         {/* Profile section */}
         <div className="p-6 border-b border-zinc-800">
@@ -75,11 +79,13 @@ const ProfileInfoColumn = ({
         <div className="p-4 border-b border-zinc-800 flex-1 overflow-hidden">
           <h3 className="font-medium text-zinc-200 mb-3">Shared Media</h3>
           <ScrollArea className="h-full max-h-[calc(100vh-480px)]">
-            {mediaMessages.length > 0 ? <div className="grid grid-cols-2 gap-2">
-                {mediaMessages.map(message => <div key={message.id} className="aspect-square rounded-md overflow-hidden bg-zinc-800 relative group cursor-pointer">
+            {mediaMessages.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2">
+                {mediaMessages.map(message => (
+                  <div key={message.id} className="aspect-square rounded-md overflow-hidden bg-zinc-800 relative group cursor-pointer">
                     {message.mediaType === 'image' && message.mediaUrl && <div className="relative h-full w-full">
                         <img src={message.mediaUrl} alt="Shared media" className="h-full w-full object-cover" />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center">
                           <FileImage className="text-white" size={24} />
                         </div>
                       </div>}
@@ -94,11 +100,15 @@ const ProfileInfoColumn = ({
                     {(!message.mediaUrl || message.mediaType === 'audio') && <div className="h-full w-full flex items-center justify-center">
                         <FileImage className="text-zinc-500" size={24} />
                       </div>}
-                  </div>)}
-              </div> : <div className="text-center py-8">
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
                 <User className="mx-auto text-zinc-600 mb-2" size={24} />
                 <p className="text-zinc-500 text-sm">No media shared yet</p>
-              </div>}
+              </div>
+            )}
           </ScrollArea>
         </div>
         
@@ -110,6 +120,8 @@ const ProfileInfoColumn = ({
           </p>
         </div>
       </TooltipProvider>
-    </div>;
+    </div>
+  );
 };
+
 export default ProfileInfoColumn;
