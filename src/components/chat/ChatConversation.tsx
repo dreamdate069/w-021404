@@ -15,7 +15,7 @@ interface ChatConversationProps {
 
 const ChatConversation: React.FC<ChatConversationProps> = ({ messages }) => {
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-6">
+    <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-none">
       {messages.map((message) => (
         <ChatMessage 
           key={message.id}

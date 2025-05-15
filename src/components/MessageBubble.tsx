@@ -24,7 +24,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isCurrentUser })
   // Determine time stamp styling
   const timeClass = cn(
     "text-xs block mt-1", 
-    isCurrentUser ? "text-custom-pink/70" : "text-zinc-400"
+    isCurrentUser ? "text-white/70" : "text-zinc-400"
   );
   
   // Render different message types
