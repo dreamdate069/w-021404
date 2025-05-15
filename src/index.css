@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -91,7 +92,7 @@
   }
 
   body {
-    @apply bg-adam-darker text-white font-sans m-0 p-0;
+    @apply bg-adam-darker text-slate-900 font-sans m-0 p-0;
   }
 
   .announcement-bar {
@@ -142,7 +143,7 @@
 
   .example-chips {
     backdrop-filter: blur(2px);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.1);
     transition: all 0.2s ease;
   }
   
@@ -162,6 +163,6 @@
   
   /* Button text with improved visibility */
   button {
-    @apply text-white;
+    @apply text-slate-900;
   }
 }

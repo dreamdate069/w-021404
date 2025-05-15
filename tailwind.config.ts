@@ -73,6 +73,9 @@ export default {
 				custom: {
 					pink: '#ed0ced',
 					purple: '#750edc',
+				},
+				slate: {
+					900: '#0f172a', // Explicitly defining slate-900 for consistency
 				}
 			},
 			borderRadius: {

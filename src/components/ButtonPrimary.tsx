@@ -18,7 +18,7 @@ const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({
   return (
     <button 
       onClick={onClick}
-      className={`action-button-glow relative bg-custom-pink text-white font-medium rounded-full px-6 py-3
+      className={`action-button-glow relative bg-custom-pink text-slate-900 font-medium rounded-full px-6 py-3
         transition-all duration-300 hover:bg-opacity-90 flex items-center gap-2 ${className}`}
     >
       {children}

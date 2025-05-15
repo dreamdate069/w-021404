@@ -50,7 +50,7 @@ const Interactive3DViewer: React.FC<Interactive3DViewerProps> = ({
   ];
 
   return (
-    <div className={`w-full ${simple ? '' : 'aspect-video'} flex flex-col rounded-lg overflow-hidden ${simple ? '' : 'bg-adam-darker/50 border border-white/10'}`}>
+    <div className={`w-full ${simple ? '' : 'aspect-video'} flex flex-col rounded-lg overflow-hidden ${simple ? '' : 'bg-adam-darker/50 border border-slate-900/10'}`}>
       <div className="flex-1 relative">
         <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
           <ambientLight intensity={0.5} />
@@ -61,12 +61,12 @@ const Interactive3DViewer: React.FC<Interactive3DViewerProps> = ({
         
         {showColorPicker && (
           <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-            <div className="bg-white/10 backdrop-blur-sm px-3 py-2 rounded-full flex gap-2">
+            <div className="bg-slate-900/10 backdrop-blur-sm px-3 py-2 rounded-full flex gap-2">
               {colors.map((color) => (
                 <button
                   key={color.value}
                   className="w-6 h-6 rounded-full transition-transform hover:scale-110 active:scale-95"
-                  style={{ backgroundColor: color.value, outline: cubeColor === color.value ? '2px solid white' : 'none' }}
+                  style={{ backgroundColor: color.value, outline: cubeColor === color.value ? '2px solid slate-900' : 'none' }}
                   onClick={() => setCubeColor(color.value)}
                   aria-label={`Set color to ${color.name}`}
                 />
@@ -77,7 +77,7 @@ const Interactive3DViewer: React.FC<Interactive3DViewerProps> = ({
       </div>
       
       {!simple && (
-        <div className="p-3 text-center text-sm text-white/70">
+        <div className="p-3 text-center text-sm text-slate-900/70">
           Drag to rotate • Click colors to change
         </div>
       )}
