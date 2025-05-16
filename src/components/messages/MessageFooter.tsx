@@ -10,7 +10,7 @@ const MessageFooter: React.FC<MessageFooterProps> = ({
   onSendMessage
 }) => {
   return <footer className="w-full border-t border-zinc-800 bg-zinc-900 py-2">
-      {onSendMessage && <div className="py-2 my-0 px-[177px] mx-[200px]">
+      {onSendMessage && <div className="py-2 px-[100px] mx-[219px] my-px">
           <MessageInput onSendMessage={onSendMessage} />
         </div>}
       <div className="px-4 py-2 text-xs flex justify-between items-center">
