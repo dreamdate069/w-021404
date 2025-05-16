@@ -268,7 +268,7 @@ const MessagesPage = () => {
           getOtherParticipant={getOtherParticipant}
         />
         
-        {/* Profile info column - moved to left side */}
+        {/* Profile info column - on left side */}
         {selectedConversation && otherParticipant ? (
           <div className="hidden md:block md:w-1/4 lg:w-1/5">
             <ProfileInfoColumn 
@@ -306,9 +306,6 @@ const MessagesPage = () => {
                   currentUserId={currentUserId}
                   getUserById={getUserById}
                 />
-              
-                {/* Message input - sticky to bottom */}
-                <MessageInput onSendMessage={handleSendMessage} />
               </div>
               
               {/* Overlay components */}
@@ -383,8 +380,10 @@ const MessagesPage = () => {
         )}
       </div>
       
-      {/* Transparent Footer */}
-      <MessageFooter />
+      {/* Transparent Footer with message input */}
+      <MessageFooter 
+        onSendMessage={selectedConversation ? handleSendMessage : undefined}
+      />
     </div>
   );
 };
