@@ -27,7 +27,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   const [showEmojis, setShowEmojis] = useState(false);
   
   return (
-    <div className="w-12 md:w-16 border-l border-zinc-800 flex flex-col items-center py-4 bg-zinc-900">
+    <div className="w-16 border-l border-zinc-800 flex flex-col items-center py-4 bg-zinc-900">
       <Tabs 
         value={activeTab}
         onValueChange={setActiveTab}
