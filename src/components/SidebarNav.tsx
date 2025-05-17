@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { MessageSquare, Heart, Users, Settings, Menu, LogIn, LogOut, UserPlus, Info, Newspaper, FileText, Globe, MapPin, UserCheck } from 'lucide-react';
@@ -30,7 +29,8 @@ const NavItem = ({
 };
 
 const SidebarNav = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Changed the default state to true so the sidebar starts collapsed
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(true); // Default to logged in for demo
