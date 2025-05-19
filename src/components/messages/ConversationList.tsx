@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Conversation, ChatParticipant } from '@/types/chat';
@@ -29,7 +28,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
   return (
     <TooltipProvider>
-      <div className={`h-full border-r border-zinc-800 flex flex-col transition-all duration-300 ${
+      <div className={`h-full flex flex-col transition-all duration-300 border-l border-zinc-800 ${
         isOpen ? 'w-60 md:w-72' : 'w-14'
       }`}>
         <div className="flex items-center justify-between p-4 border-b border-zinc-800">
@@ -42,7 +41,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 size="icon"
                 className={`text-white ${isOpen ? 'ml-auto' : 'mx-auto'}`}
               >
-                {isOpen ? <ChevronLeft /> : <ChevronRight />}
+                {isOpen ? <ChevronRight /> : <ChevronLeft />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
