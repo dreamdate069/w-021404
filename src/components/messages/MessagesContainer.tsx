@@ -56,7 +56,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
   return (
     <div className="h-screen flex overflow-hidden">
       {/* Column 1: Profile Info */}
-      <div className="w-1/5 border-r border-zinc-800">
+      <div className="w-1/6 min-w-[240px] border-r border-zinc-800">
         {selectedConversation && otherParticipant ? (
           <ProfileInfoColumn 
             participant={otherParticipant}
@@ -70,7 +70,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
       </div>
       
       {/* Column 2: Shared Media */}
-      <div className="w-1/5 border-r border-zinc-800">
+      <div className="w-1/6 min-w-[200px] border-r border-zinc-800">
         {selectedConversation && messages ? (
           <SharedMediaColumn messages={messages} />
         ) : (
@@ -79,7 +79,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
       </div>
       
       {/* Column 3: Chat Area */}
-      <div className="flex-1 w-2/5 flex flex-col h-full border-r border-zinc-800">
+      <div className="flex-1 flex flex-col h-full border-r border-zinc-800">
         <ChatArea 
           selectedConversation={selectedConversation}
           otherParticipant={otherParticipant}
@@ -99,7 +99,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
       </div>
       
       {/* Column 4: Conversations List */}
-      <div className="w-1/5">
+      <div className="w-1/6 min-w-[200px]">
         <ConversationList 
           conversations={conversations}
           selectedConversationId={selectedConversationId}

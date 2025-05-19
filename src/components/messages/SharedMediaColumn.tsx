@@ -15,7 +15,7 @@ const SharedMediaColumn: React.FC<SharedMediaColumnProps> = ({ messages }) => {
   return (
     <div className="w-full h-full border-r border-zinc-800 bg-zinc-900/50 flex flex-col">
       <div className="p-4 border-b border-zinc-800">
-        <h3 className="font-medium text-zinc-200 mb-3">Shared Media</h3>
+        <h3 className="font-medium text-zinc-200 text-center">Shared Media</h3>
       </div>
       
       <div className="p-4 flex-1 overflow-hidden">
@@ -45,8 +45,12 @@ const SharedMediaColumn: React.FC<SharedMediaColumnProps> = ({ messages }) => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <User className="mx-auto text-zinc-600 mb-2" size={24} />
+            <div className="text-center py-16">
+              <div className="mb-4 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center">
+                  <User className="text-zinc-600" size={24} />
+                </div>
+              </div>
               <p className="text-zinc-500 text-sm">No media shared yet</p>
             </div>
           )}

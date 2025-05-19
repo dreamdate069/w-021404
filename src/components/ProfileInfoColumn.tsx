@@ -26,7 +26,7 @@ const ProfileInfoColumn = ({
         <div className="p-6 border-b border-zinc-800">
           <div className="flex flex-col items-center w-full">
             <Avatar className="h-48 w-48 mb-5 rounded-md">
-              <AvatarImage src={participant.profilePic} alt={participant.name} className="rounded-md" />
+              <AvatarImage src={participant.profilePic} alt={participant.name} className="rounded-md object-cover" />
               <AvatarFallback className="text-3xl rounded-md">{participant.name[0]}</AvatarFallback>
             </Avatar>
             
@@ -38,40 +38,26 @@ const ProfileInfoColumn = ({
             </div>
             
             <div className="flex gap-2 w-full">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" onClick={onToggleFriend} className="flex-1">
-                    {isFriend ? <>
-                        <UserX className="mr-2 h-4 w-4" />
-                        <span>Unfriend</span>
-                      </> : <>
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        <span>Add Friend</span>
-                      </>}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isFriend ? 'Remove from friends' : 'Add to friends'}
-                </TooltipContent>
-              </Tooltip>
+              <Button variant="outline" onClick={onToggleFriend} className="flex-1 bg-zinc-800 border-zinc-700">
+                {isFriend ? <>
+                    <UserX className="mr-2 h-4 w-4" />
+                    <span>Remove Friend</span>
+                  </> : <>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <span>Add Friend</span>
+                  </>}
+              </Button>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" onClick={onPoke} className="flex-1">
-                    <MessageSquareHeart className="mr-2 h-4 w-4" />
-                    <span>Poke</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Send a poke notification
-                </TooltipContent>
-              </Tooltip>
+              <Button variant="outline" onClick={onPoke} className="flex-1 bg-zinc-800 border-zinc-700">
+                <MessageSquareHeart className="mr-2 h-4 w-4" />
+                <span>Message</span>
+              </Button>
             </div>
           </div>
         </div>
         
         {/* About section */}
-        <div className="flex-1 p-4">
+        <div className="p-4 flex-1">
           <h3 className="font-medium text-zinc-200 mb-2">About</h3>
           <p className="text-sm text-zinc-400">
             {participant.bio || "No information available"}
