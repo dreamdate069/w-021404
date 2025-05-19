@@ -6,6 +6,7 @@ import ModelViewer from '../components/chat/ModelViewer';
 import ParametersPanel from '../components/chat/ParametersPanel';
 import ChatControls from '../components/chat/ChatControls';
 import Logo from '@/components/Logo';
+import SidebarNav from '@/components/SidebarNav';
 
 const ProjectCard = ({
   title,
@@ -218,6 +219,9 @@ const Chat = () => {
           </div>
         </div>
       )}
+      
+      {/* Right sidebar messages drawer - now always visible */}
+      <SidebarNav />
     </div>
   );
 };

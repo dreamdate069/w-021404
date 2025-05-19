@@ -257,17 +257,6 @@ const MessagesPage = () => {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 flex overflow-hidden">
-        {/* Conversations sidebar - collapsed by default */}
-        <ConversationList 
-          conversations={conversations}
-          selectedConversationId={selectedConversationId}
-          onSelectConversation={(convId) => {
-            setSelectedConversationId(convId);
-            loadMessages(convId);
-          }}
-          getOtherParticipant={getOtherParticipant}
-        />
-        
         {/* Profile info column - moved to left side */}
         {selectedConversation && otherParticipant ? (
           <div className="hidden md:block md:w-1/4 lg:w-1/5">
@@ -360,27 +349,8 @@ const MessagesPage = () => {
           )}
         </div>
         
-        {/* Chat sidebar with actions */}
-        {selectedConversation && otherParticipant && (
-          <ChatSidebar
-            isFriend={isFriend}
-            onToggleFriend={() => {
-              setIsFriend(!isFriend);
-              toast({
-                title: isFriend ? "Friend removed" : "Friend added",
-                description: isFriend
-                  ? `${otherParticipant.name} has been removed from your friends`
-                  : `${otherParticipant.name} has been added to your friends`
-              });
-            }}
-            onEmojiSelect={(emoji) => {
-              handleSendMessage(emoji);
-            }}
-            onImageAttach={() => setShowMediaUploader(true)}
-            onGiftSelect={() => setShowGiftSelector(true)}
-            onCoinTransfer={() => setShowCoinTransfer(true)}
-          />
-        )}
+        {/* Right sidebar with messages */}
+        <SidebarNav />
       </div>
       
       {/* Transparent Footer */}
