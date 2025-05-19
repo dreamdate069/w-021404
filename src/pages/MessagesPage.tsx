@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +20,7 @@ import {
 } from '@/utils/chatUtils';
 
 // Import components
+import SidebarNav from '@/components/SidebarNav';
 import ChatSidebar from '@/components/ChatSidebar';
 import ProfileInfoColumn from '@/components/ProfileInfoColumn';
 import MediaUploader from '@/components/MediaUploader';
