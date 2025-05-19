@@ -4,6 +4,7 @@ import { Conversation, Message, ChatParticipant } from '@/types/chat';
 import ProfileInfoColumn from '@/components/ProfileInfoColumn';
 import ConversationList from '@/components/messages/ConversationList';
 import ChatArea from '@/components/messages/ChatArea';
+import SharedMediaColumn from '@/components/messages/SharedMediaColumn';
 
 interface MessagesContainerProps {
   selectedConversation: Conversation | undefined;
@@ -55,22 +56,30 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
   return (
     <div className="h-screen flex overflow-hidden">
       {/* Column 1: Profile Info */}
-      {selectedConversation && otherParticipant ? (
-        <div className="w-1/3 border-r border-zinc-800">
+      <div className="w-1/5 border-r border-zinc-800">
+        {selectedConversation && otherParticipant ? (
           <ProfileInfoColumn 
             participant={otherParticipant}
-            messages={messages}
             isFriend={isFriend}
             onToggleFriend={onToggleFriend}
             onPoke={onPoke}
           />
-        </div>
-      ) : (
-        <div className="w-1/3 border-r border-zinc-800 bg-zinc-900"></div>
-      )}
+        ) : (
+          <div className="w-full h-full bg-zinc-900"></div>
+        )}
+      </div>
       
-      {/* Column 2: Chat Area */}
-      <div className="flex-1 w-1/3 flex flex-col h-full border-r border-zinc-800">
+      {/* Column 2: Shared Media */}
+      <div className="w-1/5 border-r border-zinc-800">
+        {selectedConversation && messages ? (
+          <SharedMediaColumn messages={messages} />
+        ) : (
+          <div className="w-full h-full bg-zinc-900"></div>
+        )}
+      </div>
+      
+      {/* Column 3: Chat Area */}
+      <div className="flex-1 w-2/5 flex flex-col h-full border-r border-zinc-800">
         <ChatArea 
           selectedConversation={selectedConversation}
           otherParticipant={otherParticipant}
@@ -89,8 +98,8 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
         />
       </div>
       
-      {/* Column 3: Conversations List */}
-      <div className="w-1/3">
+      {/* Column 4: Conversations List */}
+      <div className="w-1/5">
         <ConversationList 
           conversations={conversations}
           selectedConversationId={selectedConversationId}
