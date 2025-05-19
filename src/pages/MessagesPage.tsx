@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -261,7 +262,7 @@ const MessagesPage = () => {
         {/* Left sidebar/Navigation */}
         <SidebarNav />
         
-        {/* Chat area - moved from middle to left */}
+        {/* Chat area */}
         <div className="flex-1 flex flex-col h-full overflow-hidden">
           {selectedConversation && otherParticipant ? (
             <>
@@ -332,18 +333,7 @@ const MessagesPage = () => {
           )}
         </div>
         
-        {/* Conversations sidebar - moved from left to right */}
-        <ConversationList 
-          conversations={conversations}
-          selectedConversationId={selectedConversationId}
-          onSelectConversation={(convId) => {
-            setSelectedConversationId(convId);
-            loadMessages(convId);
-          }}
-          getOtherParticipant={getOtherParticipant}
-        />
-        
-        {/* Chat sidebar with actions */}
+        {/* Action sidebar with chat tools */}
         {selectedConversation && otherParticipant && (
           <ChatSidebar
             isFriend={isFriend}
@@ -364,6 +354,17 @@ const MessagesPage = () => {
             onCoinTransfer={() => setShowCoinTransfer(true)}
           />
         )}
+        
+        {/* Conversations list - moved to the far right */}
+        <ConversationList 
+          conversations={conversations}
+          selectedConversationId={selectedConversationId}
+          onSelectConversation={(convId) => {
+            setSelectedConversationId(convId);
+            loadMessages(convId);
+          }}
+          getOtherParticipant={getOtherParticipant}
+        />
       </div>
       
       {/* Transparent Footer */}
