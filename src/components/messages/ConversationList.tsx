@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Conversation, ChatParticipant } from '@/types/chat';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft, MessagesSquare } from 'lucide-react';
+import { ChevronLeft, MessagesSquare } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ConversationListProps {
@@ -44,7 +44,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     size="icon"
                     className="text-white ml-auto"
                   >
-                    <ChevronRight />
+                    <ChevronLeft />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="left">

@@ -213,14 +213,20 @@ const Chat = () => {
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-6">Featured Projects</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {featuredProjects.map((project, index) => <ProjectCard key={index} title={project.title} imageSrc={project.imageSrc} />)}
+                {featuredProjects.map((project, index) => (
+                  <ProjectCard 
+                    key={index} 
+                    title={project.title} 
+                    imageSrc={project.imageSrc} 
+                  />
+                ))}
               </div>
             </div>
           </div>
         </div>
       )}
       
-      {/* Right sidebar messages drawer - now always visible */}
+      {/* Right sidebar messages drawer - now properly on the right side */}
       <SidebarNav />
     </div>
   );

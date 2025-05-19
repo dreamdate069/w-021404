@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +25,6 @@ import ProfileInfoColumn from '@/components/ProfileInfoColumn';
 import MediaUploader from '@/components/MediaUploader';
 import GiftSelector from '@/components/GiftSelector';
 import CoinTransfer from '@/components/CoinTransfer';
-import ConversationList from '@/components/messages/ConversationList';
 import ChatHeader from '@/components/messages/ChatHeader';
 import MessageList from '@/components/messages/MessageList';
 import MessageInput from '@/components/messages/MessageInput';
@@ -259,7 +257,7 @@ const MessagesPage = () => {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 flex overflow-hidden">
-        {/* Profile info column - moved to left side */}
+        {/* Profile info column - on left side */}
         {selectedConversation && otherParticipant ? (
           <div className="hidden md:block md:w-1/4 lg:w-1/5">
             <ProfileInfoColumn 
@@ -351,7 +349,7 @@ const MessagesPage = () => {
           )}
         </div>
         
-        {/* Right sidebar with messages */}
+        {/* Right sidebar with messages - now properly placed on the right */}
         <SidebarNav />
       </div>
       
