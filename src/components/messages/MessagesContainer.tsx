@@ -5,6 +5,8 @@ import ProfileInfoColumn from '@/components/ProfileInfoColumn';
 import ConversationList from '@/components/messages/ConversationList';
 import ChatArea from '@/components/messages/ChatArea';
 import SharedMediaColumn from '@/components/messages/SharedMediaColumn';
+import SidebarNav from '@/components/SidebarNav';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MessagesContainerProps {
   selectedConversation: Conversation | undefined;
@@ -53,53 +55,55 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
   handleCoinTransfer,
   handleFileSelect
 }) => {
+  const isMobile = useIsMobile();
+
   return (
-    <div className="h-screen flex overflow-hidden">
-      {/* Column 1: Profile Info */}
-      <div className="w-1/6 min-w-[240px] border-r border-zinc-800">
-        {selectedConversation && otherParticipant ? (
-          <ProfileInfoColumn 
-            participant={otherParticipant}
-            isFriend={isFriend}
-            onToggleFriend={onToggleFriend}
-            onPoke={onPoke}
+    <div className="h-screen w-screen flex overflow-hidden">
+      {/* Navigation Sidebar */}
+      <SidebarNav />
+      
+      {/* Main Content Area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Column 1: Profile Info - hidden on mobile */}
+        {!isMobile && otherParticipant && (
+          <div className="w-[220px] flex-shrink-0">
+            <ProfileInfoColumn 
+              participant={otherParticipant}
+              isFriend={isFriend}
+              onToggleFriend={onToggleFriend}
+              onPoke={onPoke}
+            />
+          </div>
+        )}
+        
+        {/* Column 2: Shared Media - hidden on mobile */}
+        {!isMobile && selectedConversation && (
+          <div className="w-[180px] flex-shrink-0">
+            <SharedMediaColumn messages={messages} />
+          </div>
+        )}
+        
+        {/* Column 3: Chat Area */}
+        <div className="flex-1 flex flex-col h-full">
+          <ChatArea 
+            selectedConversation={selectedConversation}
+            otherParticipant={otherParticipant}
+            messages={messages}
+            currentUserId={currentUserId}
+            onSendMessage={onSendMessage}
+            showMediaUploader={showMediaUploader}
+            setShowMediaUploader={setShowMediaUploader}
+            showGiftSelector={showGiftSelector}
+            setShowGiftSelector={setShowGiftSelector}
+            showCoinTransfer={showCoinTransfer}
+            setShowCoinTransfer={setShowCoinTransfer}
+            handleFileSelect={handleFileSelect}
+            handleGiftSelect={handleGiftSelect}
+            handleCoinTransfer={handleCoinTransfer}
           />
-        ) : (
-          <div className="w-full h-full bg-zinc-900"></div>
-        )}
-      </div>
-      
-      {/* Column 2: Shared Media */}
-      <div className="w-1/6 min-w-[200px] border-r border-zinc-800">
-        {selectedConversation && messages ? (
-          <SharedMediaColumn messages={messages} />
-        ) : (
-          <div className="w-full h-full bg-zinc-900"></div>
-        )}
-      </div>
-      
-      {/* Column 3: Chat Area */}
-      <div className="flex-1 flex flex-col h-full border-r border-zinc-800">
-        <ChatArea 
-          selectedConversation={selectedConversation}
-          otherParticipant={otherParticipant}
-          messages={messages}
-          currentUserId={currentUserId}
-          onSendMessage={onSendMessage}
-          showMediaUploader={showMediaUploader}
-          setShowMediaUploader={setShowMediaUploader}
-          showGiftSelector={showGiftSelector}
-          setShowGiftSelector={setShowGiftSelector}
-          showCoinTransfer={showCoinTransfer}
-          setShowCoinTransfer={setShowCoinTransfer}
-          handleFileSelect={handleFileSelect}
-          handleGiftSelect={handleGiftSelect}
-          handleCoinTransfer={handleCoinTransfer}
-        />
-      </div>
-      
-      {/* Column 4: Conversations List */}
-      <div className="w-1/6 min-w-[200px]">
+        </div>
+        
+        {/* Column 4: Conversations List */}
         <ConversationList 
           conversations={conversations}
           selectedConversationId={selectedConversationId}
