@@ -66,7 +66,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
       <div className="flex flex-1 overflow-hidden">
         {/* Column 1: Profile Info - hidden on mobile */}
         {!isMobile && otherParticipant && (
-          <div className="w-[220px] flex-shrink-0">
+          <div className="w-[230px] flex-shrink-0">
             <ProfileInfoColumn 
               participant={otherParticipant}
               isFriend={isFriend}

@@ -20,7 +20,7 @@ const ProfileInfoColumn = ({
   onPoke = () => {}
 }: ProfileInfoColumnProps) => {
   return (
-    <div className="h-full border-r border-zinc-800 bg-zinc-900/50 flex flex-col sticky top-0 max-h-screen overflow-hidden">
+    <div className="h-full border-r border-zinc-800 bg-zinc-900/50 flex flex-col sticky top-0 max-h-screen overflow-auto">
       <TooltipProvider>
         {/* Profile section */}
         <div className="p-4 border-b border-zinc-800">
@@ -37,8 +37,8 @@ const ProfileInfoColumn = ({
               <span>{participant.online ? 'Online now' : participant.lastActive || 'Offline'}</span>
             </div>
             
-            <div className="flex gap-2 w-full">
-              <Button variant="outline" onClick={onToggleFriend} className="flex-1 bg-zinc-800 border-zinc-700 h-8 px-2 text-xs">
+            <div className="flex gap-2 w-full mb-2">
+              <Button variant="outline" onClick={onToggleFriend} className="flex-1 bg-zinc-800 border-zinc-700 h-9 px-2 text-xs">
                 {isFriend ? <>
                     <UserX className="mr-1 h-3 w-3" />
                     <span>Remove</span>
@@ -48,7 +48,7 @@ const ProfileInfoColumn = ({
                   </>}
               </Button>
               
-              <Button variant="outline" onClick={onPoke} className="flex-1 bg-zinc-800 border-zinc-700 h-8 px-2 text-xs">
+              <Button variant="outline" onClick={onPoke} className="flex-1 bg-zinc-800 border-zinc-700 h-9 px-2 text-xs">
                 <MessageSquareHeart className="mr-1 h-3 w-3" />
                 <span>Message</span>
               </Button>
@@ -57,8 +57,8 @@ const ProfileInfoColumn = ({
         </div>
         
         {/* About section */}
-        <div className="p-3 flex-1 overflow-y-auto">
-          <h3 className="font-medium text-zinc-200 text-sm mb-1">About</h3>
+        <div className="p-4 flex-1 overflow-y-auto pb-6">
+          <h3 className="font-medium text-zinc-200 text-sm mb-2">About</h3>
           <p className="text-xs text-zinc-400">
             {participant.bio || "No information available"}
           </p>

@@ -19,7 +19,7 @@ const SharedMediaColumn: React.FC<SharedMediaColumnProps> = ({ messages }) => {
       </div>
       
       <div className="flex-1 overflow-hidden p-2">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full pr-2">
           {mediaMessages.length > 0 ? (
             <div className="grid grid-cols-2 gap-1">
               {mediaMessages.map(message => (
