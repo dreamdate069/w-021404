@@ -5,7 +5,6 @@ import ProfileInfoColumn from '@/components/ProfileInfoColumn';
 import ConversationList from '@/components/messages/ConversationList';
 import ChatArea from '@/components/messages/ChatArea';
 import SharedMediaColumn from '@/components/messages/SharedMediaColumn';
-import SidebarNav from '@/components/SidebarNav';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MessagesContainerProps {
@@ -58,10 +57,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden">
-      {/* Navigation Sidebar */}
-      <SidebarNav />
-      
+    <div className="h-screen w-full flex overflow-hidden">
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Column 1: Profile Info - hidden on mobile */}
