@@ -4,16 +4,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   MessageSquare, 
   Heart, 
-  X, 
-  Check, 
+  UserPlus,
+  Users,
   MapPin, 
   Calendar, 
-  Share,
   MoreHorizontal, 
   Flag,
-  UserX
+  UserX,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ButtonPrimary from '@/components/ButtonPrimary';
 import ButtonSecondary from '@/components/ButtonSecondary';
@@ -53,12 +54,17 @@ const ProfilePage = () => {
     navigate(`/messages?userId=${id}`);
   };
   
-  const handleShare = () => {
-    // Copy profile link to clipboard
-    navigator.clipboard.writeText(window.location.href);
+  const handleFriendRequest = () => {
     toast({
-      title: "Link Copied",
-      description: "Profile link copied to clipboard.",
+      title: "Friend Request Sent",
+      description: `Friend request sent to ${MEMBER.name}.`,
+    });
+  };
+  
+  const handleInviteToGroup = () => {
+    toast({
+      title: "Group Invite",
+      description: `Invite sent to ${MEMBER.name} to join your group.`,
     });
   };
   
@@ -89,8 +95,16 @@ const ProfilePage = () => {
             <img 
               src={MEMBER.images?.[0] || MEMBER.image} 
               alt={`${MEMBER.name}'s profile`}
-              className="w-full aspect-[3/4] object-cover"
+              className="w-full aspect-[3/4] object-cover select-none pointer-events-none"
+              draggable="false"
+              onContextMenu={(e) => e.preventDefault()}
             />
+            
+            {/* Verified Badge */}
+            <Badge className="absolute top-3 right-3 bg-blue-500 text-white px-2 py-1 text-xs font-semibold">
+              <Check size={12} className="mr-1" />
+              Verified
+            </Badge>
             
             {/* Action buttons overlay at bottom of profile picture */}
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent flex gap-2">
@@ -118,17 +132,24 @@ const ProfilePage = () => {
                 <img 
                   src={image}
                   alt={`${MEMBER.name}'s photo ${i+2}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover select-none pointer-events-none"
+                  draggable="false"
+                  onContextMenu={(e) => e.preventDefault()}
                 />
               </div>
             ))}
           </div>
           
           {/* Additional action buttons */}
-          <div className="flex justify-between">
-            <ButtonSecondary onClick={handleShare} className="flex-1 mr-2">
-              Share
-              <Share size={16} />
+          <div className="flex gap-2">
+            <ButtonSecondary onClick={handleFriendRequest} className="flex-1">
+              Friend Request
+              <UserPlus size={16} />
+            </ButtonSecondary>
+            
+            <ButtonSecondary onClick={handleInviteToGroup} className="flex-1">
+              Invite to Group
+              <Users size={16} />
             </ButtonSecondary>
             
             <DropdownMenu>
@@ -159,23 +180,12 @@ const ProfilePage = () => {
         
         {/* Right Column - Profile Info */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white">{MEMBER.name}, {MEMBER.age}</h1>
-              <div className="flex items-center text-zinc-300 mt-1">
-                <MapPin size={16} className="mr-1" />
-                <span>{MEMBER.location}</span>
-                <span className="ml-4 text-green-500 text-sm font-medium">{MEMBER.lastActive}</span>
-              </div>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button size="icon" variant="outline" className="rounded-full border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white">
-                <X size={16} />
-              </Button>
-              <Button size="icon" className="rounded-full bg-green-500 hover:bg-green-600">
-                <Check size={16} />
-              </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-white">{MEMBER.name}, {MEMBER.age}</h1>
+            <div className="flex items-center text-zinc-300 mt-1">
+              <MapPin size={16} className="mr-1" />
+              <span>{MEMBER.location}</span>
+              <span className="ml-4 text-green-500 text-sm font-medium">{MEMBER.lastActive}</span>
             </div>
           </div>
           
@@ -184,6 +194,9 @@ const ProfilePage = () => {
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="photos">Photos</TabsTrigger>
               <TabsTrigger value="interests">Interests</TabsTrigger>
+              <TabsTrigger value="groups">Groups</TabsTrigger>
+              <TabsTrigger value="blog">Blog</TabsTrigger>
+              <TabsTrigger value="mutual">Mutual Friends</TabsTrigger>
             </TabsList>
             
             <TabsContent value="about" className="pt-4">
@@ -213,7 +226,9 @@ const ProfilePage = () => {
                     <img 
                       src={image} 
                       alt={`${MEMBER.name}'s photo ${i+1}`} 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover select-none pointer-events-none"
+                      draggable="false"
+                      onContextMenu={(e) => e.preventDefault()}
                     />
                   </div>
                 ))}
@@ -230,6 +245,48 @@ const ProfilePage = () => {
                   >
                     {interest}
                   </span>
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="groups" className="pt-4">
+              <h3 className="text-xl font-bold text-white mb-3">Groups</h3>
+              <p className="text-zinc-300">Member of 3 groups</p>
+              <div className="space-y-3 mt-3">
+                <div className="bg-zinc-800 p-3 rounded-lg">
+                  <h4 className="text-white font-medium">Photography Enthusiasts</h4>
+                  <p className="text-zinc-400 text-sm">Local photography group - 127 members</p>
+                </div>
+                <div className="bg-zinc-800 p-3 rounded-lg">
+                  <h4 className="text-white font-medium">Weekend Hikers</h4>
+                  <p className="text-zinc-400 text-sm">Outdoor adventure group - 89 members</p>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="blog" className="pt-4">
+              <h3 className="text-xl font-bold text-white mb-3">Blog Posts</h3>
+              <div className="space-y-4">
+                <div className="bg-zinc-800 p-4 rounded-lg">
+                  <h4 className="text-white font-medium mb-2">My Journey Through Japan</h4>
+                  <p className="text-zinc-400 text-sm">Published 2 weeks ago • 45 likes • 12 comments</p>
+                </div>
+                <div className="bg-zinc-800 p-4 rounded-lg">
+                  <h4 className="text-white font-medium mb-2">Best Coffee Shops in the City</h4>
+                  <p className="text-zinc-400 text-sm">Published 1 month ago • 23 likes • 8 comments</p>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="mutual" className="pt-4">
+              <h3 className="text-xl font-bold text-white mb-3">Mutual Friends</h3>
+              <p className="text-zinc-300 mb-3">You have 12 mutual friends</p>
+              <div className="grid grid-cols-4 gap-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="text-center">
+                    <div className="w-16 h-16 bg-zinc-700 rounded-full mb-2 mx-auto"></div>
+                    <p className="text-xs text-zinc-400">Friend {i}</p>
+                  </div>
                 ))}
               </div>
             </TabsContent>
