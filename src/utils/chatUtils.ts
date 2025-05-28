@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { Message, Conversation, MessageType, ChatParticipant } from '@/types/chat';
 import { DreamCoinBank } from './DreamCoinBank';
@@ -20,11 +21,11 @@ const createChatParticipant = (userId: string): ChatParticipant => {
   if (member) {
     return {
       id: userId,
-      name: member.name,
+      name: member.nickname,
       profilePic: member.image,
       online: member.online,
       lastActive: member.lastActive,
-      bio: member.bio || `Hi, I'm ${member.name}! Let's chat.`
+      bio: member.bio || `Hi, I'm ${member.nickname}! Let's chat.`
     };
   }
   

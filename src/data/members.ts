@@ -1,3 +1,4 @@
+
 export interface Member {
   id: string;
   nickname: string;
@@ -14,131 +15,161 @@ export interface Member {
 const members: Member[] = [
   {
     id: '1',
-    nickname: 'Alex_Berlin',
-    age: 28,
-    image: '/user-uploads/profile-pics/1.png',
+    nickname: 'SophiaBloom',
+    age: 25,
+    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b524?w=400&h=600&fit=crop&crop=face',
     images: [
-      '/user-uploads/profile-pics/1.png',
-      '/user-uploads/profile-pics/design (1).png',
-      '/user-uploads/profile-pics/Untitled design (1).png'
+      'https://images.unsplash.com/photo-1494790108755-2616b612b524?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=600&fit=crop&crop=face'
     ],
     location: 'Berlin',
-    bio: 'Hi, I\'m Alex! Software engineer by day, adventure seeker by night. Love hiking, photography, and discovering new coffee shops around the city.',
-    interests: ['Photography', 'Hiking', 'Coffee', 'Technology', 'Travel'],
+    bio: 'Travel photographer with a passion for capturing life\'s beautiful moments. Love exploring new cultures and meeting creative people.',
+    interests: ['Photography', 'Travel', 'Art', 'Music', 'Coffee'],
     online: true,
     lastActive: 'Online now'
   },
   {
     id: '2', 
-    nickname: 'SarahSunshine',
-    age: 25,
-    image: '/user-uploads/profile-pics/(3).png',
+    nickname: 'EmmaRose',
+    age: 28,
+    image: 'https://images.unsplash.com/photo-1488207681203-74deb9ad6c2e?w=400&h=600&fit=crop&crop=face',
     images: [
-      '/user-uploads/profile-pics/(3).png',
-      '/user-uploads/profile-pics/Untitled design (3).png',
-      '/user-uploads/profile-pics/Untitled design (4).png'
+      'https://images.unsplash.com/photo-1488207681203-74deb9ad6c2e?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=600&fit=crop&crop=face'
     ],
     location: 'Hamburg',
-    bio: 'Creative soul with a passion for art and music. Looking for someone who appreciates the little things in life and isn\'t afraid to be spontaneous!',
-    interests: ['Art', 'Music', 'Dancing', 'Cooking', 'Museums'],
+    bio: 'Yoga instructor and wellness enthusiast. Believe in living mindfully and spreading positive energy wherever I go.',
+    interests: ['Yoga', 'Wellness', 'Meditation', 'Hiking', 'Healthy Living'],
     online: false,
     lastActive: '2 hours ago'
   },
   {
     id: '3',
-    nickname: 'MikeTheHiker',
+    nickname: 'LiamAdventure',
     age: 32,
-    image: '/user-uploads/profile-pics/(2).png',
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop&crop=face',
     images: [
-      '/user-uploads/profile-pics/(2).png',
-      '/user-uploads/profile-pics/design (2).png',
-      '/user-uploads/profile-pics/design (3).png'
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop&crop=face'
     ],
     location: 'Munich',
-    bio: 'Outdoor enthusiast and travel addict. Always up for a new adventure, whether it\'s hiking in the Alps or exploring hidden gems in the city.',
-    interests: ['Hiking', 'Travel', 'Skiing', 'Mountaineering', 'Camping'],
+    bio: 'Outdoor enthusiast and mountain climber. Always seeking the next adventure, whether it\'s scaling peaks or exploring hidden trails.',
+    interests: ['Mountain Climbing', 'Hiking', 'Adventure Sports', 'Photography', 'Travel'],
     online: false,
     lastActive: '1 day ago'
   },
   {
     id: '4',
-    nickname: 'LisaBookLover',
-    age: 29,
-    image: '/user-uploads/profile-pics/(4).png',
+    nickname: 'IsabellaArt',
+    age: 26,
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=face',
     images: [
-      '/user-uploads/profile-pics/(4).png',
-      '/user-uploads/profile-pics/Untitled design.png',
-      '/user-uploads/profile-pics/Untitled design (2).png'
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1513721032312-6a18a42c8763?w=400&h=600&fit=crop&crop=face'
     ],
     location: 'Cologne',
-    bio: 'Bookworm and coffee lover. Looking for someone to share cozy nights in with a good book and a warm cup of coffee.',
-    interests: ['Reading', 'Coffee', 'Writing', 'Movies', 'Board Games'],
+    bio: 'Digital artist and creative director. I find inspiration in everyday moments and love bringing ideas to life through visual storytelling.',
+    interests: ['Digital Art', 'Design', 'Photography', 'Museums', 'Creative Writing'],
     online: true,
     lastActive: 'Online now'
   },
   {
     id: '5',
-    nickname: 'Tom_Tech',
-    age: 35,
-    image: '/user-uploads/profile-pics/(5).png',
+    nickname: 'NoahTech',
+    age: 29,
+    image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=600&fit=crop&crop=face',
+    images: [
+      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=400&h=600&fit=crop&crop=face'
+    ],
     location: 'Berlin',
-    bio: 'Tech enthusiast and gamer. When I\'m not coding, you can find me exploring the latest gadgets or lost in a virtual world.',
-    interests: ['Technology', 'Gaming', 'Coding', 'Sci-Fi', 'Gadgets'],
+    bio: 'Software engineer by day, musician by night. Building apps that make a difference while pursuing my passion for jazz guitar.',
+    interests: ['Programming', 'Music', 'Jazz', 'Technology', 'Innovation'],
     online: false,
     lastActive: '3 hours ago'
   },
   {
     id: '6',
-    nickname: 'EvaArtist',
-    age: 27,
-    image: '/user-uploads/profile-pics/(6).png',
+    nickname: 'AvaChef',
+    age: 24,
+    image: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=600&fit=crop&crop=face',
+    images: [
+      'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1484328861630-cf73b7d34ea3?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=600&fit=crop&crop=face'
+    ],
     location: 'Hamburg',
-    bio: 'Passionate artist and nature lover. I find inspiration in the world around me and love to express myself through painting and photography.',
-    interests: ['Art', 'Photography', 'Nature', 'Travel', 'Yoga'],
+    bio: 'Culinary artist passionate about sustainable cooking. Creating delicious experiences while caring for our planet.',
+    interests: ['Cooking', 'Sustainability', 'Local Markets', 'Wine', 'Food Photography'],
     online: true,
     lastActive: 'Online now'
   },
   {
     id: '7',
-    nickname: 'DanielFoodie',
+    nickname: 'EthanFit',
     age: 31,
-    image: '/user-uploads/profile-pics/(7).png',
+    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=face',
+    images: [
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1533460004989-cef01064af7e?w=400&h=600&fit=crop&crop=face'
+    ],
     location: 'Munich',
-    bio: 'Foodie and travel enthusiast. Always on the lookout for new culinary experiences and hidden gems around the world.',
-    interests: ['Food', 'Travel', 'Cooking', 'Wine', 'Restaurants'],
+    bio: 'Personal trainer and marathon runner. Helping others achieve their fitness goals while pushing my own limits.',
+    interests: ['Fitness', 'Running', 'Nutrition', 'Motivation', 'Outdoor Training'],
     online: false,
     lastActive: '1 day ago'
   },
   {
     id: '8',
-    nickname: 'SophieFit',
-    age: 26,
-    image: '/user-uploads/profile-pics/(8).png',
+    nickname: 'CharlotteBooks',
+    age: 27,
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=face',
+    images: [
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1494790108755-2616b612b524?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=400&h=600&fit=crop&crop=face'
+    ],
     location: 'Cologne',
-    bio: 'Fitness junkie and health enthusiast. I believe in living a balanced lifestyle and love to inspire others to reach their full potential.',
-    interests: ['Fitness', 'Health', 'Yoga', 'Nutrition', 'Running'],
+    bio: 'Literature teacher and aspiring novelist. Finding magic in words and sharing the love of storytelling with others.',
+    interests: ['Reading', 'Writing', 'Literature', 'Poetry', 'Book Clubs'],
     online: true,
     lastActive: 'Online now'
   },
   {
     id: '9',
-    nickname: 'ChrisMusic',
-    age: 33,
-    image: '/user-uploads/profile-pics/(9).png',
+    nickname: 'OliverMusic',
+    age: 30,
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=face',
+    images: [
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1531727991582-cfd25ce79613?w=400&h=600&fit=crop&crop=face'
+    ],
     location: 'Berlin',
-    bio: 'Music lover and concert-goer. I enjoy discovering new artists and sharing my passion for music with others.',
-    interests: ['Music', 'Concerts', 'Festivals', 'Dancing', 'DJing'],
+    bio: 'Professional violinist and music producer. Blending classical training with modern sounds to create something unique.',
+    interests: ['Classical Music', 'Music Production', 'Violin', 'Concerts', 'Composition'],
     online: false,
     lastActive: '2 hours ago'
   },
   {
     id: '10',
-    nickname: 'AnnaTraveler',
-    age: 29,
-    image: '/user-uploads/profile-pics/(10).png',
+    nickname: 'ZoeExplorer',
+    age: 23,
+    image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=600&fit=crop&crop=face',
+    images: [
+      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=600&fit=crop&crop=face',
+      'https://images.unsplash.com/photo-1488207681203-74deb9ad6c2e?w=400&h=600&fit=crop&crop=face'
+    ],
     location: 'Hamburg',
-    bio: 'World traveler and adventure seeker. I\'m always planning my next trip and love to explore new cultures and meet new people.',
-    interests: ['Travel', 'Culture', 'Adventure', 'Photography', 'Languages'],
+    bio: 'Marine biology student with a passion for ocean conservation. Diving deep into research and adventure.',
+    interests: ['Marine Biology', 'Scuba Diving', 'Conservation', 'Ocean Research', 'Adventure'],
     online: true,
     lastActive: 'Online now'
   }

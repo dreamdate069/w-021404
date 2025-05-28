@@ -131,7 +131,7 @@ const ProfilePage = () => {
               <div key={i} className="bg-zinc-800 rounded-lg overflow-hidden aspect-square">
                 <img 
                   src={image}
-                  alt={`${MEMBER.name}'s photo ${i+2}`}
+                  alt={`${MEMBER.nickname}'s photo ${i+2}`}
                   className="w-full h-full object-cover select-none pointer-events-none"
                   draggable="false"
                   onContextMenu={(e) => e.preventDefault()}
