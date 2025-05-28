@@ -45,7 +45,7 @@ const ProfilePage = () => {
     setIsLiked(prev => !prev);
     toast({
       title: isLiked ? "Removed Like" : "Profile Liked",
-      description: isLiked ? "You've removed your like." : `You've liked ${MEMBER.name}'s profile.`,
+      description: isLiked ? "You've removed your like." : `You've liked ${MEMBER.nickname}'s profile.`,
     });
   };
   
@@ -57,21 +57,21 @@ const ProfilePage = () => {
   const handleFriendRequest = () => {
     toast({
       title: "Friend Request Sent",
-      description: `Friend request sent to ${MEMBER.name}.`,
+      description: `Friend request sent to ${MEMBER.nickname}.`,
     });
   };
   
   const handleInviteToGroup = () => {
     toast({
       title: "Group Invite",
-      description: `Invite sent to ${MEMBER.name} to join your group.`,
+      description: `Invite sent to ${MEMBER.nickname} to join your group.`,
     });
   };
   
   const handleBlock = () => {
     toast({
       title: "User Blocked",
-      description: `You won't see ${MEMBER.name}'s profile anymore.`,
+      description: `You won't see ${MEMBER.nickname}'s profile anymore.`,
       variant: "destructive",
     });
     // In a real app, we would make an API call to block the user
@@ -94,7 +94,7 @@ const ProfilePage = () => {
           <div className="bg-zinc-800 rounded-xl overflow-hidden relative">
             <img 
               src={MEMBER.images?.[0] || MEMBER.image} 
-              alt={`${MEMBER.name}'s profile`}
+              alt={`${MEMBER.nickname}'s profile`}
               className="w-full aspect-[3/4] object-cover select-none pointer-events-none"
               draggable="false"
               onContextMenu={(e) => e.preventDefault()}
@@ -181,7 +181,7 @@ const ProfilePage = () => {
         {/* Right Column - Profile Info */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-white">{MEMBER.name}, {MEMBER.age}</h1>
+            <h1 className="text-3xl font-bold text-white">{MEMBER.nickname}, {MEMBER.age}</h1>
             <div className="flex items-center text-zinc-300 mt-1">
               <MapPin size={16} className="mr-1" />
               <span>{MEMBER.location}</span>
@@ -225,7 +225,7 @@ const ProfilePage = () => {
                   <div key={i} className="aspect-square rounded-lg overflow-hidden">
                     <img 
                       src={image} 
-                      alt={`${MEMBER.name}'s photo ${i+1}`} 
+                      alt={`${MEMBER.nickname}'s photo ${i+1}`} 
                       className="w-full h-full object-cover select-none pointer-events-none"
                       draggable="false"
                       onContextMenu={(e) => e.preventDefault()}

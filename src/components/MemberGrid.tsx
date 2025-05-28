@@ -15,7 +15,7 @@ export const MemberGrid = () => {
           <div className="aspect-[3/4] relative overflow-hidden">
             <img 
               src={member.image} 
-              alt={`${member.name}'s profile`} 
+              alt={`${member.nickname}'s profile`} 
               className="w-full h-full object-cover transition-transform group-hover:scale-105"
             />
             
@@ -25,7 +25,7 @@ export const MemberGrid = () => {
             )}
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-3">
-              <h3 className="text-white font-medium text-lg">{member.name}, {member.age}</h3>
+              <h3 className="text-white font-medium text-lg">{member.nickname}, {member.age}</h3>
               <p className="text-zinc-300 text-sm">{member.location}</p>
             </div>
             

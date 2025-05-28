@@ -8,10 +8,10 @@ import { Input } from '@/components/ui/input';
 
 // Mock user data
 const mockUsers = [
-  { id: 'user-1', name: 'Alex Johnson', age: 28, status: 'active', location: 'New York', joined: '2023-05-12', matches: 14 },
-  { id: 'user-2', name: 'Sarah Williams', age: 24, status: 'active', location: 'Los Angeles', joined: '2023-06-23', matches: 8 },
-  { id: 'user-3', name: 'Mike Thompson', age: 32, status: 'suspended', location: 'Chicago', joined: '2023-04-18', matches: 5 },
-  { id: 'user-4', name: 'Emma Davis', age: 26, status: 'active', location: 'Miami', joined: '2023-07-30', matches: 12 },
+  { id: 'user-1', nickname: 'AlexBerlin', age: 28, status: 'active', location: 'New York', joined: '2023-05-12', matches: 14 },
+  { id: 'user-2', nickname: 'SarahSun', age: 24, status: 'active', location: 'Los Angeles', joined: '2023-06-23', matches: 8 },
+  { id: 'user-3', nickname: 'MikeWild', age: 32, status: 'suspended', location: 'Chicago', joined: '2023-04-18', matches: 5 },
+  { id: 'user-4', nickname: 'EmmaDreamy', age: 26, status: 'active', location: 'Miami', joined: '2023-07-30', matches: 12 },
 ];
 
 const UserManagement = () => {
@@ -45,7 +45,7 @@ const UserManagement = () => {
           <Table>
             <TableHeader>
               <TableRow className="border-zinc-700">
-                <TableHead className="text-zinc-400">Name</TableHead>
+                <TableHead className="text-zinc-400">Nickname</TableHead>
                 <TableHead className="text-zinc-400">Age</TableHead>
                 <TableHead className="text-zinc-400">Location</TableHead>
                 <TableHead className="text-zinc-400">Status</TableHead>
@@ -57,7 +57,7 @@ const UserManagement = () => {
             <TableBody>
               {mockUsers.map((user) => (
                 <TableRow key={user.id} className="border-zinc-700">
-                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="font-medium">{user.nickname}</TableCell>
                   <TableCell>{user.age}</TableCell>
                   <TableCell>{user.location}</TableCell>
                   <TableCell>

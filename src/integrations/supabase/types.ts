@@ -9,7 +9,157 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profile_photos: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          photo_order: number | null
+          photo_url: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          photo_order?: number | null
+          photo_url: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          photo_order?: number | null
+          photo_url?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_photos_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          age: number
+          bio: string | null
+          created_at: string | null
+          education: string | null
+          email: string | null
+          first_name: string
+          gender: string
+          height_cm: number | null
+          id: string
+          interests: string[] | null
+          is_online: boolean | null
+          is_verified: boolean | null
+          last_active: string | null
+          last_name: string
+          location: string | null
+          looking_for: string[] | null
+          nickname: string
+          occupation: string | null
+          profile_pic_url: string | null
+          relationship_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          age: number
+          bio?: string | null
+          created_at?: string | null
+          education?: string | null
+          email?: string | null
+          first_name: string
+          gender: string
+          height_cm?: number | null
+          id: string
+          interests?: string[] | null
+          is_online?: boolean | null
+          is_verified?: boolean | null
+          last_active?: string | null
+          last_name: string
+          location?: string | null
+          looking_for?: string[] | null
+          nickname: string
+          occupation?: string | null
+          profile_pic_url?: string | null
+          relationship_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          age?: number
+          bio?: string | null
+          created_at?: string | null
+          education?: string | null
+          email?: string | null
+          first_name?: string
+          gender?: string
+          height_cm?: number | null
+          id?: string
+          interests?: string[] | null
+          is_online?: boolean | null
+          is_verified?: boolean | null
+          last_active?: string | null
+          last_name?: string
+          location?: string | null
+          looking_for?: string[] | null
+          nickname?: string
+          occupation?: string | null
+          profile_pic_url?: string | null
+          relationship_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          interested_in: string[] | null
+          max_age: number | null
+          max_distance_km: number | null
+          min_age: number | null
+          preferred_gender: string[] | null
+          profile_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          interested_in?: string[] | null
+          max_age?: number | null
+          max_distance_km?: number | null
+          min_age?: number | null
+          preferred_gender?: string[] | null
+          profile_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          interested_in?: string[] | null
+          max_age?: number | null
+          max_distance_km?: number | null
+          min_age?: number | null
+          preferred_gender?: string[] | null
+          profile_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

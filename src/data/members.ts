@@ -1,161 +1,151 @@
-
-// Shared member data for consistent display across the app
 export interface Member {
   id: string;
-  name: string;
+  nickname: string;
   age: number;
-  location: string;
   image: string;
-  online: boolean;
-  lastActive?: string;
-  bio?: string;
   images?: string[];
+  location: string;
+  bio: string;
   interests?: string[];
+  online: boolean;
+  lastActive: string;
 }
 
-// Complete member data with all profile information
-export const MEMBERS: Record<string, Member> = {
-  '1': {
+const members: Member[] = [
+  {
     id: '1',
-    name: 'Jessica',
+    nickname: 'Alex_Berlin',
     age: 28,
-    location: 'New York',
-    bio: 'Love hiking, photography, and trying new restaurants. Looking for someone who enjoys adventures and good conversation.',
     image: '/user-uploads/profile-pics/1.png',
     images: [
       '/user-uploads/profile-pics/1.png',
-      '/user-uploads/profile-pics/Untitled design (3).png',
-      '/user-uploads/profile-pics/Untitled design (4).png'
+      '/user-uploads/profile-pics/design (1).png',
+      '/user-uploads/profile-pics/Untitled design (1).png'
     ],
-    interests: ['Travel', 'Photography', 'Cooking', 'Hiking', 'Movies'],
+    location: 'Berlin',
+    bio: 'Hi, I\'m Alex! Software engineer by day, adventure seeker by night. Love hiking, photography, and discovering new coffee shops around the city.',
+    interests: ['Photography', 'Hiking', 'Coffee', 'Technology', 'Travel'],
     online: true,
     lastActive: 'Online now'
   },
-  '2': {
-    id: '2',
-    name: 'Michael',
-    age: 32,
-    location: 'Los Angeles',
-    bio: 'Tech enthusiast and fitness lover. I enjoy outdoor activities and exploring new places. Looking for someone with similar interests.',
+  {
+    id: '2', 
+    nickname: 'SarahSunshine',
+    age: 25,
     image: '/user-uploads/profile-pics/(3).png',
     images: [
       '/user-uploads/profile-pics/(3).png',
-      '/user-uploads/profile-pics/(4).png',
-      '/user-uploads/profile-pics/design (1).png'
+      '/user-uploads/profile-pics/Untitled design (3).png',
+      '/user-uploads/profile-pics/Untitled design (4).png'
     ],
-    interests: ['Technology', 'Fitness', 'Travel', 'Music', 'Food'],
+    location: 'Hamburg',
+    bio: 'Creative soul with a passion for art and music. Looking for someone who appreciates the little things in life and isn\'t afraid to be spontaneous!',
+    interests: ['Art', 'Music', 'Dancing', 'Cooking', 'Museums'],
     online: false,
     lastActive: '2 hours ago'
   },
-  '3': {
+  {
     id: '3',
-    name: 'Emma',
-    age: 26,
-    location: 'Chicago',
-    bio: 'Creative soul who loves art and music. Always up for coffee shop hopping and museum visits. Looking for genuine connections.',
-    image: '/user-uploads/profile-pics/(4).png',
+    nickname: 'MikeTheHiker',
+    age: 32,
+    image: '/user-uploads/profile-pics/(2).png',
     images: [
-      '/user-uploads/profile-pics/(4).png',
-      '/user-uploads/profile-pics/Untitled design (1).png',
-      '/user-uploads/profile-pics/design (1).png'
+      '/user-uploads/profile-pics/(2).png',
+      '/user-uploads/profile-pics/design (2).png',
+      '/user-uploads/profile-pics/design (3).png'
     ],
-    interests: ['Art', 'Music', 'Coffee', 'Reading', 'Museums'],
-    online: true,
-    lastActive: 'Online now'
-  },
-  '4': {
-    id: '4',
-    name: 'James',
-    age: 30,
-    location: 'Miami',
-    bio: 'Beach lover and foodie. I enjoy trying new restaurants and exploring the outdoors. Looking for someone to share adventures with.',
-    image: '/user-uploads/profile-pics/Untitled design (1).png',
-    images: [
-      '/user-uploads/profile-pics/Untitled design (1).png',
-      '/user-uploads/profile-pics/Untitled design (5).png',
-      '/user-uploads/profile-pics/design (1).png'
-    ],
-    interests: ['Beach', 'Food', 'Sports', 'Travel', 'Outdoors'],
+    location: 'Munich',
+    bio: 'Outdoor enthusiast and travel addict. Always up for a new adventure, whether it\'s hiking in the Alps or exploring hidden gems in the city.',
+    interests: ['Hiking', 'Travel', 'Skiing', 'Mountaineering', 'Camping'],
     online: false,
     lastActive: '1 day ago'
   },
-  '5': {
-    id: '5',
-    name: 'Olivia',
-    age: 25,
-    location: 'Seattle',
-    bio: 'Coffee enthusiast and nature lover. I enjoy hiking and exploring the Pacific Northwest. Looking for someone who appreciates the outdoors.',
-    image: '/user-uploads/profile-pics/Untitled design (3).png',
+  {
+    id: '4',
+    nickname: 'LisaBookLover',
+    age: 29,
+    image: '/user-uploads/profile-pics/(4).png',
     images: [
-      '/user-uploads/profile-pics/Untitled design (3).png',
-      '/user-uploads/profile-pics/Untitled design (4).png',
-      '/user-uploads/profile-pics/1.png'
+      '/user-uploads/profile-pics/(4).png',
+      '/user-uploads/profile-pics/Untitled design.png',
+      '/user-uploads/profile-pics/Untitled design (2).png'
     ],
-    interests: ['Coffee', 'Hiking', 'Nature', 'Books', 'Photography'],
+    location: 'Cologne',
+    bio: 'Bookworm and coffee lover. Looking for someone to share cozy nights in with a good book and a warm cup of coffee.',
+    interests: ['Reading', 'Coffee', 'Writing', 'Movies', 'Board Games'],
     online: true,
     lastActive: 'Online now'
   },
-  '6': {
-    id: '6',
-    name: 'Daniel',
-    age: 34,
-    location: 'Boston',
-    bio: 'History buff and food lover. I enjoy exploring historic sites and trying new cuisines. Looking for someone with similar interests.',
-    image: '/user-uploads/profile-pics/Untitled design (4).png',
-    images: [
-      '/user-uploads/profile-pics/Untitled design (4).png',
-      '/user-uploads/profile-pics/design (1).png',
-      '/user-uploads/profile-pics/(3).png'
-    ],
-    interests: ['History', 'Food', 'Travel', 'Museums', 'Culture'],
-    online: true,
+  {
+    id: '5',
+    nickname: 'Tom_Tech',
+    age: 35,
+    image: '/user-uploads/profile-pics/(5).png',
+    location: 'Berlin',
+    bio: 'Tech enthusiast and gamer. When I\'m not coding, you can find me exploring the latest gadgets or lost in a virtual world.',
+    interests: ['Technology', 'Gaming', 'Coding', 'Sci-Fi', 'Gadgets'],
+    online: false,
     lastActive: '3 hours ago'
   },
-  '7': {
-    id: '7',
-    name: 'Sophia',
+  {
+    id: '6',
+    nickname: 'EvaArtist',
     age: 27,
-    location: 'Austin',
-    bio: 'Music lover and foodie. I enjoy live concerts and exploring new restaurants. Looking for someone to share experiences with.',
-    image: '/user-uploads/profile-pics/Untitled design (5).png',
-    images: [
-      '/user-uploads/profile-pics/Untitled design (5).png',
-      '/user-uploads/profile-pics/1.png',
-      '/user-uploads/profile-pics/Untitled design (3).png'
-    ],
-    interests: ['Music', 'Food', 'Concerts', 'Travel', 'Art'],
-    online: false,
-    lastActive: 'Yesterday'
+    image: '/user-uploads/profile-pics/(6).png',
+    location: 'Hamburg',
+    bio: 'Passionate artist and nature lover. I find inspiration in the world around me and love to express myself through painting and photography.',
+    interests: ['Art', 'Photography', 'Nature', 'Travel', 'Yoga'],
+    online: true,
+    lastActive: 'Online now'
   },
-  '8': {
+  {
+    id: '7',
+    nickname: 'DanielFoodie',
+    age: 31,
+    image: '/user-uploads/profile-pics/(7).png',
+    location: 'Munich',
+    bio: 'Foodie and travel enthusiast. Always on the lookout for new culinary experiences and hidden gems around the world.',
+    interests: ['Food', 'Travel', 'Cooking', 'Wine', 'Restaurants'],
+    online: false,
+    lastActive: '1 day ago'
+  },
+  {
     id: '8',
-    name: 'William',
+    nickname: 'SophieFit',
+    age: 26,
+    image: '/user-uploads/profile-pics/(8).png',
+    location: 'Cologne',
+    bio: 'Fitness junkie and health enthusiast. I believe in living a balanced lifestyle and love to inspire others to reach their full potential.',
+    interests: ['Fitness', 'Health', 'Yoga', 'Nutrition', 'Running'],
+    online: true,
+    lastActive: 'Online now'
+  },
+  {
+    id: '9',
+    nickname: 'ChrisMusic',
+    age: 33,
+    image: '/user-uploads/profile-pics/(9).png',
+    location: 'Berlin',
+    bio: 'Music lover and concert-goer. I enjoy discovering new artists and sharing my passion for music with others.',
+    interests: ['Music', 'Concerts', 'Festivals', 'Dancing', 'DJing'],
+    online: false,
+    lastActive: '2 hours ago'
+  },
+  {
+    id: '10',
+    nickname: 'AnnaTraveler',
     age: 29,
-    location: 'Denver',
-    bio: 'Outdoor enthusiast and craft beer lover. I enjoy hiking, camping, and trying local breweries. Looking for someone who appreciates adventure.',
-    image: '/user-uploads/profile-pics/design (1).png',
-    images: [
-      '/user-uploads/profile-pics/design (1).png',
-      '/user-uploads/profile-pics/(3).png',
-      '/user-uploads/profile-pics/(4).png'
-    ],
-    interests: ['Hiking', 'Camping', 'Craft Beer', 'Mountains', 'Dogs'],
+    image: '/user-uploads/profile-pics/(10).png',
+    location: 'Hamburg',
+    bio: 'World traveler and adventure seeker. I\'m always planning my next trip and love to explore new cultures and meet new people.',
+    interests: ['Travel', 'Culture', 'Adventure', 'Photography', 'Languages'],
     online: true,
     lastActive: 'Online now'
   }
-};
+];
 
-// Get all members as an array
-export const getAllMembers = (): Member[] => {
-  return Object.values(MEMBERS);
-};
+export const getAllMembers = (): Member[] => members;
 
-// Get online members
-export const getOnlineMembers = (): Member[] => {
-  return getAllMembers().filter(member => member.online);
-};
-
-// Get member by ID
 export const getMemberById = (id: string): Member | undefined => {
-  return MEMBERS[id];
+  return members.find(member => member.id === id);
 };
