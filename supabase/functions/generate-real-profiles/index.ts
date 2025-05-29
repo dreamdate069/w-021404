@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2'
+import Replicate from "https://esm.sh/replicate@0.25.2"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -107,28 +107,40 @@ function generateBio(nickname: string, age: number, occupation: string, location
   return getRandomElement(templates)
 }
 
-const generateProfileImage = async (gender: string, age: number, scenario: string): Promise<string> => {
-  const hf = new HfInference(Deno.env.get('HUGGINGFACE_TOKEN'))
+const generateProfileImage = async (gender: string, age: number, scenario: string, characterSeed?: string): Promise<string> => {
+  const replicate = new Replicate({
+    auth: Deno.env.get('REPLICATE_API_TOKEN')!,
+  })
 
-  const prompt = `A realistic photo of a ${age}-year-old ${gender === 'male' ? 'German man' : 'German woman'}, ${scenario}, high quality, natural lighting, authentic European features`
+  // Create consistent character description
+  const baseCharacter = characterSeed || `${age}-year-old ${gender === 'male' ? 'German man' : 'German woman'} with authentic European features`
+  const prompt = `A realistic photo of a ${baseCharacter}, ${scenario}, high quality, natural lighting, photorealistic, 4k`
   
   console.log('Generating image with prompt:', prompt)
 
   try {
-    const result = await hf.textToImage({
-      model: 'black-forest-labs/FLUX.1-schnell',
-      inputs: prompt,
-    }) as any
+    const output = await replicate.run(
+      "black-forest-labs/flux-schnell",
+      {
+        input: {
+          prompt: prompt,
+          go_fast: true,
+          megapixels: "1",
+          num_outputs: 1,
+          aspect_ratio: "3:4",
+          output_format: "webp",
+          output_quality: 80,
+          num_inference_steps: 4
+        }
+      }
+    ) as string[]
 
-    if (!result) {
-      throw new Error('Failed to generate image')
+    if (output && output.length > 0) {
+      console.log('Image generated successfully')
+      return output[0]
+    } else {
+      throw new Error('No image generated')
     }
-
-    const arrayBuffer = await result.arrayBuffer()
-    const base64Image = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
-    
-    console.log('Image generated successfully')
-    return `data:image/png;base64,${base64Image}`
   } catch (error) {
     console.error('Error generating image:', error)
     // Return a placeholder if image generation fails
@@ -198,13 +210,16 @@ serve(async (req) => {
         continue
       }
 
+      // Generate character seed for consistency
+      const characterSeed = `${age}-year-old German man with ${getRandomElement(['brown', 'blonde', 'black'])} hair and ${getRandomElement(['blue', 'green', 'brown'])} eyes`
+      
       // Generate 2-4 images for this profile
       const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
       const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
       
       for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
         const scenario = selectedScenarios[photoIndex]
-        const imageUrl = await generateProfileImage('male', age, scenario)
+        const imageUrl = await generateProfileImage('male', age, scenario, characterSeed)
         
         const { error: photoError } = await supabase
           .from('profile_photos')
@@ -220,7 +235,7 @@ serve(async (req) => {
         }
         
         // Small delay between image generations
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
       // Create user preferences
@@ -283,13 +298,16 @@ serve(async (req) => {
         continue
       }
 
+      // Generate character seed for consistency
+      const characterSeed = `${age}-year-old German woman with ${getRandomElement(['brown', 'blonde', 'black', 'auburn'])} hair and ${getRandomElement(['blue', 'green', 'brown', 'hazel'])} eyes`
+      
       // Generate 2-4 images for this profile
       const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
       const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
       
       for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
         const scenario = selectedScenarios[photoIndex]
-        const imageUrl = await generateProfileImage('female', age, scenario)
+        const imageUrl = await generateProfileImage('female', age, scenario, characterSeed)
         
         const { error: photoError } = await supabase
           .from('profile_photos')
@@ -305,7 +323,7 @@ serve(async (req) => {
         }
         
         // Small delay between image generations
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
       // Create user preferences
@@ -332,7 +350,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Successfully created ${createdProfiles.length} authentic German profiles with image sets`,
+        message: `Successfully created ${createdProfiles.length} authentic German profiles with consistent image sets`,
         profiles: createdProfiles
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
