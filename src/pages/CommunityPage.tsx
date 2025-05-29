@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Calendar, User, MessageSquare, ArrowRight, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
