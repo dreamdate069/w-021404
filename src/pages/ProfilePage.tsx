@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -15,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import ButtonPrimary from '@/components/ButtonPrimary';
 import ButtonSecondary from '@/components/ButtonSecondary';
 import ImageModal from '@/components/ImageModal';
@@ -25,7 +27,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { getMemberById } from '@/data/members';
+import { useProfile } from '@/hooks/useProfiles';
 
 const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,12 +36,42 @@ const ProfilePage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
   
-  // Get the correct member data based on the ID parameter
-  const MEMBER = getMemberById(id || '1');
+  const { profile: MEMBER, loading, error } = useProfile(id || '');
   
-  if (!MEMBER) {
-    navigate('/not-found');
-    return null;
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="grid md:grid-cols-[1fr_2fr] gap-8">
+          <div className="space-y-4">
+            <Skeleton className="aspect-[3/4] w-full rounded-xl" />
+            <div className="grid grid-cols-3 gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="aspect-square rounded-lg" />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div>
+              <Skeleton className="h-8 w-64 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error || !MEMBER) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-5xl text-center">
+        <h1 className="text-2xl font-bold text-white mb-4">Profile Not Found</h1>
+        <p className="text-zinc-400 mb-6">The profile you're looking for doesn't exist.</p>
+        <Button onClick={() => navigate('/discover')} className="bg-custom-pink hover:bg-custom-pink/90">
+          Back to Discover
+        </Button>
+      </div>
+    );
   }
   
   const handleImageClick = (src: string, alt: string) => {
@@ -55,7 +87,6 @@ const ProfilePage = () => {
   };
   
   const handleMessage = () => {
-    // Navigate to messages with this user
     navigate(`/messages?userId=${id}`);
   };
   
@@ -79,7 +110,6 @@ const ProfilePage = () => {
       description: `You won't see ${MEMBER.nickname}'s profile anymore.`,
       variant: "destructive",
     });
-    // In a real app, we would make an API call to block the user
     setTimeout(() => navigate('/discover'), 1500);
   };
   
@@ -90,6 +120,9 @@ const ProfilePage = () => {
       variant: "destructive",
     });
   };
+
+  const primaryPhoto = MEMBER.photos.find(photo => photo.is_primary) || MEMBER.photos[0];
+  const otherPhotos = MEMBER.photos.filter(photo => !photo.is_primary).slice(0, 5);
   
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -98,22 +131,24 @@ const ProfilePage = () => {
         <div className="space-y-4">
           <div className="bg-zinc-800 rounded-xl overflow-hidden relative group hover-lift">
             <img 
-              src={MEMBER.images?.[0] || MEMBER.image} 
+              src={primaryPhoto?.photo_url || '/user-uploads/profile-pics/placeholder.png'} 
               alt={`${MEMBER.nickname}'s profile`}
               className="w-full aspect-[3/4] object-cover select-none pointer-events-none cursor-pointer transition-transform duration-500 group-hover:scale-105"
               draggable="false"
               onContextMenu={(e) => e.preventDefault()}
-              onClick={() => handleImageClick(MEMBER.images?.[0] || MEMBER.image, `${MEMBER.nickname}'s profile`)}
+              onClick={() => handleImageClick(primaryPhoto?.photo_url || '', `${MEMBER.nickname}'s profile`)}
             />
             
             {/* Animated background overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-custom-pink/10 via-transparent to-custom-purple/10 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             
             {/* Verified Badge */}
-            <Badge className="absolute top-3 right-3 bg-blue-500 text-white px-2 py-1 text-xs font-semibold transition-transform duration-300 group-hover:scale-110">
-              <Check size={12} className="mr-1" />
-              Verified
-            </Badge>
+            {MEMBER.is_verified && (
+              <Badge className="absolute top-3 right-3 bg-blue-500 text-white px-2 py-1 text-xs font-semibold transition-transform duration-300 group-hover:scale-110">
+                <Check size={12} className="mr-1" />
+                Verified
+              </Badge>
+            )}
             
             {/* Action buttons overlay at bottom of profile picture */}
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent flex gap-2 transform transition-transform duration-300 group-hover:translate-y-0">
@@ -135,21 +170,23 @@ const ProfilePage = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-2">
-            {MEMBER.images?.slice(1).map((image, i) => (
-              <div key={i} className="bg-zinc-800 rounded-lg overflow-hidden aspect-square group hover-lift cursor-pointer">
-                <img 
-                  src={image}
-                  alt={`${MEMBER.nickname}'s photo ${i+2}`}
-                  className="w-full h-full object-cover select-none pointer-events-none transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
-                  draggable="false"
-                  onContextMenu={(e) => e.preventDefault()}
-                  onClick={() => handleImageClick(image, `${MEMBER.nickname}'s photo ${i+2}`)}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-custom-pink/20 via-transparent to-custom-purple/20 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-              </div>
-            ))}
-          </div>
+          {otherPhotos.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {otherPhotos.map((photo, i) => (
+                <div key={photo.id} className="bg-zinc-800 rounded-lg overflow-hidden aspect-square group hover-lift cursor-pointer">
+                  <img 
+                    src={photo.photo_url}
+                    alt={`${MEMBER.nickname}'s photo ${i+2}`}
+                    className="w-full h-full object-cover select-none pointer-events-none transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
+                    draggable="false"
+                    onContextMenu={(e) => e.preventDefault()}
+                    onClick={() => handleImageClick(photo.photo_url, `${MEMBER.nickname}'s photo ${i+2}`)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-custom-pink/20 via-transparent to-custom-purple/20 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                </div>
+              ))}
+            </div>
+          )}
           
           {/* Additional action buttons */}
           <div className="flex gap-2">
@@ -196,7 +233,9 @@ const ProfilePage = () => {
             <div className="flex items-center text-zinc-300 mt-1">
               <MapPin size={16} className="mr-1" />
               <span>{MEMBER.location}</span>
-              <span className="ml-4 text-green-500 text-sm font-medium">{MEMBER.lastActive}</span>
+              <span className="ml-4 text-green-500 text-sm font-medium">
+                {MEMBER.is_online ? 'Online now' : 'Recently active'}
+              </span>
             </div>
           </div>
           
@@ -212,7 +251,7 @@ const ProfilePage = () => {
             
             <TabsContent value="about" className="pt-4">
               <h3 className="text-xl font-bold text-white mb-2">About Me</h3>
-              <p className="text-zinc-300">{MEMBER.bio}</p>
+              <p className="text-zinc-300">{MEMBER.bio || 'No bio available.'}</p>
               
               <div className="mt-6">
                 <h3 className="text-xl font-bold text-white mb-2">Basic Info</h3>
@@ -225,6 +264,18 @@ const ProfilePage = () => {
                     <MapPin size={16} />
                     <span>Lives in {MEMBER.location}</span>
                   </div>
+                  {MEMBER.occupation && (
+                    <div className="flex items-center gap-2 text-zinc-300">
+                      <span>💼</span>
+                      <span>{MEMBER.occupation}</span>
+                    </div>
+                  )}
+                  {MEMBER.education && (
+                    <div className="flex items-center gap-2 text-zinc-300">
+                      <span>🎓</span>
+                      <span>{MEMBER.education}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </TabsContent>
@@ -232,15 +283,15 @@ const ProfilePage = () => {
             <TabsContent value="photos" className="pt-4">
               <h3 className="text-xl font-bold text-white mb-3">Photos</h3>
               <div className="grid grid-cols-3 gap-3">
-                {MEMBER.images?.map((image, i) => (
-                  <div key={i} className="aspect-square rounded-lg overflow-hidden group hover-lift cursor-pointer">
+                {MEMBER.photos.map((photo) => (
+                  <div key={photo.id} className="aspect-square rounded-lg overflow-hidden group hover-lift cursor-pointer">
                     <img 
-                      src={image} 
-                      alt={`${MEMBER.nickname}'s photo ${i+1}`} 
+                      src={photo.photo_url} 
+                      alt={`${MEMBER.nickname}'s photo`} 
                       className="w-full h-full object-cover select-none pointer-events-none transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
                       draggable="false"
                       onContextMenu={(e) => e.preventDefault()}
-                      onClick={() => handleImageClick(image, `${MEMBER.nickname}'s photo ${i+1}`)}
+                      onClick={() => handleImageClick(photo.photo_url, `${MEMBER.nickname}'s photo`)}
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-custom-pink/20 via-transparent to-custom-purple/20 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                   </div>
@@ -258,7 +309,7 @@ const ProfilePage = () => {
                   >
                     {interest}
                   </span>
-                ))}
+                )) || <p className="text-zinc-400">No interests listed.</p>}
               </div>
             </TabsContent>
             
@@ -281,11 +332,11 @@ const ProfilePage = () => {
               <h3 className="text-xl font-bold text-white mb-3">Blog Posts</h3>
               <div className="space-y-4">
                 <div className="bg-zinc-800 p-4 rounded-lg transition-all duration-300 hover:bg-zinc-700 hover-lift">
-                  <h4 className="text-white font-medium mb-2">My Journey Through Japan</h4>
+                  <h4 className="text-white font-medium mb-2">My Journey Through Germany</h4>
                   <p className="text-zinc-400 text-sm">Published 2 weeks ago • 45 likes • 12 comments</p>
                 </div>
                 <div className="bg-zinc-800 p-4 rounded-lg transition-all duration-300 hover:bg-zinc-700 hover-lift">
-                  <h4 className="text-white font-medium mb-2">Best Coffee Shops in the City</h4>
+                  <h4 className="text-white font-medium mb-2">Best Coffee Shops in {MEMBER.location}</h4>
                   <p className="text-zinc-400 text-sm">Published 1 month ago • 23 likes • 8 comments</p>
                 </div>
               </div>
