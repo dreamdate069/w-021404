@@ -89,22 +89,20 @@ export const useProfiles = () => {
         description: "Creating 50 authentic German profiles with image sets. This may take a few minutes...",
       });
 
-      const response = await fetch('/api/generate-real-profiles', {
+      const { data, error } = await supabase.functions.invoke('generate-real-profiles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate profiles');
+      if (error) {
+        throw error;
       }
-
-      const result = await response.json();
       
       toast({
         title: "Success",
-        description: result.message,
+        description: data.message || "Successfully generated profiles",
       });
 
       // Refresh the profiles list
