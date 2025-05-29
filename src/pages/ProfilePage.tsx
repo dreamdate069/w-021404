@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -18,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ButtonPrimary from '@/components/ButtonPrimary';
 import ButtonSecondary from '@/components/ButtonSecondary';
+import ImageModal from '@/components/ImageModal';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +32,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null);
   
   // Get the correct member data based on the ID parameter
   const MEMBER = getMemberById(id || '1');
@@ -40,6 +41,10 @@ const ProfilePage = () => {
     navigate('/not-found');
     return null;
   }
+  
+  const handleImageClick = (src: string, alt: string) => {
+    setSelectedImage({ src, alt });
+  };
   
   const handleLike = () => {
     setIsLiked(prev => !prev);
@@ -91,26 +96,30 @@ const ProfilePage = () => {
       <div className="grid md:grid-cols-[1fr_2fr] gap-8">
         {/* Left Column - Photos */}
         <div className="space-y-4">
-          <div className="bg-zinc-800 rounded-xl overflow-hidden relative">
+          <div className="bg-zinc-800 rounded-xl overflow-hidden relative group hover-lift">
             <img 
               src={MEMBER.images?.[0] || MEMBER.image} 
               alt={`${MEMBER.nickname}'s profile`}
-              className="w-full aspect-[3/4] object-cover select-none pointer-events-none"
+              className="w-full aspect-[3/4] object-cover select-none pointer-events-none cursor-pointer transition-transform duration-500 group-hover:scale-105"
               draggable="false"
               onContextMenu={(e) => e.preventDefault()}
+              onClick={() => handleImageClick(MEMBER.images?.[0] || MEMBER.image, `${MEMBER.nickname}'s profile`)}
             />
             
+            {/* Animated background overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-custom-pink/10 via-transparent to-custom-purple/10 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            
             {/* Verified Badge */}
-            <Badge className="absolute top-3 right-3 bg-blue-500 text-white px-2 py-1 text-xs font-semibold">
+            <Badge className="absolute top-3 right-3 bg-blue-500 text-white px-2 py-1 text-xs font-semibold transition-transform duration-300 group-hover:scale-110">
               <Check size={12} className="mr-1" />
               Verified
             </Badge>
             
             {/* Action buttons overlay at bottom of profile picture */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent flex gap-2">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent flex gap-2 transform transition-transform duration-300 group-hover:translate-y-0">
               <ButtonPrimary 
                 onClick={handleLike} 
-                className="flex-1 py-2"
+                className="flex-1 py-2 transition-all duration-300 hover:scale-105"
               >
                 {isLiked ? 'Liked' : 'Like'}
                 <Heart size={18} className={isLiked ? "fill-white" : ""} />
@@ -118,7 +127,7 @@ const ProfilePage = () => {
               
               <ButtonSecondary 
                 onClick={handleMessage} 
-                className="flex-1 py-2"
+                className="flex-1 py-2 transition-all duration-300 hover:scale-105"
               >
                 Message
                 <MessageSquare size={18} />
@@ -128,33 +137,35 @@ const ProfilePage = () => {
           
           <div className="grid grid-cols-3 gap-2">
             {MEMBER.images?.slice(1).map((image, i) => (
-              <div key={i} className="bg-zinc-800 rounded-lg overflow-hidden aspect-square">
+              <div key={i} className="bg-zinc-800 rounded-lg overflow-hidden aspect-square group hover-lift cursor-pointer">
                 <img 
                   src={image}
                   alt={`${MEMBER.nickname}'s photo ${i+2}`}
-                  className="w-full h-full object-cover select-none pointer-events-none"
+                  className="w-full h-full object-cover select-none pointer-events-none transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
                   draggable="false"
                   onContextMenu={(e) => e.preventDefault()}
+                  onClick={() => handleImageClick(image, `${MEMBER.nickname}'s photo ${i+2}`)}
                 />
+                <div className="absolute inset-0 bg-gradient-to-br from-custom-pink/20 via-transparent to-custom-purple/20 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               </div>
             ))}
           </div>
           
           {/* Additional action buttons */}
           <div className="flex gap-2">
-            <ButtonSecondary onClick={handleFriendRequest} className="flex-1">
+            <ButtonSecondary onClick={handleFriendRequest} className="flex-1 transition-all duration-300 hover:scale-105">
               Friend Request
               <UserPlus size={16} />
             </ButtonSecondary>
             
-            <ButtonSecondary onClick={handleInviteToGroup} className="flex-1">
+            <ButtonSecondary onClick={handleInviteToGroup} className="flex-1 transition-all duration-300 hover:scale-105">
               Invite to Group
               <Users size={16} />
             </ButtonSecondary>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full">
+                <Button variant="outline" size="icon" className="rounded-full transition-all duration-300 hover:scale-110">
                   <MoreHorizontal size={18} />
                 </Button>
               </DropdownMenuTrigger>
@@ -222,14 +233,16 @@ const ProfilePage = () => {
               <h3 className="text-xl font-bold text-white mb-3">Photos</h3>
               <div className="grid grid-cols-3 gap-3">
                 {MEMBER.images?.map((image, i) => (
-                  <div key={i} className="aspect-square rounded-lg overflow-hidden">
+                  <div key={i} className="aspect-square rounded-lg overflow-hidden group hover-lift cursor-pointer">
                     <img 
                       src={image} 
                       alt={`${MEMBER.nickname}'s photo ${i+1}`} 
-                      className="w-full h-full object-cover select-none pointer-events-none"
+                      className="w-full h-full object-cover select-none pointer-events-none transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
                       draggable="false"
                       onContextMenu={(e) => e.preventDefault()}
+                      onClick={() => handleImageClick(image, `${MEMBER.nickname}'s photo ${i+1}`)}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-br from-custom-pink/20 via-transparent to-custom-purple/20 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                   </div>
                 ))}
               </div>
@@ -241,7 +254,7 @@ const ProfilePage = () => {
                 {MEMBER.interests?.map((interest) => (
                   <span 
                     key={interest} 
-                    className="bg-zinc-700 text-white px-3 py-1 rounded-full text-sm"
+                    className="bg-zinc-700 text-white px-3 py-1 rounded-full text-sm transition-all duration-300 hover:bg-custom-pink hover:scale-105"
                   >
                     {interest}
                   </span>
@@ -253,11 +266,11 @@ const ProfilePage = () => {
               <h3 className="text-xl font-bold text-white mb-3">Groups</h3>
               <p className="text-zinc-300">Member of 3 groups</p>
               <div className="space-y-3 mt-3">
-                <div className="bg-zinc-800 p-3 rounded-lg">
+                <div className="bg-zinc-800 p-3 rounded-lg transition-all duration-300 hover:bg-zinc-700 hover-lift">
                   <h4 className="text-white font-medium">Photography Enthusiasts</h4>
                   <p className="text-zinc-400 text-sm">Local photography group - 127 members</p>
                 </div>
-                <div className="bg-zinc-800 p-3 rounded-lg">
+                <div className="bg-zinc-800 p-3 rounded-lg transition-all duration-300 hover:bg-zinc-700 hover-lift">
                   <h4 className="text-white font-medium">Weekend Hikers</h4>
                   <p className="text-zinc-400 text-sm">Outdoor adventure group - 89 members</p>
                 </div>
@@ -267,11 +280,11 @@ const ProfilePage = () => {
             <TabsContent value="blog" className="pt-4">
               <h3 className="text-xl font-bold text-white mb-3">Blog Posts</h3>
               <div className="space-y-4">
-                <div className="bg-zinc-800 p-4 rounded-lg">
+                <div className="bg-zinc-800 p-4 rounded-lg transition-all duration-300 hover:bg-zinc-700 hover-lift">
                   <h4 className="text-white font-medium mb-2">My Journey Through Japan</h4>
                   <p className="text-zinc-400 text-sm">Published 2 weeks ago • 45 likes • 12 comments</p>
                 </div>
-                <div className="bg-zinc-800 p-4 rounded-lg">
+                <div className="bg-zinc-800 p-4 rounded-lg transition-all duration-300 hover:bg-zinc-700 hover-lift">
                   <h4 className="text-white font-medium mb-2">Best Coffee Shops in the City</h4>
                   <p className="text-zinc-400 text-sm">Published 1 month ago • 23 likes • 8 comments</p>
                 </div>
@@ -283,8 +296,8 @@ const ProfilePage = () => {
               <p className="text-zinc-300 mb-3">You have 12 mutual friends</p>
               <div className="grid grid-cols-4 gap-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="text-center">
-                    <div className="w-16 h-16 bg-zinc-700 rounded-full mb-2 mx-auto"></div>
+                  <div key={i} className="text-center group hover-lift">
+                    <div className="w-16 h-16 bg-zinc-700 rounded-full mb-2 mx-auto transition-all duration-300 group-hover:scale-110"></div>
                     <p className="text-xs text-zinc-400">Friend {i}</p>
                   </div>
                 ))}
@@ -293,6 +306,14 @@ const ProfilePage = () => {
           </Tabs>
         </div>
       </div>
+      
+      {/* Image Modal */}
+      <ImageModal
+        src={selectedImage?.src || ''}
+        alt={selectedImage?.alt || ''}
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+      />
     </div>
   );
 };
