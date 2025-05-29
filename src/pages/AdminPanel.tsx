@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Users, DollarSign, BarChart, Shield, MessageSquare, Image, AlertCircle } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
@@ -10,9 +9,23 @@ import AppSettings from '@/components/admin/AppSettings';
 import AnalyticsPanel from '@/components/admin/AnalyticsPanel';
 import IntegrationSettings from '@/components/admin/IntegrationSettings';
 import AccessControl from '@/components/admin/AccessControl';
+import { populateSiteWithProfiles } from '@/utils/populateSite';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Auto-populate site when admin panel loads
+  useEffect(() => {
+    const checkAndPopulate = async () => {
+      try {
+        await populateSiteWithProfiles();
+      } catch (error) {
+        console.log('Profiles may already exist or generation failed:', error);
+      }
+    };
+    
+    checkAndPopulate();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-900">
