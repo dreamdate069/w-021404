@@ -77,7 +77,7 @@ export type Database = {
           first_name: string
           gender: string
           height_cm?: number | null
-          id: string
+          id?: string
           interests?: string[] | null
           is_online?: boolean | null
           is_verified?: boolean | null

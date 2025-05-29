@@ -161,7 +161,7 @@ serve(async (req) => {
 
     console.log('Starting authentic German profile generation...')
 
-    // Clear existing profiles
+    // Clear existing profiles first
     console.log('Clearing existing profiles...')
     await supabase.from('profile_photos').delete().neq('id', '00000000-0000-0000-0000-000000000000')
     await supabase.from('user_preferences').delete().neq('id', '00000000-0000-0000-0000-000000000000')
@@ -182,7 +182,7 @@ serve(async (req) => {
       
       console.log(`Creating male profile ${i + 1}: ${nickname}`)
       
-      // Create profile
+      // Create profile directly without auth
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -270,7 +270,7 @@ serve(async (req) => {
       
       console.log(`Creating female profile ${i + 1}: ${nickname}`)
       
-      // Create profile
+      // Create profile directly without auth
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .insert({
