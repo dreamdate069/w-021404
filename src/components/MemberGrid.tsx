@@ -7,7 +7,7 @@ import { useProfiles, Profile } from '@/hooks/useProfiles';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const MemberGrid = () => {
-  const { profiles, loading, generateProfiles } = useProfiles();
+  const { profiles, loading } = useProfiles();
   
   if (loading) {
     return (
@@ -28,11 +28,8 @@ export const MemberGrid = () => {
   if (profiles.length === 0) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-xl font-bold text-white mb-4">No profiles yet</h3>
-        <p className="text-zinc-400 mb-6">Generate authentic German profiles to get started.</p>
-        <Button onClick={generateProfiles} className="bg-custom-pink hover:bg-custom-pink/90">
-          Generate 50 Profiles
-        </Button>
+        <h3 className="text-xl font-bold text-white mb-4">No profiles available</h3>
+        <p className="text-zinc-400 mb-6">Check back later for new members to connect with.</p>
       </div>
     );
   }
