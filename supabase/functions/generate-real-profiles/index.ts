@@ -108,17 +108,24 @@ function generateBio(nickname: string, age: number, occupation: string, location
 }
 
 const generateProfileImage = async (gender: string, age: number, scenario: string, characterSeed?: string): Promise<string> => {
-  const replicate = new Replicate({
-    auth: Deno.env.get('REPLICATE_API_TOKEN')!,
-  })
-
-  // Create consistent character description
-  const baseCharacter = characterSeed || `${age}-year-old ${gender === 'male' ? 'German man' : 'German woman'} with authentic European features`
-  const prompt = `A realistic photo of a ${baseCharacter}, ${scenario}, high quality, natural lighting, photorealistic, 4k`
+  const replicateApiToken = Deno.env.get('REPLICATE_API_TOKEN')
   
-  console.log('Generating image with prompt:', prompt)
+  if (!replicateApiToken) {
+    console.log('REPLICATE_API_TOKEN not found, using placeholder image')
+    return `/user-uploads/profile-pics/placeholder-${gender}.png`
+  }
 
   try {
+    const replicate = new Replicate({
+      auth: replicateApiToken,
+    })
+
+    // Create consistent character description
+    const baseCharacter = characterSeed || `${age}-year-old ${gender === 'male' ? 'German man' : 'German woman'} with authentic European features`
+    const prompt = `A realistic photo of a ${baseCharacter}, ${scenario}, high quality, natural lighting, photorealistic, 4k`
+    
+    console.log('Generating image with prompt:', prompt)
+
     const output = await replicate.run(
       "black-forest-labs/flux-schnell",
       {
@@ -163,186 +170,199 @@ serve(async (req) => {
 
     // Clear existing profiles first
     console.log('Clearing existing profiles...')
-    await supabase.from('profile_photos').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-    await supabase.from('user_preferences').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-    await supabase.from('profiles').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    const { error: clearPhotosError } = await supabase.from('profile_photos').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    if (clearPhotosError) console.log('Error clearing photos:', clearPhotosError)
+    
+    const { error: clearPrefsError } = await supabase.from('user_preferences').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    if (clearPrefsError) console.log('Error clearing preferences:', clearPrefsError)
+    
+    const { error: clearProfilesError } = await supabase.from('profiles').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    if (clearProfilesError) console.log('Error clearing profiles:', clearProfilesError)
 
     const createdProfiles = []
     
     // Generate 25 male profiles
     for (let i = 0; i < 25; i++) {
-      const firstName = getRandomElement(maleNames)
-      const lastName = getRandomElement(lastNames)
-      const nickname = generateNickname(firstName)
-      const age = Math.floor(Math.random() * (45 - 22 + 1)) + 22
-      const occupation = getRandomElement(occupations)
-      const location = getRandomElement(germanCities)
-      const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
-      const bio = generateBio(nickname, age, occupation, location, userInterests)
-      
-      console.log(`Creating male profile ${i + 1}: ${nickname}`)
-      
-      // Create profile directly without auth
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          nickname,
-          first_name: firstName,
-          last_name: lastName,
-          age,
-          gender: 'male',
-          bio,
-          location,
-          occupation,
-          interests: userInterests,
-          education: getRandomElement(educationLevels),
-          height_cm: Math.floor(Math.random() * (190 - 170 + 1)) + 170,
-          is_verified: Math.random() > 0.3,
-          is_online: Math.random() > 0.6,
-          relationship_status: getRandomElement(['single', 'divorced']),
-          looking_for: Math.random() > 0.5 ? ['dating'] : ['friendship', 'dating']
-        })
-        .select()
-        .single()
-
-      if (profileError) {
-        console.error('Profile error:', profileError)
-        continue
-      }
-
-      // Generate character seed for consistency
-      const characterSeed = `${age}-year-old German man with ${getRandomElement(['brown', 'blonde', 'black'])} hair and ${getRandomElement(['blue', 'green', 'brown'])} eyes`
-      
-      // Generate 2-4 images for this profile
-      const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
-      const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
-      
-      for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
-        const scenario = selectedScenarios[photoIndex]
-        const imageUrl = await generateProfileImage('male', age, scenario, characterSeed)
+      try {
+        const firstName = getRandomElement(maleNames)
+        const lastName = getRandomElement(lastNames)
+        const nickname = generateNickname(firstName)
+        const age = Math.floor(Math.random() * (45 - 22 + 1)) + 22
+        const occupation = getRandomElement(occupations)
+        const location = getRandomElement(germanCities)
+        const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
+        const bio = generateBio(nickname, age, occupation, location, userInterests)
         
-        const { error: photoError } = await supabase
-          .from('profile_photos')
+        console.log(`Creating male profile ${i + 1}: ${nickname}`)
+        
+        // Create profile directly
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            nickname,
+            first_name: firstName,
+            last_name: lastName,
+            age,
+            gender: 'male',
+            bio,
+            location,
+            occupation,
+            interests: userInterests,
+            education: getRandomElement(educationLevels),
+            height_cm: Math.floor(Math.random() * (190 - 170 + 1)) + 170,
+            is_verified: Math.random() > 0.3,
+            is_online: Math.random() > 0.6,
+            relationship_status: getRandomElement(['single', 'divorced']),
+            looking_for: Math.random() > 0.5 ? ['dating'] : ['friendship', 'dating']
+          })
+          .select()
+          .single()
+
+        if (profileError) {
+          console.error('Profile error:', profileError)
+          continue
+        }
+
+        // Generate character seed for consistency
+        const characterSeed = `${age}-year-old German man with ${getRandomElement(['brown', 'blonde', 'black'])} hair and ${getRandomElement(['blue', 'green', 'brown'])} eyes`
+        
+        // Generate 2-4 images for this profile
+        const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
+        const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
+        
+        for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
+          const scenario = selectedScenarios[photoIndex]
+          const imageUrl = await generateProfileImage('male', age, scenario, characterSeed)
+          
+          const { error: photoError } = await supabase
+            .from('profile_photos')
+            .insert({
+              profile_id: profile.id,
+              photo_url: imageUrl,
+              photo_order: photoIndex + 1,
+              is_primary: photoIndex === 0
+            })
+
+          if (photoError) {
+            console.error('Photo error:', photoError)
+          }
+          
+          // Small delay between image generations
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+
+        // Create user preferences
+        const { error: preferencesError } = await supabase
+          .from('user_preferences')
           .insert({
             profile_id: profile.id,
-            photo_url: imageUrl,
-            photo_order: photoIndex + 1,
-            is_primary: photoIndex === 0
+            interested_in: ['dating', 'friendship'],
+            preferred_gender: ['female'],
+            min_age: Math.max(18, age - 8),
+            max_age: Math.min(70, age + 8),
+            max_distance_km: Math.floor(Math.random() * 100) + 20
           })
 
-        if (photoError) {
-          console.error('Photo error:', photoError)
+        if (preferencesError) {
+          console.error('Preferences error:', preferencesError)
         }
-        
-        // Small delay between image generations
-        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        createdProfiles.push({ id: profile.id, name: nickname, gender: 'male' })
+      } catch (error) {
+        console.error(`Error creating male profile ${i + 1}:`, error)
       }
-
-      // Create user preferences
-      const { error: preferencesError } = await supabase
-        .from('user_preferences')
-        .insert({
-          profile_id: profile.id,
-          interested_in: ['dating', 'friendship'],
-          preferred_gender: ['female'],
-          min_age: Math.max(18, age - 8),
-          max_age: Math.min(70, age + 8),
-          max_distance_km: Math.floor(Math.random() * 100) + 20
-        })
-
-      if (preferencesError) {
-        console.error('Preferences error:', preferencesError)
-      }
-
-      createdProfiles.push({ id: profile.id, name: nickname, gender: 'male' })
     }
 
     // Generate 25 female profiles
     for (let i = 0; i < 25; i++) {
-      const firstName = getRandomElement(femaleNames)
-      const lastName = getRandomElement(lastNames)
-      const nickname = generateNickname(firstName)
-      const age = Math.floor(Math.random() * (45 - 22 + 1)) + 22
-      const occupation = getRandomElement(occupations)
-      const location = getRandomElement(germanCities)
-      const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
-      const bio = generateBio(nickname, age, occupation, location, userInterests)
-      
-      console.log(`Creating female profile ${i + 1}: ${nickname}`)
-      
-      // Create profile directly without auth
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          nickname,
-          first_name: firstName,
-          last_name: lastName,
-          age,
-          gender: 'female',
-          bio,
-          location,
-          occupation,
-          interests: userInterests,
-          education: getRandomElement(educationLevels),
-          height_cm: Math.floor(Math.random() * (175 - 155 + 1)) + 155,
-          is_verified: Math.random() > 0.3,
-          is_online: Math.random() > 0.6,
-          relationship_status: getRandomElement(['single', 'divorced']),
-          looking_for: Math.random() > 0.5 ? ['dating'] : ['friendship', 'dating']
-        })
-        .select()
-        .single()
-
-      if (profileError) {
-        console.error('Profile error:', profileError)
-        continue
-      }
-
-      // Generate character seed for consistency
-      const characterSeed = `${age}-year-old German woman with ${getRandomElement(['brown', 'blonde', 'black', 'auburn'])} hair and ${getRandomElement(['blue', 'green', 'brown', 'hazel'])} eyes`
-      
-      // Generate 2-4 images for this profile
-      const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
-      const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
-      
-      for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
-        const scenario = selectedScenarios[photoIndex]
-        const imageUrl = await generateProfileImage('female', age, scenario, characterSeed)
+      try {
+        const firstName = getRandomElement(femaleNames)
+        const lastName = getRandomElement(lastNames)
+        const nickname = generateNickname(firstName)
+        const age = Math.floor(Math.random() * (45 - 22 + 1)) + 22
+        const occupation = getRandomElement(occupations)
+        const location = getRandomElement(germanCities)
+        const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
+        const bio = generateBio(nickname, age, occupation, location, userInterests)
         
-        const { error: photoError } = await supabase
-          .from('profile_photos')
+        console.log(`Creating female profile ${i + 1}: ${nickname}`)
+        
+        // Create profile directly
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            nickname,
+            first_name: firstName,
+            last_name: lastName,
+            age,
+            gender: 'female',
+            bio,
+            location,
+            occupation,
+            interests: userInterests,
+            education: getRandomElement(educationLevels),
+            height_cm: Math.floor(Math.random() * (175 - 155 + 1)) + 155,
+            is_verified: Math.random() > 0.3,
+            is_online: Math.random() > 0.6,
+            relationship_status: getRandomElement(['single', 'divorced']),
+            looking_for: Math.random() > 0.5 ? ['dating'] : ['friendship', 'dating']
+          })
+          .select()
+          .single()
+
+        if (profileError) {
+          console.error('Profile error:', profileError)
+          continue
+        }
+
+        // Generate character seed for consistency
+        const characterSeed = `${age}-year-old German woman with ${getRandomElement(['brown', 'blonde', 'black', 'auburn'])} hair and ${getRandomElement(['blue', 'green', 'brown', 'hazel'])} eyes`
+        
+        // Generate 2-4 images for this profile
+        const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
+        const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
+        
+        for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
+          const scenario = selectedScenarios[photoIndex]
+          const imageUrl = await generateProfileImage('female', age, scenario, characterSeed)
+          
+          const { error: photoError } = await supabase
+            .from('profile_photos')
+            .insert({
+              profile_id: profile.id,
+              photo_url: imageUrl,
+              photo_order: photoIndex + 1,
+              is_primary: photoIndex === 0
+            })
+
+          if (photoError) {
+            console.error('Photo error:', photoError)
+          }
+          
+          // Small delay between image generations
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+
+        // Create user preferences
+        const { error: preferencesError } = await supabase
+          .from('user_preferences')
           .insert({
             profile_id: profile.id,
-            photo_url: imageUrl,
-            photo_order: photoIndex + 1,
-            is_primary: photoIndex === 0
+            interested_in: ['dating', 'friendship'],
+            preferred_gender: ['male'],
+            min_age: Math.max(18, age - 8),
+            max_age: Math.min(70, age + 8),
+            max_distance_km: Math.floor(Math.random() * 100) + 20
           })
 
-        if (photoError) {
-          console.error('Photo error:', photoError)
+        if (preferencesError) {
+          console.error('Preferences error:', preferencesError)
         }
-        
-        // Small delay between image generations
-        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        createdProfiles.push({ id: profile.id, name: nickname, gender: 'female' })
+      } catch (error) {
+        console.error(`Error creating female profile ${i + 1}:`, error)
       }
-
-      // Create user preferences
-      const { error: preferencesError } = await supabase
-        .from('user_preferences')
-        .insert({
-          profile_id: profile.id,
-          interested_in: ['dating', 'friendship'],
-          preferred_gender: ['male'],
-          min_age: Math.max(18, age - 8),
-          max_age: Math.min(70, age + 8),
-          max_distance_km: Math.floor(Math.random() * 100) + 20
-        })
-
-      if (preferencesError) {
-        console.error('Preferences error:', preferencesError)
-      }
-
-      createdProfiles.push({ id: profile.id, name: nickname, gender: 'female' })
     }
 
     console.log(`Successfully created ${createdProfiles.length} authentic German profiles`)
