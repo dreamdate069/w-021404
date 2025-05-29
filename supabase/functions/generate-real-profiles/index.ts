@@ -1,14 +1,12 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import Replicate from "https://esm.sh/replicate@0.25.2"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// German names and locations data
 const maleNames = [
   'Alexander', 'Andreas', 'Christian', 'Daniel', 'David', 'Florian', 'Jan', 'Johannes', 
   'Jonas', 'Julian', 'Kevin', 'Lars', 'Lukas', 'Marcel', 'Marco', 'Mario', 'Markus', 
@@ -33,48 +31,24 @@ const lastNames = [
 const germanCities = [
   'Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt am Main', 'Stuttgart', 
   'Düsseldorf', 'Dortmund', 'Essen', 'Leipzig', 'Bremen', 'Dresden', 'Hannover',
-  'Nürnberg', 'Duisburg', 'Bochum', 'Wuppertal', 'Bielefeld', 'Bonn', 'Münster',
-  'Karlsruhe', 'Mannheim', 'Augsburg', 'Wiesbaden', 'Gelsenkirchen', 'Mönchengladbach',
-  'Braunschweig', 'Chemnitz', 'Kiel', 'Aachen', 'Halle', 'Magdeburg', 'Freiburg',
-  'Krefeld', 'Lübeck', 'Oberhausen', 'Erfurt', 'Mainz', 'Rostock', 'Kassel'
+  'Nürnberg', 'Duisburg', 'Bochum', 'Wuppertal', 'Bielefeld', 'Bonn', 'Münster'
 ]
 
 const occupations = [
   'Software Engineer', 'Teacher', 'Artist', 'Chef', 'Designer', 'Doctor', 'Writer',
   'Musician', 'Athlete', 'Accountant', 'Lawyer', 'Journalist', 'Nurse', 'Pilot',
-  'Architect', 'Librarian', 'Scientist', 'Marketing Manager', 'Entrepreneur', 'Consultant',
-  'Photographer', 'Translator', 'Social Worker', 'Engineer', 'Psychologist'
+  'Architect', 'Librarian', 'Scientist', 'Marketing Manager', 'Entrepreneur', 'Consultant'
 ]
 
 const interests = [
   'Reading', 'Hiking', 'Photography', 'Cooking', 'Traveling', 'Gaming', 'Movies',
   'Music', 'Sports', 'Dancing', 'Painting', 'Writing', 'Yoga', 'Meditation',
-  'Gardening', 'Cycling', 'Swimming', 'Skiing', 'Surfing', 'Climbing', 'Fishing',
-  'Camping', 'Running', 'Volunteering', 'Learning Languages', 'Theater', 'Wine Tasting',
-  'Board Games', 'Karaoke', 'Fitness'
+  'Gardening', 'Cycling', 'Swimming', 'Skiing', 'Surfing', 'Climbing'
 ]
 
 const educationLevels = [
   'High School', 'Vocational Training', 'Bachelor\'s Degree', 'Master\'s Degree', 
   'Doctorate', 'Some College'
-]
-
-const photoScenarios = [
-  'professional headshot with natural lighting',
-  'casual outdoor photo in a German city street',
-  'hiking in the Bavarian Alps',
-  'at a German beer garden with friends',
-  'walking through a Christmas market',
-  'relaxing by a lake',
-  'exploring a historic German castle',
-  'at a local café reading',
-  'cycling through countryside',
-  'at a music festival',
-  'cooking in a modern kitchen',
-  'walking along the Rhine river',
-  'at a German football stadium',
-  'visiting a museum',
-  'at a local farmer\'s market'
 ]
 
 function getRandomElement<T>(array: T[]): T {
@@ -101,51 +75,9 @@ function generateBio(nickname: string, age: number, occupation: string, location
   const templates = [
     `Hallo! I'm ${nickname}, ${age} years old and working as a ${occupation} in ${location}. I love ${interests.slice(0, 3).join(', ')} and enjoy exploring Germany's beautiful landscapes. Looking for genuine connections!`,
     `${nickname} here! Living in ${location} as a ${occupation}. Passionate about ${interests.slice(0, 2).join(' and ')}. Always up for discovering new places in Germany and meeting interesting people.`,
-    `Hi there! I'm ${nickname}, a ${age}-year-old ${occupation} from ${location}. My hobbies include ${interests.slice(0, 3).join(', ')}. Love the German culture and outdoor activities. Let's create some memories together!`,
-    `${nickname}, ${age}, living in beautiful ${location}! Working as a ${occupation} and passionate about ${interests.slice(0, 2).join(' and ')}. Life's an adventure, especially in Germany!`
+    `Hi there! I'm ${nickname}, a ${age}-year-old ${occupation} from ${location}. My hobbies include ${interests.slice(0, 3).join(', ')}. Love the German culture and outdoor activities. Let's create some memories together!`
   ]
   return getRandomElement(templates)
-}
-
-const generateProfileImage = async (gender: string, age: number, scenario: string, characterSeed?: string): Promise<string> => {
-  const replicate = new Replicate({
-    auth: Deno.env.get('REPLICATE_API_TOKEN')!,
-  })
-
-  // Create consistent character description
-  const baseCharacter = characterSeed || `${age}-year-old ${gender === 'male' ? 'German man' : 'German woman'} with authentic European features`
-  const prompt = `A realistic photo of a ${baseCharacter}, ${scenario}, high quality, natural lighting, photorealistic, 4k`
-  
-  console.log('Generating image with prompt:', prompt)
-
-  try {
-    const output = await replicate.run(
-      "black-forest-labs/flux-schnell",
-      {
-        input: {
-          prompt: prompt,
-          go_fast: true,
-          megapixels: "1",
-          num_outputs: 1,
-          aspect_ratio: "3:4",
-          output_format: "webp",
-          output_quality: 80,
-          num_inference_steps: 4
-        }
-      }
-    ) as string[]
-
-    if (output && output.length > 0) {
-      console.log('Image generated successfully')
-      return output[0]
-    } else {
-      throw new Error('No image generated')
-    }
-  } catch (error) {
-    console.error('Error generating image:', error)
-    // Return a placeholder if image generation fails
-    return `/user-uploads/profile-pics/placeholder-${gender}.png`
-  }
 }
 
 serve(async (req) => {
@@ -182,7 +114,6 @@ serve(async (req) => {
       
       console.log(`Creating male profile ${i + 1}: ${nickname}`)
       
-      // Create profile directly without auth
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -210,36 +141,28 @@ serve(async (req) => {
         continue
       }
 
-      // Generate character seed for consistency
-      const characterSeed = `${age}-year-old German man with ${getRandomElement(['brown', 'blonde', 'black'])} hair and ${getRandomElement(['blue', 'green', 'brown'])} eyes`
+      // Add some photos
+      const photoUrls = [
+        '/user-uploads/profile-pics/1.png',
+        '/user-uploads/profile-pics/(3).png',
+        '/user-uploads/profile-pics/(4).png'
+      ]
       
-      // Generate 2-4 images for this profile
-      const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
-      const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
-      
-      for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
-        const scenario = selectedScenarios[photoIndex]
-        const imageUrl = await generateProfileImage('male', age, scenario, characterSeed)
+      for (let photoIndex = 0; photoIndex < 2; photoIndex++) {
+        const photoUrl = photoUrls[photoIndex % photoUrls.length]
         
-        const { error: photoError } = await supabase
+        await supabase
           .from('profile_photos')
           .insert({
             profile_id: profile.id,
-            photo_url: imageUrl,
+            photo_url: photoUrl,
             photo_order: photoIndex + 1,
             is_primary: photoIndex === 0
           })
-
-        if (photoError) {
-          console.error('Photo error:', photoError)
-        }
-        
-        // Small delay between image generations
-        await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
       // Create user preferences
-      const { error: preferencesError } = await supabase
+      await supabase
         .from('user_preferences')
         .insert({
           profile_id: profile.id,
@@ -249,10 +172,6 @@ serve(async (req) => {
           max_age: Math.min(70, age + 8),
           max_distance_km: Math.floor(Math.random() * 100) + 20
         })
-
-      if (preferencesError) {
-        console.error('Preferences error:', preferencesError)
-      }
 
       createdProfiles.push({ id: profile.id, name: nickname, gender: 'male' })
     }
@@ -270,7 +189,6 @@ serve(async (req) => {
       
       console.log(`Creating female profile ${i + 1}: ${nickname}`)
       
-      // Create profile directly without auth
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -298,36 +216,29 @@ serve(async (req) => {
         continue
       }
 
-      // Generate character seed for consistency
-      const characterSeed = `${age}-year-old German woman with ${getRandomElement(['brown', 'blonde', 'black', 'auburn'])} hair and ${getRandomElement(['blue', 'green', 'brown', 'hazel'])} eyes`
+      // Add some photos
+      const photoUrls = [
+        '/user-uploads/profile-pics/Untitled design (1).png',
+        '/user-uploads/profile-pics/Untitled design (3).png',
+        '/user-uploads/profile-pics/Untitled design (4).png',
+        '/user-uploads/profile-pics/Untitled design (5).png'
+      ]
       
-      // Generate 2-4 images for this profile
-      const numPhotos = Math.floor(Math.random() * 3) + 2 // 2-4 photos
-      const selectedScenarios = getRandomElements(photoScenarios, numPhotos)
-      
-      for (let photoIndex = 0; photoIndex < numPhotos; photoIndex++) {
-        const scenario = selectedScenarios[photoIndex]
-        const imageUrl = await generateProfileImage('female', age, scenario, characterSeed)
+      for (let photoIndex = 0; photoIndex < 2; photoIndex++) {
+        const photoUrl = photoUrls[photoIndex % photoUrls.length]
         
-        const { error: photoError } = await supabase
+        await supabase
           .from('profile_photos')
           .insert({
             profile_id: profile.id,
-            photo_url: imageUrl,
+            photo_url: photoUrl,
             photo_order: photoIndex + 1,
             is_primary: photoIndex === 0
           })
-
-        if (photoError) {
-          console.error('Photo error:', photoError)
-        }
-        
-        // Small delay between image generations
-        await new Promise(resolve => setTimeout(resolve, 1000))
       }
 
       // Create user preferences
-      const { error: preferencesError } = await supabase
+      await supabase
         .from('user_preferences')
         .insert({
           profile_id: profile.id,
@@ -338,10 +249,6 @@ serve(async (req) => {
           max_distance_km: Math.floor(Math.random() * 100) + 20
         })
 
-      if (preferencesError) {
-        console.error('Preferences error:', preferencesError)
-      }
-
       createdProfiles.push({ id: profile.id, name: nickname, gender: 'female' })
     }
 
@@ -350,7 +257,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Successfully created ${createdProfiles.length} authentic German profiles with consistent image sets`,
+        message: `Successfully created ${createdProfiles.length} authentic German profiles`,
         profiles: createdProfiles
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
