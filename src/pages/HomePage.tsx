@@ -38,7 +38,7 @@ const HomePage = () => {
       backgroundImage: 'url("/lovable-uploads/ab2b4a57-9177-4693-9a88-23d89544a07b.png")'
     }}>
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-        <div className="container mx-auto px-6 py-16 relative z-10">
+        <div className="container mx-auto px">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 text-justify">
             Find Your <span className="text-custom-pink">Dream</span> Connection
           </h1>
