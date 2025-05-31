@@ -7,6 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// German names and data
 const maleNames = [
   'Alexander', 'Andreas', 'Christian', 'Daniel', 'David', 'Florian', 'Jan', 'Johannes', 
   'Jonas', 'Julian', 'Kevin', 'Lars', 'Lukas', 'Marcel', 'Marco', 'Mario', 'Markus', 
@@ -71,13 +72,210 @@ function generateNickname(firstName: string): string {
   return getRandomElement(styles)
 }
 
-function generateBio(nickname: string, age: number, occupation: string, location: string, interests: string[]): string {
+async function generateBioWithAI(nickname: string, age: number, occupation: string, location: string, interests: string[]): Promise<string> {
+  try {
+    const openRouterKey = Deno.env.get('openrouter')
+    if (!openRouterKey) {
+      return generateFallbackBio(nickname, age, occupation, location, interests)
+    }
+
+    const prompt = `Write a brief, authentic dating profile bio (2-3 sentences) for ${nickname}, a ${age}-year-old ${occupation} from ${location}, Germany. Include interests: ${interests.slice(0, 3).join(', ')}. Make it personal, engaging, and in first person. Keep it under 150 characters.`
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'anthropic/claude-3-haiku',
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 100,
+        temperature: 0.7
+      })
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return data.choices[0]?.message?.content?.trim() || generateFallbackBio(nickname, age, occupation, location, interests)
+    }
+  } catch (error) {
+    console.error('Error generating bio with AI:', error)
+  }
+
+  return generateFallbackBio(nickname, age, occupation, location, interests)
+}
+
+function generateFallbackBio(nickname: string, age: number, occupation: string, location: string, interests: string[]): string {
   const templates = [
-    `Hallo! I'm ${nickname}, ${age} years old and working as a ${occupation} in ${location}. I love ${interests.slice(0, 3).join(', ')} and enjoy exploring Germany's beautiful landscapes. Looking for genuine connections!`,
-    `${nickname} here! Living in ${location} as a ${occupation}. Passionate about ${interests.slice(0, 2).join(' and ')}. Always up for discovering new places in Germany and meeting interesting people.`,
-    `Hi there! I'm ${nickname}, a ${age}-year-old ${occupation} from ${location}. My hobbies include ${interests.slice(0, 3).join(', ')}. Love the German culture and outdoor activities. Let's create some memories together!`
+    `Hi! I'm ${nickname}, ${age} years old and working as a ${occupation} in ${location}. I love ${interests.slice(0, 3).join(', ')} and enjoy exploring Germany's beautiful landscapes.`,
+    `${nickname} here! Living in ${location} as a ${occupation}. Passionate about ${interests.slice(0, 2).join(' and ')}. Always up for discovering new places in Germany.`,
+    `Hi there! I'm ${nickname}, a ${age}-year-old ${occupation} from ${location}. My hobbies include ${interests.slice(0, 3).join(', ')}. Love the German culture and outdoor activities.`
   ]
   return getRandomElement(templates)
+}
+
+async function generateConsistentImages(gender: string, age: number, ethnicity: string = 'European'): Promise<string[]> {
+  const images: string[] = []
+  
+  try {
+    const huggingfaceKey = Deno.env.get('Huggingface')
+    const replicateKey = Deno.env.get('Replicate')
+    
+    if (!huggingfaceKey && !replicateKey) {
+      console.log('No image generation APIs available, using placeholder images')
+      return getPlaceholderImages(gender)
+    }
+
+    // Generate a consistent character description
+    const basePrompt = `professional portrait photo of a ${age}-year-old ${ethnicity} ${gender}, attractive, friendly smile, realistic, high quality, natural lighting`
+    
+    // Generate multiple poses/styles of the same person
+    const prompts = [
+      `${basePrompt}, headshot, clean background`,
+      `${basePrompt}, casual outdoor setting, natural pose`,
+      `${basePrompt}, indoor setting, warm lighting`,
+      `${basePrompt}, lifestyle photo, candid moment`
+    ]
+
+    const imageCount = Math.floor(Math.random() * 3) + 2 // 2-4 images
+
+    for (let i = 0; i < imageCount; i++) {
+      try {
+        let imageUrl = null
+        
+        // Try Hugging Face first
+        if (huggingfaceKey && i < 2) {
+          imageUrl = await generateHuggingFaceImage(prompts[i], huggingfaceKey)
+        }
+        
+        // Try Replicate as fallback or for additional images
+        if (!imageUrl && replicateKey) {
+          imageUrl = await generateReplicateImage(prompts[i], replicateKey)
+        }
+        
+        if (imageUrl) {
+          images.push(imageUrl)
+        }
+        
+        // Add delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } catch (error) {
+        console.error(`Error generating image ${i + 1}:`, error)
+      }
+    }
+  } catch (error) {
+    console.error('Error in generateConsistentImages:', error)
+  }
+
+  // If no AI images were generated, use placeholders
+  if (images.length === 0) {
+    return getPlaceholderImages(gender)
+  }
+
+  return images
+}
+
+async function generateHuggingFaceImage(prompt: string, apiKey: string): Promise<string | null> {
+  try {
+    const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inputs: prompt,
+        parameters: {
+          num_inference_steps: 4,
+          guidance_scale: 3.5
+        }
+      })
+    })
+
+    if (response.ok) {
+      const imageBlob = await response.blob()
+      const arrayBuffer = await imageBlob.arrayBuffer()
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+      return `data:image/jpeg;base64,${base64}`
+    }
+  } catch (error) {
+    console.error('Hugging Face API error:', error)
+  }
+  return null
+}
+
+async function generateReplicateImage(prompt: string, apiKey: string): Promise<string | null> {
+  try {
+    const response = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        version: "black-forest-labs/flux-schnell",
+        input: {
+          prompt: prompt,
+          go_fast: true,
+          megapixels: "1",
+          aspect_ratio: "1:1",
+          output_format: "webp",
+          output_quality: 80,
+          num_inference_steps: 4
+        }
+      })
+    })
+
+    if (response.ok) {
+      const prediction = await response.json()
+      
+      // Poll for completion
+      let result = prediction
+      for (let i = 0; i < 30; i++) {
+        if (result.status === 'succeeded') {
+          return result.output[0]
+        }
+        if (result.status === 'failed') {
+          break
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${result.id}`, {
+          headers: { 'Authorization': `Token ${apiKey}` }
+        })
+        
+        if (statusResponse.ok) {
+          result = await statusResponse.json()
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Replicate API error:', error)
+  }
+  return null
+}
+
+function getPlaceholderImages(gender: string): string[] {
+  const maleImages = [
+    '/user-uploads/profile-pics/1.png',
+    '/user-uploads/profile-pics/(3).png',
+    '/user-uploads/profile-pics/(4).png'
+  ]
+  
+  const femaleImages = [
+    '/user-uploads/profile-pics/Untitled design (1).png',
+    '/user-uploads/profile-pics/Untitled design (3).png',
+    '/user-uploads/profile-pics/Untitled design (4).png',
+    '/user-uploads/profile-pics/Untitled design (5).png'
+  ]
+  
+  const images = gender === 'male' ? maleImages : femaleImages
+  const count = Math.floor(Math.random() * 3) + 2 // 2-4 images
+  return images.slice(0, count)
 }
 
 serve(async (req) => {
@@ -91,7 +289,7 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    console.log('Starting authentic German profile generation...')
+    console.log('Starting enhanced German profile generation with AI...')
 
     // Clear existing profiles first
     console.log('Clearing existing profiles...')
@@ -110,9 +308,14 @@ serve(async (req) => {
       const occupation = getRandomElement(occupations)
       const location = getRandomElement(germanCities)
       const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
-      const bio = generateBio(nickname, age, occupation, location, userInterests)
       
-      console.log(`Creating male profile ${i + 1}: ${nickname}`)
+      console.log(`Creating enhanced male profile ${i + 1}: ${nickname}`)
+      
+      // Generate AI bio
+      const bio = await generateBioWithAI(nickname, age, occupation, location, userInterests)
+      
+      // Generate consistent images
+      const imageUrls = await generateConsistentImages('male', age)
       
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -141,21 +344,13 @@ serve(async (req) => {
         continue
       }
 
-      // Add some photos
-      const photoUrls = [
-        '/user-uploads/profile-pics/1.png',
-        '/user-uploads/profile-pics/(3).png',
-        '/user-uploads/profile-pics/(4).png'
-      ]
-      
-      for (let photoIndex = 0; photoIndex < 2; photoIndex++) {
-        const photoUrl = photoUrls[photoIndex % photoUrls.length]
-        
+      // Add generated photos
+      for (let photoIndex = 0; photoIndex < imageUrls.length; photoIndex++) {
         await supabase
           .from('profile_photos')
           .insert({
             profile_id: profile.id,
-            photo_url: photoUrl,
+            photo_url: imageUrls[photoIndex],
             photo_order: photoIndex + 1,
             is_primary: photoIndex === 0
           })
@@ -173,7 +368,7 @@ serve(async (req) => {
           max_distance_km: Math.floor(Math.random() * 100) + 20
         })
 
-      createdProfiles.push({ id: profile.id, name: nickname, gender: 'male' })
+      createdProfiles.push({ id: profile.id, name: nickname, gender: 'male', images: imageUrls.length })
     }
 
     // Generate 25 female profiles
@@ -185,9 +380,14 @@ serve(async (req) => {
       const occupation = getRandomElement(occupations)
       const location = getRandomElement(germanCities)
       const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
-      const bio = generateBio(nickname, age, occupation, location, userInterests)
       
-      console.log(`Creating female profile ${i + 1}: ${nickname}`)
+      console.log(`Creating enhanced female profile ${i + 1}: ${nickname}`)
+      
+      // Generate AI bio
+      const bio = await generateBioWithAI(nickname, age, occupation, location, userInterests)
+      
+      // Generate consistent images
+      const imageUrls = await generateConsistentImages('female', age)
       
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -216,22 +416,13 @@ serve(async (req) => {
         continue
       }
 
-      // Add some photos
-      const photoUrls = [
-        '/user-uploads/profile-pics/Untitled design (1).png',
-        '/user-uploads/profile-pics/Untitled design (3).png',
-        '/user-uploads/profile-pics/Untitled design (4).png',
-        '/user-uploads/profile-pics/Untitled design (5).png'
-      ]
-      
-      for (let photoIndex = 0; photoIndex < 2; photoIndex++) {
-        const photoUrl = photoUrls[photoIndex % photoUrls.length]
-        
+      // Add generated photos
+      for (let photoIndex = 0; photoIndex < imageUrls.length; photoIndex++) {
         await supabase
           .from('profile_photos')
           .insert({
             profile_id: profile.id,
-            photo_url: photoUrl,
+            photo_url: imageUrls[photoIndex],
             photo_order: photoIndex + 1,
             is_primary: photoIndex === 0
           })
@@ -249,15 +440,15 @@ serve(async (req) => {
           max_distance_km: Math.floor(Math.random() * 100) + 20
         })
 
-      createdProfiles.push({ id: profile.id, name: nickname, gender: 'female' })
+      createdProfiles.push({ id: profile.id, name: nickname, gender: 'female', images: imageUrls.length })
     }
 
-    console.log(`Successfully created ${createdProfiles.length} authentic German profiles`)
+    console.log(`Successfully created ${createdProfiles.length} enhanced German profiles with AI-generated content`)
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Successfully created ${createdProfiles.length} authentic German profiles`,
+        message: `Successfully created ${createdProfiles.length} enhanced German profiles with AI-generated bios and consistent image sets`,
         profiles: createdProfiles
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -266,7 +457,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ error: 'Failed to generate profiles', details: error.message }),
+      JSON.stringify({ error: 'Failed to generate enhanced profiles', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
