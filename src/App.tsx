@@ -38,7 +38,7 @@ function App() {
     <HelmetProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/discover" element={<MainLayout><DiscoverPage /></MainLayout>} />
           <Route path="/matches" element={<MainLayout><MatchesPage /></MainLayout>} />
           <Route path="/messages" element={<MainLayout showRightSidebar={false}><MessagesPage /></MainLayout>} />
