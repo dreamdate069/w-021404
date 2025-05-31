@@ -21,6 +21,15 @@ import {
 
 const BrowsePage = () => {
   const [ageRange, setAgeRange] = useState<number[]>([18, 45]);
+  const [activeFilter, setActiveFilter] = useState('all');
+  
+  const filterButtons = [
+    { id: 'all', label: 'All Members' },
+    { id: 'new', label: 'New Members' },
+    { id: 'featured', label: 'Featured' },
+    { id: 'popular', label: 'Popular' },
+    { id: 'online', label: 'Online Now' },
+  ];
   
   return (
     <div className="container mx-auto p-6">
@@ -90,7 +99,12 @@ const BrowsePage = () => {
                   </Select>
                 </div>
                 
-                <Button className="w-full bg-rose-500 hover:bg-rose-600">
+                <Button 
+                  className="w-full bg-rose-500 hover:bg-rose-600"
+                  onClick={() => {
+                    console.log('Filters applied');
+                  }}
+                >
                   Apply Filters
                 </Button>
               </div>
@@ -101,28 +115,33 @@ const BrowsePage = () => {
       
       <div className="mb-8">
         <div className="flex flex-wrap gap-2 bg-zinc-800 p-4 rounded-md border border-zinc-700">
-          <Button variant="outline" className="bg-zinc-700 border-zinc-600 text-white">
-            All Members
-          </Button>
-          <Button variant="ghost" className="text-zinc-400 hover:text-white">
-            New Members
-          </Button>
-          <Button variant="ghost" className="text-zinc-400 hover:text-white">
-            Featured
-          </Button>
-          <Button variant="ghost" className="text-zinc-400 hover:text-white">
-            Popular
-          </Button>
-          <Button variant="ghost" className="text-zinc-400 hover:text-white">
-            Online Now
-          </Button>
+          {filterButtons.map((filter) => (
+            <Button 
+              key={filter.id}
+              variant={activeFilter === filter.id ? "outline" : "ghost"}
+              className={`${
+                activeFilter === filter.id 
+                  ? "bg-zinc-700 border-zinc-600 text-white" 
+                  : "text-zinc-400 hover:text-white"
+              }`}
+              onClick={() => setActiveFilter(filter.id)}
+            >
+              {filter.label}
+            </Button>
+          ))}
         </div>
       </div>
       
       <MemberGrid />
       
       <div className="mt-8 flex justify-center">
-        <Button variant="outline" className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700">
+        <Button 
+          variant="outline" 
+          className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700"
+          onClick={() => {
+            console.log('Loading more members');
+          }}
+        >
           Load More
         </Button>
       </div>

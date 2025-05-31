@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, MapPin, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,22 +8,29 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from 'react-router-dom';
+
 const DiscoverPage = () => {
   const [ageRange, setAgeRange] = useState<number[]>([18, 45]);
   const [distance, setDistance] = useState<number[]>([50]);
   const [activeTab, setActiveTab] = useState("nearby");
+  const navigate = useNavigate();
+  
   const locations = [{
     name: "New York, NY",
     distance: "< 1 mile"
   }, {
-    name: "Brooklyn, NY",
+    name: "Brooklyn, NY", 
     distance: "4 miles"
   }, {
     name: "Queens, NY",
     distance: "7 miles"
   }];
+  
   const onlineCount = 132;
-  return <div className="container mx-auto p-6">
+  
+  return (
+    <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
         <h1 className="text-3xl font-bold text-white">Discover</h1>
         
@@ -63,7 +71,13 @@ const DiscoverPage = () => {
                   </div>
                 </div>
                 
-                <Button className="w-full bg-rose-500 hover:bg-rose-600">
+                <Button 
+                  className="w-full bg-rose-500 hover:bg-rose-600"
+                  onClick={() => {
+                    // Apply filters logic here
+                    console.log('Filters applied:', { ageRange, distance });
+                  }}
+                >
                   Apply Filters
                 </Button>
               </div>
@@ -91,9 +105,18 @@ const DiscoverPage = () => {
               Near Your Location
             </h3>
             <div className="flex flex-wrap gap-2">
-              {locations.map(location => <Badge key={location.name} variant="outline" className="bg-zinc-700 hover:bg-zinc-600 cursor-pointer border-zinc-600">
+              {locations.map(location => 
+                <Badge 
+                  key={location.name} 
+                  variant="outline" 
+                  className="bg-zinc-700 hover:bg-zinc-600 cursor-pointer border-zinc-600"
+                  onClick={() => {
+                    console.log('Location filter:', location.name);
+                  }}
+                >
                   {location.name} <span className="ml-1 text-zinc-400">({location.distance})</span>
-                </Badge>)}
+                </Badge>
+              )}
             </div>
           </div>
         </TabsContent>
@@ -112,6 +135,8 @@ const DiscoverPage = () => {
       </Tabs>
       
       <MemberGrid />
-    </div>;
+    </div>
+  );
 };
+
 export default DiscoverPage;
