@@ -47,7 +47,7 @@ const HomePage = () => {
         </div>
         
         <div className="container mx-auto px-6 relative z-10">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 text-justify">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-justify lg:text-5xl">
             Find Your <span className="text-custom-pink">Dream</span> Connection
           </h1>
           <p className="text-zinc-300 mb-8 max-w-2xl text-left text-lg">Join thousands of singles finding meaningful relationships every day.   
