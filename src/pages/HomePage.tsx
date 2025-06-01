@@ -42,7 +42,7 @@ const HomePage = () => {
         {/* DreamDate Logo */}
         <div className="relative z-10 pt-6 px-6">
           <div className="flex justify-center mb-8">
-            <img src="/lovable-uploads/cdd2e339-d00c-4458-b5cc-7a69afcfa1de.png" alt="DreamDate.Online Logo" className="h-16 md:h-20 object-contain. align: left\n" />
+            <img src="/lovable-uploads/cdd2e339-d00c-4458-b5cc-7a69afcfa1de.png" alt="DreamDate.Online Logo" className="h-16 md:h-20 object-contain" />
           </div>
         </div>
         
