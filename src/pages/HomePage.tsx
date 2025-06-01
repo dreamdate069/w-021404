@@ -50,7 +50,7 @@ const HomePage = () => {
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-justify lg:text-5xl">
             Find Your <span className="text-custom-pink">Dream</span> Connection
           </h1>
-          <p className="text-zinc-300 mb-8 max-w-2xl text-left text-lg">Join thousands of singles finding meaningful relationships every day.   
+          <p className="text-zinc-300 mb-8 max-w-2xl text-left text-lg mx-0 px-0">Join thousands of singles finding meaningful relationships every day. 
 Your perfect match is just a conversation away.</p>
           
           {/* Welcome Quiz/Chat */}
