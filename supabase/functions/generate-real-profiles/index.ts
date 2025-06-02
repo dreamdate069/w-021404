@@ -72,6 +72,36 @@ function generateNickname(firstName: string): string {
   return getRandomElement(styles)
 }
 
+function generateEmail(firstName: string, lastName: string): string {
+  const domains = ['gmail.com', 'web.de', 'gmx.de', 't-online.de', 'outlook.de']
+  const cleanFirst = firstName.toLowerCase().replace(/[äöüß]/g, (char) => {
+    const map: { [key: string]: string } = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' }
+    return map[char] || char
+  })
+  const cleanLast = lastName.toLowerCase().replace(/[äöüß]/g, (char) => {
+    const map: { [key: string]: string } = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' }
+    return map[char] || char
+  })
+  
+  const styles = [
+    `${cleanFirst}.${cleanLast}`,
+    `${cleanFirst}${cleanLast}`,
+    `${cleanFirst}.${cleanLast}${Math.floor(Math.random() * 99) + 1}`,
+    `${cleanFirst}${Math.floor(Math.random() * 999) + 1}`
+  ]
+  
+  return `${getRandomElement(styles)}@${getRandomElement(domains)}`
+}
+
+function generateSecurePassword(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
+  let password = ''
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return password
+}
+
 async function generateBioWithAI(nickname: string, age: number, occupation: string, location: string, interests: string[]): Promise<string> {
   try {
     const openRouterKey = Deno.env.get('openrouter')
@@ -287,44 +317,71 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
-    console.log('Starting enhanced German profile generation with AI...')
+    console.log('Starting authentic German user creation with full authentication...')
 
-    // Clear existing profiles first
-    console.log('Clearing existing profiles...')
+    // Clear existing data first
+    console.log('Clearing existing data...')
     await supabase.from('profile_photos').delete().neq('id', '00000000-0000-0000-0000-000000000000')
     await supabase.from('user_preferences').delete().neq('id', '00000000-0000-0000-0000-000000000000')
     await supabase.from('profiles').delete().neq('id', '00000000-0000-0000-0000-000000000000')
 
-    const createdProfiles = []
+    const createdUsers = []
     
-    // Generate 25 male profiles
+    // Generate 25 male users
     for (let i = 0; i < 25; i++) {
       const firstName = getRandomElement(maleNames)
       const lastName = getRandomElement(lastNames)
       const nickname = generateNickname(firstName)
+      const email = generateEmail(firstName, lastName)
+      const password = generateSecurePassword()
       const age = Math.floor(Math.random() * (45 - 22 + 1)) + 22
       const occupation = getRandomElement(occupations)
       const location = getRandomElement(germanCities)
       const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
       
-      console.log(`Creating enhanced male profile ${i + 1}: ${nickname}`)
+      console.log(`Creating authentic male user ${i + 1}: ${email}`)
       
+      // Create authenticated user first
+      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true, // Auto-confirm email
+        user_metadata: {
+          first_name: firstName,
+          last_name: lastName,
+          nickname,
+          gender: 'male',
+          age
+        }
+      })
+
+      if (authError) {
+        console.error('Auth user creation error:', authError)
+        continue
+      }
+
+      if (!authUser.user) {
+        console.error('No user returned from auth creation')
+        continue
+      }
+
       // Generate AI bio
       const bio = await generateBioWithAI(nickname, age, occupation, location, userInterests)
       
       // Generate consistent images
       const imageUrls = await generateConsistentImages('male', age)
       
-      const { data: profile, error: profileError } = await supabase
+      // Update the profile created by the trigger
+      const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          nickname,
-          first_name: firstName,
-          last_name: lastName,
-          age,
-          gender: 'male',
+        .update({
           bio,
           location,
           occupation,
@@ -336,11 +393,10 @@ serve(async (req) => {
           relationship_status: getRandomElement(['single', 'divorced']),
           looking_for: Math.random() > 0.5 ? ['dating'] : ['friendship', 'dating']
         })
-        .select()
-        .single()
+        .eq('id', authUser.user.id)
 
       if (profileError) {
-        console.error('Profile error:', profileError)
+        console.error('Profile update error:', profileError)
         continue
       }
 
@@ -349,7 +405,7 @@ serve(async (req) => {
         await supabase
           .from('profile_photos')
           .insert({
-            profile_id: profile.id,
+            profile_id: authUser.user.id,
             photo_url: imageUrls[photoIndex],
             photo_order: photoIndex + 1,
             is_primary: photoIndex === 0
@@ -360,7 +416,7 @@ serve(async (req) => {
       await supabase
         .from('user_preferences')
         .insert({
-          profile_id: profile.id,
+          profile_id: authUser.user.id,
           interested_in: ['dating', 'friendship'],
           preferred_gender: ['female'],
           min_age: Math.max(18, age - 8),
@@ -368,35 +424,64 @@ serve(async (req) => {
           max_distance_km: Math.floor(Math.random() * 100) + 20
         })
 
-      createdProfiles.push({ id: profile.id, name: nickname, gender: 'male', images: imageUrls.length })
+      createdUsers.push({ 
+        id: authUser.user.id, 
+        email, 
+        name: nickname, 
+        gender: 'male', 
+        images: imageUrls.length,
+        password // Include for reference (remove in production)
+      })
     }
 
-    // Generate 25 female profiles
+    // Generate 25 female users
     for (let i = 0; i < 25; i++) {
       const firstName = getRandomElement(femaleNames)
       const lastName = getRandomElement(lastNames)
       const nickname = generateNickname(firstName)
+      const email = generateEmail(firstName, lastName)
+      const password = generateSecurePassword()
       const age = Math.floor(Math.random() * (45 - 22 + 1)) + 22
       const occupation = getRandomElement(occupations)
       const location = getRandomElement(germanCities)
       const userInterests = getRandomElements(interests, Math.floor(Math.random() * 6) + 4)
       
-      console.log(`Creating enhanced female profile ${i + 1}: ${nickname}`)
+      console.log(`Creating authentic female user ${i + 1}: ${email}`)
       
+      // Create authenticated user first
+      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true, // Auto-confirm email
+        user_metadata: {
+          first_name: firstName,
+          last_name: lastName,
+          nickname,
+          gender: 'female',
+          age
+        }
+      })
+
+      if (authError) {
+        console.error('Auth user creation error:', authError)
+        continue
+      }
+
+      if (!authUser.user) {
+        console.error('No user returned from auth creation')
+        continue
+      }
+
       // Generate AI bio
       const bio = await generateBioWithAI(nickname, age, occupation, location, userInterests)
       
       // Generate consistent images
       const imageUrls = await generateConsistentImages('female', age)
       
-      const { data: profile, error: profileError } = await supabase
+      // Update the profile created by the trigger
+      const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          nickname,
-          first_name: firstName,
-          last_name: lastName,
-          age,
-          gender: 'female',
+        .update({
           bio,
           location,
           occupation,
@@ -408,11 +493,10 @@ serve(async (req) => {
           relationship_status: getRandomElement(['single', 'divorced']),
           looking_for: Math.random() > 0.5 ? ['dating'] : ['friendship', 'dating']
         })
-        .select()
-        .single()
+        .eq('id', authUser.user.id)
 
       if (profileError) {
-        console.error('Profile error:', profileError)
+        console.error('Profile update error:', profileError)
         continue
       }
 
@@ -421,7 +505,7 @@ serve(async (req) => {
         await supabase
           .from('profile_photos')
           .insert({
-            profile_id: profile.id,
+            profile_id: authUser.user.id,
             photo_url: imageUrls[photoIndex],
             photo_order: photoIndex + 1,
             is_primary: photoIndex === 0
@@ -432,7 +516,7 @@ serve(async (req) => {
       await supabase
         .from('user_preferences')
         .insert({
-          profile_id: profile.id,
+          profile_id: authUser.user.id,
           interested_in: ['dating', 'friendship'],
           preferred_gender: ['male'],
           min_age: Math.max(18, age - 8),
@@ -440,16 +524,23 @@ serve(async (req) => {
           max_distance_km: Math.floor(Math.random() * 100) + 20
         })
 
-      createdProfiles.push({ id: profile.id, name: nickname, gender: 'female', images: imageUrls.length })
+      createdUsers.push({ 
+        id: authUser.user.id, 
+        email, 
+        name: nickname, 
+        gender: 'female', 
+        images: imageUrls.length,
+        password // Include for reference (remove in production)
+      })
     }
 
-    console.log(`Successfully created ${createdProfiles.length} enhanced German profiles with AI-generated content`)
+    console.log(`Successfully created ${createdUsers.length} authentic German users with full authentication`)
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Successfully created ${createdProfiles.length} enhanced German profiles with AI-generated bios and consistent image sets`,
-        profiles: createdProfiles
+        message: `Successfully created ${createdUsers.length} authentic German users with real authentication accounts`,
+        users: createdUsers
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
@@ -457,7 +548,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error:', error)
     return new Response(
-      JSON.stringify({ error: 'Failed to generate enhanced profiles', details: error.message }),
+      JSON.stringify({ error: 'Failed to generate authentic users', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
