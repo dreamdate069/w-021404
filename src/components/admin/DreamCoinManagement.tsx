@@ -4,14 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, CreditCard, TrendingUp } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DreamCoinBank, TRANSFER_FEE_PERCENTAGE } from '@/utils/DreamCoinBank';
+import PaymentHistory from '../payments/PaymentHistory';
 
 const DreamCoinManagement = () => {
   const [userId, setUserId] = useState('');
   const [amount, setAmount] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const { toast } = useToast();
   
   // Get data from the DreamCoin system
@@ -71,12 +73,35 @@ const DreamCoinManagement = () => {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleString();
   };
+
+  if (activeTab === 'payments') {
+    return <PaymentHistory />;
+  }
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-white">DreamCoin Management</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-white">DreamCoin Management</h2>
+        
+        <div className="flex gap-2">
+          <Button
+            variant={activeTab === 'overview' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('overview')}
+            className={activeTab === 'overview' ? 'bg-custom-pink' : 'border-zinc-600 text-zinc-300'}
+          >
+            Overview
+          </Button>
+          <Button
+            variant={activeTab === 'payments' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('payments')}
+            className={activeTab === 'payments' ? 'bg-custom-pink' : 'border-zinc-600 text-zinc-300'}
+          >
+            Real Payments
+          </Button>
+        </div>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-zinc-800 border-zinc-700 text-white">
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -107,6 +132,19 @@ const DreamCoinManagement = () => {
           <CardContent>
             <div className="text-2xl font-bold">{TRANSFER_FEE_PERCENTAGE}%</div>
             <p className="text-xs text-zinc-400 mt-1">Current fee on transfers</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-zinc-800 border-zinc-700 text-white">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CreditCard className="h-5 w-5 mr-2 text-emerald-400" />
+              Real Payments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">$0.00</div>
+            <p className="text-xs text-zinc-400 mt-1">Total revenue from coin purchases</p>
           </CardContent>
         </Card>
       </div>

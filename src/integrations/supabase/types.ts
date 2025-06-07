@@ -9,6 +9,90 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      coin_packages: {
+        Row: {
+          bonus_coins: number | null
+          created_at: string
+          description: string | null
+          dreamcoins: number
+          id: string
+          is_active: boolean | null
+          name: string
+          price_usd: number
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          bonus_coins?: number | null
+          created_at?: string
+          description?: string | null
+          dreamcoins: number
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_usd: number
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bonus_coins?: number | null
+          created_at?: string
+          description?: string | null
+          dreamcoins?: number
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_usd?: number
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_usd: number
+          bonus_coins: number | null
+          completed_at: string | null
+          created_at: string
+          dreamcoins_purchased: number
+          id: string
+          payment_data: Json | null
+          payment_method: string
+          payment_provider_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_usd: number
+          bonus_coins?: number | null
+          completed_at?: string | null
+          created_at?: string
+          dreamcoins_purchased: number
+          id?: string
+          payment_data?: Json | null
+          payment_method: string
+          payment_provider_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_usd?: number
+          bonus_coins?: number | null
+          completed_at?: string | null
+          created_at?: string
+          dreamcoins_purchased?: number
+          id?: string
+          payment_data?: Json | null
+          payment_method?: string
+          payment_provider_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profile_photos: {
         Row: {
           created_at: string | null
@@ -64,6 +148,7 @@ export type Database = {
           looking_for: string[] | null
           nickname: string
           occupation: string | null
+          preferred_payment_method: string | null
           profile_pic_url: string | null
           relationship_status: string | null
           updated_at: string | null
@@ -87,6 +172,7 @@ export type Database = {
           looking_for?: string[] | null
           nickname: string
           occupation?: string | null
+          preferred_payment_method?: string | null
           profile_pic_url?: string | null
           relationship_status?: string | null
           updated_at?: string | null
@@ -110,6 +196,7 @@ export type Database = {
           looking_for?: string[] | null
           nickname?: string
           occupation?: string | null
+          preferred_payment_method?: string | null
           profile_pic_url?: string | null
           relationship_status?: string | null
           updated_at?: string | null
