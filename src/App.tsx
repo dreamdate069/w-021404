@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
@@ -47,18 +46,7 @@ function App() {
       <HelmetProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={
-              <ErrorBoundary fallback={
-                <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-                  <div className="text-center">
-                    <h1 className="text-2xl font-bold text-white mb-4">Welcome to DreamDate</h1>
-                    <p className="text-zinc-400">Loading homepage...</p>
-                  </div>
-                </div>
-              }>
-                <HomePage />
-              </ErrorBoundary>
-            } />
+            <Route path="/" element={<HomePage />} />
             <Route path="/discover" element={<MainLayout><DiscoverPage /></MainLayout>} />
             <Route path="/matches" element={<MainLayout><MatchesPage /></MainLayout>} />
             <Route path="/messages" element={<MainLayout showRightSidebar={false}><MessagesPage /></MainLayout>} />

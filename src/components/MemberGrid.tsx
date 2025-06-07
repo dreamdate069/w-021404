@@ -35,7 +35,7 @@ const MemberGridContent = () => {
         <p className="text-zinc-400 mb-6">There was an issue loading member profiles.</p>
         <Button 
           onClick={generateProfiles}
-          className="bg-custom-pink hover:bg-custom-pink/90 text-white"
+          className="bg-pink-500 hover:bg-pink-600 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
           Generate Sample Profiles
@@ -51,7 +51,7 @@ const MemberGridContent = () => {
         <p className="text-zinc-400 mb-6">Be the first to join our community!</p>
         <Button 
           onClick={generateProfiles}
-          className="bg-custom-pink hover:bg-custom-pink/90 text-white"
+          className="bg-pink-500 hover:bg-pink-600 text-white"
         >
           <Plus className="w-4 h-4 mr-2" />
           Generate Sample Profiles

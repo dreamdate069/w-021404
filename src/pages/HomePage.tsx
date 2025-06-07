@@ -29,9 +29,10 @@ const HomePage = () => {
   const [answers, setAnswers] = useState<string[]>([]);
   const [showQuiz, setShowQuiz] = useState(true);
 
-  console.log('HomePage rendering...');
+  console.log('HomePage rendering - showQuiz:', showQuiz, 'currentStep:', currentStep);
 
   const handleAnswerSelect = (answer: string) => {
+    console.log('Answer selected:', answer);
     const newAnswers = [...answers, answer];
     setAnswers(newAnswers);
     if (currentStep < quizSteps.length - 1) {
@@ -63,6 +64,7 @@ const HomePage = () => {
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
+                console.log('Logo failed to load');
               }}
             />
             <ErrorBoundary>
@@ -118,10 +120,10 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="flex gap-4">
-              <ButtonPrimary onClick={() => {}}>
+              <ButtonPrimary onClick={() => console.log('Create Account clicked')}>
                 Create Account
               </ButtonPrimary>
-              <ButtonSecondary onClick={() => {}}>
+              <ButtonSecondary onClick={() => console.log('Browse Matches clicked')}>
                 Browse Matches
               </ButtonSecondary>
             </div>

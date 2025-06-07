@@ -1,6 +1,5 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import './styles/global.css';
 
 @tailwind base;
 @tailwind components;
@@ -46,6 +45,12 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom DreamDate colors */
+    --custom-pink: 329 100% 61%;
+    --custom-purple: 262 83% 58%;
+    --adam-gray: 217.2 32.6% 17.5%;
+    --adam-darker: 222.2 84% 4.9%;
   }
 
   .dark {
@@ -96,9 +101,6 @@
     @apply bg-adam-darker text-slate-900 font-sans m-0 p-0;
   }
 
-  /* Removed the problematic button style that caused invisible text */
-  /* Now buttons will inherit text color from their specific styling */
-  
   /* Form input styles with better visibility */
   input, textarea, select {
     @apply text-zinc-900;
@@ -164,5 +166,56 @@
   .example-chips:hover {
     box-shadow: inset 0 0 0 1px rgba(237, 12, 237, 0.5);
     transform: translateY(-2px);
+  }
+
+  /* Custom component utilities */
+  .custom-pink {
+    background-color: hsl(var(--custom-pink));
+  }
+
+  .bg-custom-pink {
+    background-color: hsl(var(--custom-pink));
+  }
+
+  .text-custom-pink {
+    color: hsl(var(--custom-pink));
+  }
+
+  .hover\:bg-custom-pink\/90:hover {
+    background-color: hsl(var(--custom-pink) / 0.9);
+  }
+
+  .bg-adam-gray {
+    background-color: hsl(var(--adam-gray));
+  }
+
+  .bg-adam-darker {
+    background-color: hsl(var(--adam-darker));
+  }
+
+  .hover-lift {
+    transition: transform 0.2s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
