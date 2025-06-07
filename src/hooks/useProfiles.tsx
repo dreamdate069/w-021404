@@ -40,7 +40,9 @@ export const useProfiles = () => {
 
   const fetchProfiles = async () => {
     try {
+      console.log('Fetching profiles...');
       setLoading(true);
+      setError(null);
       
       // Fetch profiles with their photos
       const { data: profilesData, error: profilesError } = await supabase
@@ -54,11 +56,15 @@ export const useProfiles = () => {
             is_primary
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(12);
 
       if (profilesError) {
+        console.error('Profiles error:', profilesError);
         throw profilesError;
       }
+
+      console.log('Profiles fetched:', profilesData?.length || 0);
 
       // Transform the data to match our interface
       const transformedProfiles: Profile[] = (profilesData || []).map(profile => ({
@@ -70,12 +76,20 @@ export const useProfiles = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching profiles:', err);
-      setError(err.message);
-      toast({
-        title: "Error",
-        description: "Failed to load profiles. Please try again.",
-        variant: "destructive",
-      });
+      const errorMessage = err.message || 'Failed to load profiles';
+      setError(errorMessage);
+      
+      // Only show toast for non-network errors
+      if (!errorMessage.includes('Failed to fetch') && !errorMessage.includes('NetworkError')) {
+        toast({
+          title: "Error",
+          description: "Failed to load profiles. Please try again.",
+          variant: "destructive",
+        });
+      }
+      
+      // Set empty array as fallback
+      setProfiles([]);
     } finally {
       setLoading(false);
     }
@@ -84,6 +98,8 @@ export const useProfiles = () => {
   const generateProfiles = async () => {
     try {
       setLoading(true);
+      console.log('Generating profiles...');
+      
       toast({
         title: "Generating Profiles",
         description: "Creating 50 authentic German profiles with image sets. This may take a few minutes...",
@@ -97,12 +113,13 @@ export const useProfiles = () => {
       });
 
       if (error) {
+        console.error('Generate profiles error:', error);
         throw error;
       }
       
       toast({
         title: "Success",
-        description: data.message || "Successfully generated profiles",
+        description: data?.message || "Successfully generated profiles",
       });
 
       // Refresh the profiles list
@@ -138,6 +155,7 @@ export const useProfile = (profileId: string) => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        console.log('Fetching profile:', profileId);
         setLoading(true);
         
         const { data: profileData, error: profileError } = await supabase
@@ -155,6 +173,7 @@ export const useProfile = (profileId: string) => {
           .single();
 
         if (profileError) {
+          console.error('Profile error:', profileError);
           throw profileError;
         }
 

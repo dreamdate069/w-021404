@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,11 +6,13 @@ import { MemberGrid } from '@/components/MemberGrid';
 import ButtonPrimary from '@/components/ButtonPrimary';
 import ButtonSecondary from '@/components/ButtonSecondary';
 import DreamCoinBalance from '@/components/DreamCoinBalance';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 type QuizStep = {
   question: string;
   options: string[];
 };
+
 const quizSteps: QuizStep[] = [{
   question: "I am...",
   options: ["A man", "A woman", "Non-binary"]
@@ -20,10 +23,14 @@ const quizSteps: QuizStep[] = [{
   question: "My age is...",
   options: ["18-24", "25-34", "35-45", "46+"]
 }];
+
 const HomePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [showQuiz, setShowQuiz] = useState(true);
+
+  console.log('HomePage rendering...');
+
   const handleAnswerSelect = (answer: string) => {
     const newAnswers = [...answers, answer];
     setAnswers(newAnswers);
@@ -34,11 +41,15 @@ const HomePage = () => {
       setShowQuiz(false);
     }
   };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <div className="relative h-[500px] bg-cover bg-top bg-no-repeat" style={{
-        backgroundImage: 'url("/lovable-uploads/ab2b4a57-9177-4693-9a88-23d89544a07b.png")'
+      <div className="relative h-[500px] bg-zinc-900" style={{
+        backgroundImage: 'url("/lovable-uploads/ab2b4a57-9177-4693-9a88-23d89544a07b.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        backgroundRepeat: 'no-repeat'
       }}>
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         
@@ -49,14 +60,20 @@ const HomePage = () => {
               src="/lovable-uploads/cdd2e339-d00c-4458-b5cc-7a69afcfa1de.png" 
               alt="DreamDate.Online Logo" 
               className="h-16 md:h-20 object-contain mx-auto" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
-            <DreamCoinBalance showBuyButton={true} />
+            <ErrorBoundary>
+              <DreamCoinBalance showBuyButton={true} />
+            </ErrorBoundary>
           </div>
         </div>
         
         <div className="container mx-auto px-6 relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-justify lg:text-5xl my-0">
-            Find Your <span className="text-custom-pink">Dream</span> Connection
+            Find Your <span className="text-pink-500">Dream</span> Connection
           </h1>
           <p className="text-zinc-300 mb-8 max-w-2xl text-left text-lg mx-0 px-px py-0 my-[2px]">
             Join thousands of singles finding meaningful relationships every day.  
@@ -92,7 +109,7 @@ const HomePage = () => {
                 <span>{currentStep + 1}/{quizSteps.length} questions</span>
                 <Button 
                   variant="link" 
-                  className="text-custom-pink hover:text-custom-pink/80 p-0" 
+                  className="text-pink-500 hover:text-pink-400 p-0" 
                   onClick={() => setShowQuiz(false)}
                 >
                   Skip for now
@@ -116,7 +133,9 @@ const HomePage = () => {
       <div className="bg-zinc-900 py-16">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-white mb-8">Featured Members Nearby</h2>
-          <MemberGrid />
+          <ErrorBoundary>
+            <MemberGrid />
+          </ErrorBoundary>
         </div>
       </div>
       
@@ -141,7 +160,7 @@ const HomePage = () => {
               }
             ].map((step, index) => (
               <div key={index} className="bg-zinc-900 p-6 rounded-lg border border-zinc-700">
-                <div className="w-12 h-12 bg-custom-pink rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center mb-4">
                   <span className="text-white font-bold">{index + 1}</span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
