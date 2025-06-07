@@ -43,7 +43,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-zinc-900 text-white">
       {/* Hero Section */}
       <div className="relative h-[500px] bg-zinc-900" style={{
         backgroundImage: 'url("/lovable-uploads/ab2b4a57-9177-4693-9a88-23d89544a07b.png")',
@@ -133,7 +133,12 @@ const HomePage = () => {
       <div className="bg-zinc-900 py-16">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-white mb-8">Featured Members Nearby</h2>
-          <ErrorBoundary>
+          <ErrorBoundary fallback={
+            <div className="text-center py-12">
+              <h3 className="text-xl font-bold text-white mb-4">Loading members...</h3>
+              <p className="text-zinc-400">Please wait while we load member profiles.</p>
+            </div>
+          }>
             <MemberGrid />
           </ErrorBoundary>
         </div>
