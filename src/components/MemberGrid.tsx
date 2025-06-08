@@ -1,27 +1,27 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useProfiles, Profile } from '@/hooks/useProfiles';
-import { Skeleton } from '@/components/ui/skeleton';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { useProfiles } from '@/hooks/useProfiles';
+import { Heart, MapPin, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const MemberGridContent = () => {
-  const { profiles, loading, error, generateProfiles } = useProfiles();
-  
-  console.log('MemberGrid render:', { profilesCount: profiles.length, loading, error });
-  
+export const MemberGrid = () => {
+  const { profiles, loading, error } = useProfiles();
+  const navigate = useNavigate();
+
+  console.log('MemberGrid render:', {
+    profilesCount: profiles.length,
+    loading,
+    error
+  });
+
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="bg-zinc-800 rounded-lg overflow-hidden border border-zinc-700">
-            <Skeleton className="aspect-[3/4] w-full bg-zinc-700" />
-            <div className="p-3">
-              <Skeleton className="h-4 w-full mb-2 bg-zinc-700" />
-              <Skeleton className="h-3 w-2/3 bg-zinc-700" />
-            </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="bg-zinc-800 rounded-lg p-4 animate-pulse">
+            <div className="aspect-square bg-zinc-700 rounded-lg mb-3"></div>
+            <div className="h-4 bg-zinc-700 rounded mb-2"></div>
+            <div className="h-3 bg-zinc-700 rounded w-2/3"></div>
           </div>
         ))}
       </div>
@@ -30,16 +30,9 @@ const MemberGridContent = () => {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <h3 className="text-xl font-bold text-white mb-4">Unable to Load Profiles</h3>
-        <p className="text-zinc-400 mb-6">There was an issue loading member profiles.</p>
-        <Button 
-          onClick={generateProfiles}
-          className="bg-pink-500 hover:bg-pink-600 text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Generate Sample Profiles
-        </Button>
+      <div className="text-center py-8">
+        <p className="text-zinc-400 mb-4">Unable to load profiles at the moment.</p>
+        <p className="text-sm text-zinc-500">Please try refreshing the page.</p>
       </div>
     );
   }
@@ -47,95 +40,111 @@ const MemberGridContent = () => {
   if (profiles.length === 0) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-xl font-bold text-white mb-4">No profiles available</h3>
-        <p className="text-zinc-400 mb-6">Be the first to join our community!</p>
-        <Button 
-          onClick={generateProfiles}
-          className="bg-pink-500 hover:bg-pink-600 text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Generate Sample Profiles
-        </Button>
+        <Heart className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+        <h3 className="text-xl font-bold text-white mb-2">No profiles yet</h3>
+        <p className="text-zinc-400 mb-4">Be the first to join our community!</p>
       </div>
     );
   }
-  
+
+  const handleProfileClick = (profileId: string) => {
+    navigate(`/profile/${profileId}`);
+  };
+
+  const getCountryFlag = (location: string): string => {
+    // Simple country detection based on common city names
+    if (['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'].some(city => location.includes(city))) return '🇺🇸';
+    if (['London', 'Manchester', 'Birmingham', 'Glasgow', 'Liverpool'].some(city => location.includes(city))) return '🇬🇧';
+    if (['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice'].some(city => location.includes(city))) return '🇫🇷';
+    if (['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Bilbao'].some(city => location.includes(city))) return '🇪🇸';
+    if (['Rome', 'Milan', 'Naples', 'Turin', 'Florence'].some(city => location.includes(city))) return '🇮🇹';
+    if (['Toronto', 'Montreal', 'Vancouver', 'Calgary', 'Ottawa'].some(city => location.includes(city))) return '🇨🇦';
+    if (['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide'].some(city => location.includes(city))) return '🇦🇺';
+    if (['Berlin', 'Hamburg', 'München', 'Köln', 'Frankfurt'].some(city => location.includes(city))) return '🇩🇪';
+    return '🌍'; // Default globe emoji
+  };
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-      {profiles.map((member: Profile) => {
-        const primaryPhoto = member.photos?.find(photo => photo.is_primary) || member.photos?.[0];
-        const imageUrl = primaryPhoto?.photo_url || '/user-uploads/profile-pics/placeholder.png';
-        
-        return (
-          <div key={member.id} className="bg-zinc-800 rounded-lg overflow-hidden border border-zinc-700 relative group hover-lift">
-            <div className="aspect-[3/4] relative overflow-hidden">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {profiles.slice(0, 12).map((profile) => (
+        <div 
+          key={profile.id} 
+          className="bg-zinc-800 rounded-lg overflow-hidden hover:bg-zinc-700 transition-colors cursor-pointer group"
+          onClick={() => handleProfileClick(profile.id)}
+        >
+          <div className="aspect-square relative">
+            {profile.photos && profile.photos.length > 0 ? (
               <img 
-                src={imageUrl} 
-                alt={`${member.nickname}'s profile`} 
-                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
+                src={profile.photos[0].photo_url} 
+                alt={profile.nickname}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = '/user-uploads/profile-pics/placeholder.png';
                 }}
               />
-              
-              {/* Animated background overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-600/20 opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:translate-x-2 group-hover:-translate-y-1"></div>
-              
-              {/* Moving particles background effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500">
-                <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-pink-500 rounded-full animate-pulse"></div>
-                <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-purple-600 rounded-full animate-pulse"></div>
-                <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"></div>
+            ) : (
+              <div className="w-full h-full bg-zinc-700 flex items-center justify-center">
+                <Heart className="w-8 h-8 text-zinc-500" />
               </div>
-              
-              {/* Online indicator */}
-              {member.is_online && (
-                <span className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full ring-2 ring-zinc-800 animate-pulse"></span>
-              )}
-              
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-3 transform transition-transform duration-300 group-hover:translate-y-0">
-                <h3 className="text-white font-medium text-lg transform transition-transform duration-500 group-hover:scale-105">
-                  {member.nickname}, {member.age}
-                </h3>
-                <p className="text-zinc-300 text-sm transform transition-all duration-500 group-hover:text-white">
-                  {member.location || 'Germany'}
-                </p>
+            )}
+            {profile.is_online && (
+              <div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+            )}
+            {profile.is_verified && (
+              <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                ✓ Verified
               </div>
-              
-              {/* Like/Match Button */}
-              <Button 
-                size="icon" 
-                className="absolute top-2 left-2 bg-zinc-800/70 hover:bg-rose-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100 hover:scale-110"
-              >
-                <Heart size={16} />
-              </Button>
+            )}
+          </div>
+          
+          <div className="p-3">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-semibold text-white text-sm truncate">
+                {profile.nickname}
+              </h3>
+              <span className="text-zinc-400 text-xs">
+                {profile.age}
+              </span>
             </div>
             
-            <div className="p-3 bg-zinc-800 transform transition-all duration-300 group-hover:bg-zinc-700">
-              <Link 
-                to={`/profile/${member.id}`} 
-                className="block w-full text-center text-white bg-zinc-700 py-2 rounded hover:bg-rose-500 transition-all duration-300 transform group-hover:scale-105 hover:shadow-lg hover:shadow-rose-500/25"
-              >
-                View Profile
-              </Link>
+            <div className="flex items-center text-zinc-400 text-xs mb-1">
+              <MapPin className="w-3 h-3 mr-1" />
+              <span className="truncate">{getCountryFlag(profile.location)} {profile.location}</span>
             </div>
+            
+            {profile.occupation && (
+              <div className="flex items-center text-zinc-400 text-xs mb-2">
+                <span className="truncate">{profile.occupation}</span>
+              </div>
+            )}
+            
+            {profile.bio && (
+              <p className="text-zinc-300 text-xs line-clamp-2">
+                {profile.bio}
+              </p>
+            )}
+            
+            {profile.interests && profile.interests.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {profile.interests.slice(0, 2).map((interest, index) => (
+                  <span 
+                    key={index}
+                    className="bg-zinc-700 text-zinc-300 text-xs px-2 py-1 rounded"
+                  >
+                    {interest}
+                  </span>
+                ))}
+                {profile.interests.length > 2 && (
+                  <span className="text-zinc-400 text-xs">
+                    +{profile.interests.length - 2} more
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
-  );
-};
-
-export const MemberGrid = () => {
-  return (
-    <ErrorBoundary fallback={
-      <div className="text-center py-12">
-        <h3 className="text-xl font-bold text-white mb-4">Unable to load member profiles</h3>
-        <p className="text-zinc-400">Please refresh the page to try again.</p>
-      </div>
-    }>
-      <MemberGridContent />
-    </ErrorBoundary>
   );
 };

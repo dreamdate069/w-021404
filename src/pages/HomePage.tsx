@@ -7,11 +7,20 @@ import ButtonPrimary from '@/components/ButtonPrimary';
 import ButtonSecondary from '@/components/ButtonSecondary';
 import ConditionalHeader from '@/components/ConditionalHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import AuthModal from '@/components/auth/AuthModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 type QuizStep = {
   question: string;
   options: string[];
 };
+
+interface QuizAnswers {
+  gender: string;
+  lookingFor: string;
+  ageRange: string;
+}
 
 const quizSteps: QuizStep[] = [{
   question: "I am...",
@@ -28,6 +37,10 @@ const HomePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [showQuiz, setShowQuiz] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState<Partial<QuizAnswers>>({});
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   console.log('HomePage rendering - showQuiz:', showQuiz, 'currentStep:', currentStep);
 
@@ -35,12 +48,44 @@ const HomePage = () => {
     console.log('Answer selected:', answer);
     const newAnswers = [...answers, answer];
     setAnswers(newAnswers);
+    
+    // Store structured answers
+    const newQuizAnswers = { ...quizAnswers };
+    if (currentStep === 0) newQuizAnswers.gender = answer;
+    if (currentStep === 1) newQuizAnswers.lookingFor = answer;
+    if (currentStep === 2) newQuizAnswers.ageRange = answer;
+    setQuizAnswers(newQuizAnswers);
+    
     if (currentStep < quizSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Quiz completed - would connect to signup/login in the future
+      // Quiz completed - show auth modal if not logged in
       setShowQuiz(false);
+      if (!user) {
+        setShowAuthModal(true);
+      }
     }
+  };
+
+  const handleCreateAccount = () => {
+    if (user) {
+      navigate('/discover');
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleBrowseMatches = () => {
+    if (user) {
+      navigate('/discover');
+    } else {
+      navigate('/browse');
+    }
+  };
+
+  const handleAuthComplete = () => {
+    setShowAuthModal(false);
+    navigate('/discover');
   };
 
   return (
@@ -78,12 +123,12 @@ const HomePage = () => {
             Find Your <span className="text-pink-500">Dream</span> Connection
           </h1>
           <p className="text-zinc-300 mb-8 max-w-2xl text-left text-lg mx-0 px-px py-0 my-[2px]">
-            Join thousands of singles finding meaningful relationships every day.  
+            Join thousands of singles from around the world finding meaningful relationships every day.  
             Your perfect match is just a conversation away.
           </p>
           
           {/* Welcome Quiz/Chat */}
-          {showQuiz ? (
+          {showQuiz && !user ? (
             <div className="bg-zinc-800 bg-opacity-90 rounded-xl p-6 max-w-md shadow-lg border border-zinc-700">
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-white mb-2">Let's get to know you</h3>
@@ -120,10 +165,10 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="flex gap-4">
-              <ButtonPrimary onClick={() => console.log('Create Account clicked')}>
-                Create Account
+              <ButtonPrimary onClick={handleCreateAccount}>
+                {user ? 'Discover Matches' : 'Create Account'}
               </ButtonPrimary>
-              <ButtonSecondary onClick={() => console.log('Browse Matches clicked')}>
+              <ButtonSecondary onClick={handleBrowseMatches}>
                 Browse Matches
               </ButtonSecondary>
             </div>
@@ -134,7 +179,7 @@ const HomePage = () => {
       {/* Featured Members Section */}
       <div className="bg-zinc-900 py-16">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-white mb-8">Featured Members Nearby</h2>
+          <h2 className="text-3xl font-bold text-white mb-8">Featured Members Worldwide</h2>
           <ErrorBoundary fallback={
             <div className="text-center py-12">
               <h3 className="text-xl font-bold text-white mb-4">Loading members...</h3>
@@ -155,15 +200,15 @@ const HomePage = () => {
             {[
               {
                 title: "Create Your Profile",
-                desc: "Sign up in seconds and create your personal profile"
+                desc: "Sign up in seconds and create your personal profile with photos"
               },
               {
                 title: "Find Matches",
-                desc: "Browse through potential matches based on your preferences"
+                desc: "Browse through potential matches from around the world based on your preferences"
               },
               {
-                title: "Start Chatting",
-                desc: "Connect with people you like and begin your journey"
+                title: "Start Connecting",
+                desc: "Send messages, share gifts, and begin your journey to find love"
               }
             ].map((step, index) => (
               <div key={index} className="bg-zinc-900 p-6 rounded-lg border border-zinc-700">
@@ -177,6 +222,14 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal}
+        onAuthComplete={handleAuthComplete}
+        quizAnswers={quizAnswers}
+      />
     </div>
   );
 };

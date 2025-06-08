@@ -9,12 +9,25 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Heart } from 'lucide-react';
 
+interface QuizAnswers {
+  gender?: string;
+  lookingFor?: string;
+  ageRange?: string;
+}
+
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAuthComplete?: () => void;
+  quizAnswers?: QuizAnswers;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ 
+  open, 
+  onOpenChange, 
+  onAuthComplete,
+  quizAnswers = {}
+}) => {
   const [loading, setLoading] = useState(false);
   const [signInForm, setSignInForm] = useState({ email: '', password: '' });
   const [signUpForm, setSignUpForm] = useState({ 
@@ -23,30 +36,60 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    age: 25,
-    gender: 'male'
+    age: getAgeFromRange(quizAnswers.ageRange) || 25,
+    gender: mapGenderFromQuiz(quizAnswers.gender) || 'male'
   });
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
+
+  function getAgeFromRange(ageRange?: string): number {
+    if (!ageRange) return 25;
+    switch (ageRange) {
+      case '18-24': return 22;
+      case '25-34': return 29;
+      case '35-45': return 40;
+      case '46+': return 50;
+      default: return 25;
+    }
+  }
+
+  function mapGenderFromQuiz(genderAnswer?: string): string {
+    if (!genderAnswer) return 'male';
+    switch (genderAnswer.toLowerCase()) {
+      case 'a man': return 'male';
+      case 'a woman': return 'female';
+      case 'non-binary': return 'non-binary';
+      default: return 'male';
+    }
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    const { error } = await signIn(signInForm.email, signInForm.password);
-    
-    if (error) {
+    try {
+      const { error } = await signIn(signInForm.email, signInForm.password);
+      
+      if (error) {
+        toast({
+          title: "Sign In Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
+        onOpenChange(false);
+        onAuthComplete?.();
+      }
+    } catch (err) {
       toast({
         title: "Sign In Error",
-        description: error.message,
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
-      onOpenChange(false);
     }
     setLoading(false);
   };
@@ -62,29 +105,51 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
       });
       return;
     }
+
+    if (signUpForm.password.length < 6) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setLoading(true);
     
-    const { error } = await signUp(signUpForm.email, signUpForm.password, {
-      first_name: signUpForm.firstName,
-      last_name: signUpForm.lastName,
-      age: signUpForm.age,
-      gender: signUpForm.gender,
-      nickname: signUpForm.firstName
-    });
-    
-    if (error) {
+    try {
+      const lookingFor = quizAnswers.lookingFor ? [quizAnswers.lookingFor.toLowerCase()] : ['everyone'];
+      
+      const { error } = await signUp(signUpForm.email, signUpForm.password, {
+        first_name: signUpForm.firstName,
+        last_name: signUpForm.lastName,
+        age: signUpForm.age,
+        gender: signUpForm.gender,
+        nickname: signUpForm.firstName,
+        looking_for: lookingFor,
+        quiz_answers: quizAnswers
+      });
+      
+      if (error) {
+        toast({
+          title: "Sign Up Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Welcome to DreamDate!",
+          description: "Your account has been created successfully. Please check your email to verify your account.",
+        });
+        onOpenChange(false);
+        onAuthComplete?.();
+      }
+    } catch (err) {
       toast({
         title: "Sign Up Error",
-        description: error.message,
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Welcome to DreamDate!",
-        description: "Your account has been created successfully.",
-      });
-      onOpenChange(false);
     }
     setLoading(false);
   };
@@ -99,46 +164,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
           </DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs defaultValue="signup" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-zinc-800">
-            <TabsTrigger value="signin" className="text-white data-[state=active]:bg-pink-500">Sign In</TabsTrigger>
             <TabsTrigger value="signup" className="text-white data-[state=active]:bg-pink-500">Sign Up</TabsTrigger>
+            <TabsTrigger value="signin" className="text-white data-[state=active]:bg-pink-500">Sign In</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="signin" className="space-y-4">
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-email" className="text-white">Email</Label>
-                <Input
-                  id="signin-email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={signInForm.email}
-                  onChange={(e) => setSignInForm(prev => ({ ...prev, email: e.target.value }))}
-                  className="bg-zinc-800 border-zinc-700 text-white"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signin-password" className="text-white">Password</Label>
-                <Input
-                  id="signin-password"
-                  type="password"
-                  value={signInForm.password}
-                  onChange={(e) => setSignInForm(prev => ({ ...prev, password: e.target.value }))}
-                  className="bg-zinc-800 border-zinc-700 text-white"
-                  required
-                />
-              </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-pink-500 hover:bg-pink-600" 
-                disabled={loading}
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In'}
-              </Button>
-            </form>
-          </TabsContent>
           
           <TabsContent value="signup" className="space-y-4">
             <form onSubmit={handleSignUp} className="space-y-4">
@@ -185,6 +215,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                   onChange={(e) => setSignUpForm(prev => ({ ...prev, password: e.target.value }))}
                   className="bg-zinc-800 border-zinc-700 text-white"
                   required
+                  minLength={6}
                 />
               </div>
               <div className="space-y-2">
@@ -233,6 +264,41 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                 disabled={loading}
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create Account'}
+              </Button>
+            </form>
+          </TabsContent>
+          
+          <TabsContent value="signin" className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signin-email" className="text-white">Email</Label>
+                <Input
+                  id="signin-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={signInForm.email}
+                  onChange={(e) => setSignInForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="bg-zinc-800 border-zinc-700 text-white"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signin-password" className="text-white">Password</Label>
+                <Input
+                  id="signin-password"
+                  type="password"
+                  value={signInForm.password}
+                  onChange={(e) => setSignInForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="bg-zinc-800 border-zinc-700 text-white"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-pink-500 hover:bg-pink-600" 
+                disabled={loading}
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In'}
               </Button>
             </form>
           </TabsContent>

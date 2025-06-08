@@ -44,7 +44,6 @@ export const useProfiles = () => {
       setLoading(true);
       setError(null);
       
-      // Fetch profiles with their photos
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select(`
@@ -57,7 +56,7 @@ export const useProfiles = () => {
           )
         `)
         .order('created_at', { ascending: false })
-        .limit(12);
+        .limit(50);
 
       if (profilesError) {
         console.error('Profiles error:', profilesError);
@@ -66,7 +65,6 @@ export const useProfiles = () => {
 
       console.log('Profiles fetched:', profilesData?.length || 0);
 
-      // Transform the data to match our interface
       const transformedProfiles: Profile[] = (profilesData || []).map(profile => ({
         ...profile,
         photos: (profile.profile_photos || []).sort((a, b) => a.photo_order - b.photo_order)
@@ -79,7 +77,6 @@ export const useProfiles = () => {
       const errorMessage = err.message || 'Failed to load profiles';
       setError(errorMessage);
       
-      // Only show toast for non-network errors
       if (!errorMessage.includes('Failed to fetch') && !errorMessage.includes('NetworkError')) {
         toast({
           title: "Error",
@@ -88,7 +85,6 @@ export const useProfiles = () => {
         });
       }
       
-      // Set empty array as fallback
       setProfiles([]);
     } finally {
       setLoading(false);
@@ -98,11 +94,11 @@ export const useProfiles = () => {
   const generateProfiles = async () => {
     try {
       setLoading(true);
-      console.log('Generating profiles...');
+      console.log('Generating international profiles...');
       
       toast({
-        title: "Generating Profiles",
-        description: "Creating 50 authentic German profiles with image sets. This may take a few minutes...",
+        title: "Generating International Profiles",
+        description: "Creating 60+ diverse profiles from around the world with image sets. This may take a few minutes...",
       });
 
       const { data, error } = await supabase.functions.invoke('generate-real-profiles', {
@@ -118,11 +114,10 @@ export const useProfiles = () => {
       }
       
       toast({
-        title: "Success",
-        description: data?.message || "Successfully generated profiles",
+        title: "Success!",
+        description: data?.message || "Successfully generated international profiles",
       });
 
-      // Refresh the profiles list
       await fetchProfiles();
     } catch (err: any) {
       console.error('Error generating profiles:', err);
