@@ -1,6 +1,6 @@
 
 /**
- * DreamCoin utility functions
+ * DreamCoin utility functions - Updated for authenticated users
  */
 
 import { DreamCoinBank } from './dreamCoin/DreamCoinBank';
@@ -10,11 +10,15 @@ export const DREAMCOIN_IMAGE_URL = '/lovable-uploads/66840c8c-e0ef-4733-9613-d03
 export const DREAMCOIN_NAME = 'DreamCoin';
 
 /**
- * Get a user's DreamCoin balance
+ * Get a user's DreamCoin balance (legacy function for backward compatibility)
  * @param userId ID of the user
  * @returns Current balance or 0 if not found
  */
 export const getUserBalance = (userId: string): number => {
+  // For backward compatibility with non-authenticated system
+  if (userId === 'current-user') {
+    return 1000; // Default balance for demo
+  }
   return DreamCoinBank.getInstance().getBalance(userId);
 };
 
@@ -24,7 +28,6 @@ export const getUserBalance = (userId: string): number => {
  * @param newBalance New balance to set
  */
 export const setUserBalance = (userId: string, newBalance: number): void => {
-  // This function is no longer needed as we use DreamCoinBank
   console.warn('setUserBalance is deprecated, use DreamCoinBank methods instead');
 };
 

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { MemberGrid } from '@/components/MemberGrid';
 import ButtonPrimary from '@/components/ButtonPrimary';
 import ButtonSecondary from '@/components/ButtonSecondary';
-import DreamCoinBalance from '@/components/DreamCoinBalance';
+import ConditionalHeader from '@/components/ConditionalHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 type QuizStep = {
@@ -54,7 +54,7 @@ const HomePage = () => {
       }}>
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         
-        {/* DreamDate Logo and DreamCoin Balance */}
+        {/* DreamDate Logo and Conditional Header */}
         <div className="relative z-10 pt-6 px-6">
           <div className="flex justify-between items-center mb-8">
             <img 
@@ -68,7 +68,7 @@ const HomePage = () => {
               }}
             />
             <ErrorBoundary>
-              <DreamCoinBalance showBuyButton={true} />
+              <ConditionalHeader showBuyButton={true} />
             </ErrorBoundary>
           </div>
         </div>

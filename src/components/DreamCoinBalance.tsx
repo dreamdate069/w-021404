@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { DollarSign, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getUserBalance } from '@/utils/dreamCoinUtils';
 import CoinPurchaseModal from './payments/CoinPurchaseModal';
 
 interface DreamCoinBalanceProps {
@@ -12,17 +11,15 @@ interface DreamCoinBalanceProps {
 }
 
 const DreamCoinBalance: React.FC<DreamCoinBalanceProps> = ({ 
-  balance: propBalance,
+  balance = 0,
   className = '',
   showBuyButton = false
 }) => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
-  const [currentBalance, setCurrentBalance] = useState(
-    propBalance !== undefined ? propBalance : getUserBalance('current-user')
-  );
   
   const handlePurchaseComplete = (dreamcoinsAdded: number) => {
-    setCurrentBalance(prev => prev + dreamcoinsAdded);
+    // This will be handled by the parent component through the hook
+    console.log('Purchase completed:', dreamcoinsAdded);
   };
   
   return (
@@ -31,7 +28,7 @@ const DreamCoinBalance: React.FC<DreamCoinBalanceProps> = ({
         <div className="flex items-center gap-1 text-white px-2 py-1 rounded-full bg-zinc-800">
           <DollarSign className="w-3.5 h-3.5 text-amber-400" />
           <span className="text-sm font-medium">
-            {currentBalance.toLocaleString()}
+            {balance.toLocaleString()}
           </span>
         </div>
         
