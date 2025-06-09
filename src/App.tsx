@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
@@ -19,7 +18,7 @@ import { Toaster } from './components/ui/toaster';
 import Chat from './pages/Chat';
 import ErrorBoundary from './components/ErrorBoundary';
 import { initializeChatSystem } from './utils/chatUtils';
-
+import SwipePage from './pages/SwipePage';
 import './App.css';
 
 function App() {
@@ -46,6 +45,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/swipe" element={<MainLayout showRightSidebar={false}><SwipePage /></MainLayout>} />
               <Route path="/discover" element={<MainLayout><DiscoverPage /></MainLayout>} />
               <Route path="/matches" element={<MainLayout><MatchesPage /></MainLayout>} />
               <Route path="/messages" element={<MainLayout showRightSidebar={false}><MessagesPage /></MainLayout>} />

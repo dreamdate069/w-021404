@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import ButtonSecondary from '@/components/ButtonSecondary';
 import ConditionalHeader from '@/components/ConditionalHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import AuthModal from '@/components/auth/AuthModal';
+import OnboardingFlow, { OnboardingData } from '@/components/onboarding/OnboardingFlow';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,6 +38,7 @@ const HomePage = () => {
   const [answers, setAnswers] = useState<string[]>([]);
   const [showQuiz, setShowQuiz] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Partial<QuizAnswers>>({});
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -59,34 +60,47 @@ const HomePage = () => {
     if (currentStep < quizSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Quiz completed - show auth modal if not logged in
+      // Quiz completed - show onboarding for new users
       setShowQuiz(false);
       if (!user) {
-        setShowAuthModal(true);
+        setShowOnboarding(true);
+      } else {
+        navigate('/swipe');
       }
     }
   };
 
   const handleCreateAccount = () => {
     if (user) {
-      navigate('/discover');
+      navigate('/swipe');
     } else {
-      setShowAuthModal(true);
+      setShowOnboarding(true);
     }
   };
 
   const handleBrowseMatches = () => {
     if (user) {
-      navigate('/discover');
+      navigate('/swipe');
     } else {
       navigate('/browse');
     }
   };
 
+  const handleOnboardingComplete = (data: OnboardingData) => {
+    console.log('Onboarding completed:', data);
+    setShowOnboarding(false);
+    setShowAuthModal(true);
+  };
+
   const handleAuthComplete = () => {
     setShowAuthModal(false);
-    navigate('/discover');
+    navigate('/swipe');
   };
+
+  // Show onboarding flow
+  if (showOnboarding && !user) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-900 text-white">
@@ -166,7 +180,7 @@ const HomePage = () => {
           ) : (
             <div className="flex gap-4">
               <ButtonPrimary onClick={handleCreateAccount}>
-                {user ? 'Discover Matches' : 'Create Account'}
+                {user ? 'Start Swiping' : 'Create Account'}
               </ButtonPrimary>
               <ButtonSecondary onClick={handleBrowseMatches}>
                 Browse Matches
