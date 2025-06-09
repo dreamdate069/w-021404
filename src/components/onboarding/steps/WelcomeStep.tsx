@@ -2,9 +2,14 @@
 import React from 'react';
 import { Heart, Users, MessageCircle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { OnboardingData } from '../OnboardingFlow';
 
 interface WelcomeStepProps {
+  data?: Partial<OnboardingData>;
+  onUpdate?: (stepData: Partial<OnboardingData>) => void;
   onNext: () => void;
+  onPrev?: () => void;
+  isLast?: boolean;
 }
 
 const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
