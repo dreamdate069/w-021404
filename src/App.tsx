@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
@@ -14,6 +15,7 @@ import TermsPage from './pages/TermsPage';
 import BrowsePage from './pages/BrowsePage';
 import NotFound from './pages/NotFound';
 import AdminPanel from './pages/AdminPanel';
+import SettingsPage from './pages/SettingsPage';
 import { Toaster } from './components/ui/toaster';
 import Chat from './pages/Chat';
 import ErrorBoundary from './components/ErrorBoundary';
