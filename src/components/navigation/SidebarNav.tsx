@@ -1,27 +1,35 @@
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Heart, MessageCircle, Users, User, Settings, Compass, Zap } from 'lucide-react';
+import { Home, Heart, MessageCircle, Users, User, Settings, Compass, Zap, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ConditionalHeader from '@/components/ConditionalHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SidebarNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
-  const navigationItems = [
+  const navigationItems = user ? [
     { icon: Zap, label: 'Swipe', path: '/swipe', color: 'text-pink-500' },
     { icon: Compass, label: 'Discover', path: '/discover', color: 'text-blue-500' },
     { icon: Heart, label: 'Matches', path: '/matches', color: 'text-red-500' },
     { icon: MessageCircle, label: 'Messages', path: '/messages', color: 'text-green-500' },
     { icon: Users, label: 'Community', path: '/community', color: 'text-purple-500' },
-    { icon: User, label: 'Profile', path: '/profile/current', color: 'text-yellow-500' },
+    { icon: User, label: 'Profile', path: `/profile/${user.id}`, color: 'text-yellow-500' },
+  ] : [
+    { icon: Zap, label: 'Swipe', path: '/swipe', color: 'text-pink-500' },
+    { icon: Compass, label: 'Discover', path: '/discover', color: 'text-blue-500' },
+    { icon: Users, label: 'Browse', path: '/browse', color: 'text-purple-500' },
+    { icon: MessageCircle, label: 'Community', path: '/community', color: 'text-green-500' },
+    { icon: Home, label: 'About', path: '/about', color: 'text-blue-500' },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/profile/current') {
-      return location.pathname.startsWith('/profile/');
+    if (path.includes('/profile/') && location.pathname.startsWith('/profile/')) {
+      return true;
     }
     return location.pathname === path;
   };
@@ -84,6 +92,17 @@ const SidebarNav = () => {
           <Settings className="mr-3 h-4 w-4" />
           Settings
         </Button>
+        
+        {!user && (
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-zinc-400 hover:text-white hover:bg-zinc-700 mt-2"
+            onClick={() => navigate('/')}
+          >
+            <LogIn className="mr-3 h-4 w-4" />
+            Sign In
+          </Button>
+        )}
       </div>
     </div>
   );

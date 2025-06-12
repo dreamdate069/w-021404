@@ -1,179 +1,175 @@
 
 import React, { useState, useRef } from 'react';
-import { Heart, X, Star, MapPin, Briefcase } from 'lucide-react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Profile } from '@/hooks/useProfiles';
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { Heart, X, Star, MapPin } from 'lucide-react';
 
 interface SwipeCardProps {
   profile: Profile;
   onSwipe: (direction: 'left' | 'right' | 'super', profile: Profile) => void;
-  isTop?: boolean;
+  isTop: boolean;
 }
 
-const SwipeCard: React.FC<SwipeCardProps> = ({ profile, onSwipe, isTop = false }) => {
+const SwipeCard: React.FC<SwipeCardProps> = ({ profile, onSwipe, isTop }) => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const [exitX, setExitX] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-25, 25]);
-  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+  const rotate = useTransform(x, [-300, 0, 300], [-30, 0, 30]);
+  const opacity = useTransform(x, [-300, -150, 0, 150, 300], [0, 1, 1, 1, 0]);
 
-  const handleDragEnd = (event: any, info: PanInfo) => {
+  const photos = profile.photos && profile.photos.length > 0 
+    ? profile.photos 
+    : [{ photo_url: '/user-uploads/profile-pics/placeholder.png', id: 'placeholder' }];
+
+  const handleDragEnd = (event: any, info: any) => {
     const threshold = 100;
-    
     if (info.offset.x > threshold) {
-      setExitX(200);
       onSwipe('right', profile);
     } else if (info.offset.x < -threshold) {
-      setExitX(-200);
       onSwipe('left', profile);
     }
   };
 
-  const handleAction = (action: 'left' | 'right' | 'super') => {
-    setExitX(action === 'left' ? -200 : 200);
-    onSwipe(action, profile);
+  const handleButtonSwipe = (direction: 'left' | 'right' | 'super') => {
+    onSwipe(direction, profile);
   };
 
   const nextPhoto = () => {
-    if (profile.photos && currentPhotoIndex < profile.photos.length - 1) {
-      setCurrentPhotoIndex(currentPhotoIndex + 1);
-    }
+    setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
   };
 
   const prevPhoto = () => {
-    if (currentPhotoIndex > 0) {
-      setCurrentPhotoIndex(currentPhotoIndex - 1);
-    }
+    setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
   };
-
-  const currentPhoto = profile.photos?.[currentPhotoIndex]?.photo_url || '/user-uploads/profile-pics/placeholder.png';
 
   return (
     <motion.div
-      className={`absolute inset-0 ${isTop ? 'z-20' : 'z-10'}`}
-      style={{ x, rotate }}
-      drag="x"
+      ref={cardRef}
+      className={`absolute inset-0 bg-white rounded-2xl shadow-xl overflow-hidden cursor-grab active:cursor-grabbing ${
+        isTop ? 'z-10' : 'z-0'
+      }`}
+      style={{ x, rotate, opacity }}
+      drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
-      animate={exitX !== 0 ? { x: exitX } : {}}
-      transition={{ duration: 0.3 }}
+      whileDrag={{ scale: 1.05 }}
+      initial={{ scale: isTop ? 1 : 0.95 }}
+      animate={{ scale: isTop ? 1 : 0.95 }}
     >
-      <motion.div 
-        className="w-full h-full bg-white rounded-2xl shadow-2xl overflow-hidden"
-        style={{ opacity }}
-      >
-        {/* Photo Container */}
-        <div className="relative h-3/4 overflow-hidden">
-          <img
-            src={currentPhoto}
-            alt={profile.nickname}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/user-uploads/profile-pics/placeholder.png';
-            }}
-          />
-          
-          {/* Photo Navigation */}
-          {profile.photos && profile.photos.length > 1 && (
-            <>
-              <button
-                onClick={prevPhoto}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 rounded-full flex items-center justify-center text-white"
-                disabled={currentPhotoIndex === 0}
-              >
-                ←
-              </button>
-              <button
-                onClick={nextPhoto}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/30 rounded-full flex items-center justify-center text-white"
-                disabled={currentPhotoIndex === profile.photos.length - 1}
-              >
-                →
-              </button>
-              
-              {/* Photo Indicators */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-1">
-                {profile.photos.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-2 h-2 rounded-full ${
-                      index === currentPhotoIndex ? 'bg-white' : 'bg-white/40'
-                    }`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Online Status */}
-          {profile.is_online && (
-            <div className="absolute top-4 right-4 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-          )}
-
-          {/* Verification Badge */}
-          {profile.is_verified && (
-            <div className="absolute top-4 left-4 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-              ✓ Verified
+      {/* Photo Section */}
+      <div className="relative h-3/4 bg-gray-200">
+        <img
+          src={photos[currentPhotoIndex]?.photo_url}
+          alt={profile.nickname}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/user-uploads/profile-pics/placeholder.png';
+          }}
+        />
+        
+        {/* Photo Navigation */}
+        {photos.length > 1 && (
+          <>
+            <button
+              onClick={prevPhoto}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-white"
+            >
+              ‹
+            </button>
+            <button
+              onClick={nextPhoto}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center text-white"
+            >
+              ›
+            </button>
+            
+            {/* Photo Indicators */}
+            <div className="absolute top-4 left-0 right-0 flex justify-center gap-1">
+              {photos.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentPhotoIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                />
+              ))}
             </div>
+          </>
+        )}
+
+        {/* Swipe Indicators */}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ opacity: useTransform(x, [0, 150], [0, 1]) }}
+        >
+          <div className="bg-green-500 text-white px-4 py-2 rounded-full font-bold text-xl transform rotate-12">
+            LIKE
+          </div>
+        </motion.div>
+        
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ opacity: useTransform(x, [-150, 0], [1, 0]) }}
+        >
+          <div className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-xl transform -rotate-12">
+            NOPE
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Profile Info */}
+      <div className="h-1/4 p-4 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xl font-bold text-gray-900">
+              {profile.nickname}, {profile.age}
+            </h3>
+            {profile.is_verified && (
+              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">✓</span>
+              </div>
+            )}
+          </div>
+          
+          {profile.location && (
+            <div className="flex items-center text-gray-600 text-sm mb-2">
+              <MapPin className="w-4 h-4 mr-1" />
+              {profile.location}
+            </div>
+          )}
+          
+          {profile.bio && (
+            <p className="text-gray-700 text-sm line-clamp-2">{profile.bio}</p>
           )}
         </div>
 
-        {/* Profile Info */}
-        <div className="p-4 h-1/4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-bold text-gray-900">
-                {profile.nickname}, {profile.age}
-              </h3>
-            </div>
-            
-            <div className="space-y-1">
-              {profile.location && (
-                <div className="flex items-center text-gray-600 text-sm">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  <span>{profile.location}</span>
-                </div>
-              )}
-              
-              {profile.occupation && (
-                <div className="flex items-center text-gray-600 text-sm">
-                  <Briefcase className="w-3 h-3 mr-1" />
-                  <span>{profile.occupation}</span>
-                </div>
-              )}
-            </div>
-
-            {profile.bio && (
-              <p className="text-gray-700 text-sm mt-2 line-clamp-2">{profile.bio}</p>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-center items-center gap-4 mt-4">
+        {/* Action Buttons */}
+        {isTop && (
+          <div className="flex justify-center gap-4 mt-4">
             <button
-              onClick={() => handleAction('left')}
+              onClick={() => handleButtonSwipe('left')}
               className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
             >
               <X className="w-6 h-6 text-gray-600" />
             </button>
             
             <button
-              onClick={() => handleAction('super')}
+              onClick={() => handleButtonSwipe('super')}
               className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors"
             >
               <Star className="w-6 h-6 text-blue-600" />
             </button>
             
             <button
-              onClick={() => handleAction('right')}
+              onClick={() => handleButtonSwipe('right')}
               className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center hover:bg-pink-200 transition-colors"
             >
               <Heart className="w-6 h-6 text-pink-600" />
             </button>
           </div>
-        </div>
-      </motion.div>
+        )}
+      </div>
     </motion.div>
   );
 };

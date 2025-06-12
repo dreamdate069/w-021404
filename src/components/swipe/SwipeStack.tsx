@@ -5,9 +5,11 @@ import SwipeCard from './SwipeCard';
 import MatchModal from './MatchModal';
 import { Profile } from '@/hooks/useProfiles';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SwipeStack: React.FC = () => {
   const { profiles, loading } = useProfiles();
+  const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showMatch, setShowMatch] = useState(false);
   const [matchedProfile, setMatchedProfile] = useState<Profile | null>(null);
@@ -31,10 +33,21 @@ const SwipeStack: React.FC = () => {
         setShowMatch(true);
       }
 
+      const actionText = direction === 'super' ? "Super Like sent!" : "Like sent!";
       toast({
-        title: direction === 'super' ? "Super Like sent!" : "Like sent!",
+        title: actionText,
         description: isMatch ? "It's a match! 🎉" : `You liked ${profile.nickname}`,
       });
+
+      // If user is not logged in, suggest signup after a few swipes
+      if (!user && swipedProfiles.length >= 2) {
+        setTimeout(() => {
+          toast({
+            title: "Sign up to save your matches!",
+            description: "Don't lose your connections - create an account now.",
+          });
+        }, 2000);
+      }
     }
   };
 
@@ -42,7 +55,7 @@ const SwipeStack: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-500"></div>
       </div>
     );
@@ -50,7 +63,7 @@ const SwipeStack: React.FC = () => {
 
   if (visibleProfiles.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 text-center">
+      <div className="flex flex-col items-center justify-center h-full text-center p-6">
         <div className="text-6xl mb-4">😔</div>
         <h3 className="text-xl font-bold text-gray-900 mb-2">No more profiles</h3>
         <p className="text-gray-600 mb-4">Check back later for new people in your area!</p>
@@ -68,15 +81,17 @@ const SwipeStack: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full max-w-sm mx-auto h-[600px]">
-      {visibleProfiles.map((profile, index) => (
-        <SwipeCard
-          key={profile.id}
-          profile={profile}
-          onSwipe={handleSwipe}
-          isTop={index === 0}
-        />
-      ))}
+    <div className="relative w-full h-full">
+      <div className="absolute inset-0">
+        {visibleProfiles.map((profile, index) => (
+          <SwipeCard
+            key={profile.id}
+            profile={profile}
+            onSwipe={handleSwipe}
+            isTop={index === 0}
+          />
+        ))}
+      </div>
       
       {showMatch && matchedProfile && (
         <MatchModal

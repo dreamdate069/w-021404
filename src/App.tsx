@@ -56,7 +56,7 @@ function App() {
               <Route path="/browse" element={<MainLayout><BrowsePage /></MainLayout>} />
               <Route path="/chat" element={<MainLayout showRightSidebar={false}><Chat /></MainLayout>} />
               <Route path="/admin/*" element={<MainLayout showRightSidebar={false}><AdminPanel /></MainLayout>} />
-              <Route path="/settings" element={<MainLayout><div className="container p-8"><h1 className="text-3xl font-bold text-white">Settings</h1></div></MainLayout>} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
             </Routes>
             <Toaster />
