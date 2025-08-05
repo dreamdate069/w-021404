@@ -21,13 +21,9 @@ export const useNavigation = () => {
     label: "Matches",
     to: "/matches"
   }, {
-    icon: MapPin,
-    label: "Discover",
-    to: "/discover"
-  }, {
     icon: Users,
-    label: "Browse",
-    to: "/browse"
+    label: "Explore",
+    to: "/explore"
   }, {
     icon: Newspaper,
     label: "Community",
@@ -45,8 +41,8 @@ export const useNavigation = () => {
     to: "/register"
   }, {
     icon: Users,
-    label: "Browse Members",
-    to: "/browse"
+    label: "Explore Members",
+    to: "/explore"
   }, {
     icon: Newspaper,
     label: "Community Blog",

@@ -32,19 +32,36 @@ export interface ProfilePhoto {
   is_primary: boolean;
 }
 
-export const useProfiles = () => {
+export interface UseProfilesOptions {
+  filters?: {
+    ageRange?: [number, number];
+    gender?: string;
+    distance?: number;
+    searchQuery?: string;
+    isOnline?: boolean;
+  };
+  sortBy?: 'recent' | 'new' | 'popular';
+  limit?: number;
+}
+
+export const useProfiles = (options: UseProfilesOptions = {}) => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
   const { toast } = useToast();
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = async (reset = false) => {
     try {
       console.log('Fetching profiles...');
       setLoading(true);
       setError(null);
       
-      const { data: profilesData, error: profilesError } = await supabase
+      const currentPage = reset ? 0 : page;
+      const pageSize = options.limit || 20;
+      
+      let query = supabase
         .from('profiles')
         .select(`
           *,
@@ -55,8 +72,39 @@ export const useProfiles = () => {
             is_primary
           )
         `)
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .range(currentPage * pageSize, (currentPage + 1) * pageSize - 1);
+
+      // Apply filters
+      if (options.filters?.ageRange) {
+        query = query
+          .gte('age', options.filters.ageRange[0])
+          .lte('age', options.filters.ageRange[1]);
+      }
+
+      if (options.filters?.gender && options.filters.gender !== 'all') {
+        query = query.eq('gender', options.filters.gender);
+      }
+
+      if (options.filters?.isOnline) {
+        query = query.eq('is_online', true);
+      }
+
+      // Apply sorting
+      switch (options.sortBy) {
+        case 'recent':
+          query = query.order('last_active', { ascending: false, nullsFirst: false });
+          break;
+        case 'new':
+          query = query.order('created_at', { ascending: false });
+          break;
+        case 'popular':
+          query = query.order('is_verified', { ascending: false }).order('created_at', { ascending: false });
+          break;
+        default:
+          query = query.order('created_at', { ascending: false });
+      }
+
+      const { data: profilesData, error: profilesError } = await query;
 
       if (profilesError) {
         console.error('Profiles error:', profilesError);
@@ -70,7 +118,15 @@ export const useProfiles = () => {
         photos: (profile.profile_photos || []).sort((a, b) => a.photo_order - b.photo_order)
       }));
 
-      setProfiles(transformedProfiles);
+      if (reset) {
+        setProfiles(transformedProfiles);
+        setPage(1);
+      } else {
+        setProfiles(prev => [...prev, ...transformedProfiles]);
+        setPage(prev => prev + 1);
+      }
+      
+      setHasMore(transformedProfiles.length === pageSize);
       setError(null);
     } catch (err: any) {
       console.error('Error fetching profiles:', err);
@@ -129,15 +185,28 @@ export const useProfiles = () => {
     }
   };
 
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      fetchProfiles();
+    }
+  };
+
+  const refresh = () => {
+    setPage(0);
+    fetchProfiles(true);
+  };
+
   useEffect(() => {
-    fetchProfiles();
-  }, []);
+    refresh();
+  }, [options.filters, options.sortBy]);
 
   return {
     profiles,
     loading,
     error,
-    refetch: fetchProfiles,
+    hasMore,
+    loadMore,
+    refresh,
     generateProfiles
   };
 };

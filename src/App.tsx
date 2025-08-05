@@ -6,13 +6,13 @@ import { AuthProvider } from './contexts/AuthContext';
 import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
-import DiscoverPage from './pages/DiscoverPage';
+
 import MatchesPage from './pages/MatchesPage';
 import MessagesPage from './pages/MessagesPage';
 import AboutPage from './pages/AboutPage';
 import CommunityPage from './pages/CommunityPage';
 import TermsPage from './pages/TermsPage';
-import BrowsePage from './pages/BrowsePage';
+import ExplorePage from './pages/ExplorePage';
 import NotFound from './pages/NotFound';
 import AdminPanel from './pages/AdminPanel';
 import SettingsPage from './pages/SettingsPage';
@@ -48,14 +48,15 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/swipe" element={<MainLayout showRightSidebar={false}><SwipePage /></MainLayout>} />
-              <Route path="/discover" element={<MainLayout><DiscoverPage /></MainLayout>} />
+              <Route path="/explore" element={<MainLayout><ExplorePage /></MainLayout>} />
+              <Route path="/browse" element={<Navigate to="/explore" replace />} />
+              <Route path="/discover" element={<Navigate to="/explore" replace />} />
               <Route path="/matches" element={<MainLayout><MatchesPage /></MainLayout>} />
               <Route path="/messages" element={<MainLayout showRightSidebar={false}><MessagesPage /></MainLayout>} />
               <Route path="/profile/:id" element={<MainLayout><ProfilePage /></MainLayout>} />
               <Route path="/about" element={<MainLayout><AboutPage /></MainLayout>} />
               <Route path="/community" element={<MainLayout><CommunityPage /></MainLayout>} />
               <Route path="/terms" element={<MainLayout><TermsPage /></MainLayout>} />
-              <Route path="/browse" element={<MainLayout><BrowsePage /></MainLayout>} />
               <Route path="/chat" element={<MainLayout showRightSidebar={false}><Chat /></MainLayout>} />
               <Route path="/admin/*" element={<MainLayout showRightSidebar={false}><AdminPanel /></MainLayout>} />
               <Route path="/settings" element={<SettingsPage />} />
