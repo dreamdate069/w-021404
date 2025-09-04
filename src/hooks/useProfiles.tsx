@@ -7,7 +7,7 @@ export interface Profile {
   id: string;
   nickname: string;
   first_name: string;
-  last_name: string;
+  last_name?: string; // Optional for public profiles (sensitive data)
   age: number;
   gender: string;
   bio: string | null;
@@ -23,6 +23,14 @@ export interface Profile {
   relationship_status: string | null;
   looking_for: string[] | null;
   photos: ProfilePhoto[];
+  profile_pic_url?: string | null;
+  verification_status?: string | null;
+  account_status?: string | null;
+}
+
+export interface PrivateProfile extends Profile {
+  last_name: string;
+  email: string;
 }
 
 export interface ProfilePhoto {
@@ -61,10 +69,30 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
       const currentPage = reset ? 0 : page;
       const pageSize = options.limit || 20;
       
+      // Use secure query that excludes sensitive data like email
       let query = supabase
         .from('profiles')
         .select(`
-          *,
+          id,
+          first_name,
+          nickname,
+          age,
+          gender,
+          bio,
+          location,
+          occupation,
+          interests,
+          education,
+          height_cm,
+          is_verified,
+          is_online,
+          last_active,
+          created_at,
+          relationship_status,
+          looking_for,
+          profile_pic_url,
+          verification_status,
+          account_status,
           profile_photos (
             id,
             photo_url,
@@ -72,6 +100,7 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
             is_primary
           )
         `)
+        .eq('account_status', 'active')
         .range(currentPage * pageSize, (currentPage + 1) * pageSize - 1);
 
       // Apply filters
@@ -222,10 +251,30 @@ export const useProfile = (profileId: string) => {
         console.log('Fetching profile:', profileId);
         setLoading(true);
         
+        // Use secure query for public profile viewing
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select(`
-            *,
+            id,
+            first_name,
+            nickname,
+            age,
+            gender,
+            bio,
+            location,
+            occupation,
+            interests,
+            education,
+            height_cm,
+            is_verified,
+            is_online,
+            last_active,
+            created_at,
+            relationship_status,
+            looking_for,
+            profile_pic_url,
+            verification_status,
+            account_status,
             profile_photos (
               id,
               photo_url,
@@ -263,6 +312,69 @@ export const useProfile = (profileId: string) => {
       fetchProfile();
     }
   }, [profileId]);
+
+  return { profile, loading, error };
+};
+
+// Hook for getting the current user's complete profile (including sensitive data)
+export const useCurrentUserProfile = () => {
+  const [profile, setProfile] = useState<PrivateProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCurrentUserProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
+        console.log('Fetching current user profile...');
+        setLoading(true);
+        
+        // User can see their complete profile including sensitive data
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select(`
+            *,
+            profile_photos (
+              id,
+              photo_url,
+              photo_order,
+              is_primary
+            )
+          `)
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Current user profile error:', profileError);
+          throw profileError;
+        }
+
+        if (profileData) {
+          const transformedProfile: PrivateProfile = {
+            ...profileData,
+            photos: (profileData.profile_photos || []).sort((a, b) => a.photo_order - b.photo_order)
+          };
+          setProfile(transformedProfile);
+        }
+        
+        setError(null);
+      } catch (err: any) {
+        console.error('Error fetching current user profile:', err);
+        setError(err.message);
+        setProfile(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCurrentUserProfile();
+  }, []);
 
   return { profile, loading, error };
 };
