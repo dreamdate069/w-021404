@@ -158,6 +158,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "profile_photos_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -319,6 +326,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -347,7 +361,75 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          account_status: string | null
+          age: number | null
+          bio: string | null
+          created_at: string | null
+          education: string | null
+          first_name: string | null
+          gender: string | null
+          height_cm: number | null
+          id: string | null
+          interests: string[] | null
+          is_online: boolean | null
+          is_verified: boolean | null
+          last_active: string | null
+          location: string | null
+          looking_for: string[] | null
+          nickname: string | null
+          occupation: string | null
+          profile_pic_url: string | null
+          relationship_status: string | null
+          verification_status: string | null
+        }
+        Insert: {
+          account_status?: string | null
+          age?: number | null
+          bio?: string | null
+          created_at?: string | null
+          education?: string | null
+          first_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id?: string | null
+          interests?: string[] | null
+          is_online?: boolean | null
+          is_verified?: boolean | null
+          last_active?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          nickname?: string | null
+          occupation?: string | null
+          profile_pic_url?: string | null
+          relationship_status?: string | null
+          verification_status?: string | null
+        }
+        Update: {
+          account_status?: string | null
+          age?: number | null
+          bio?: string | null
+          created_at?: string | null
+          education?: string | null
+          first_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id?: string | null
+          interests?: string[] | null
+          is_online?: boolean | null
+          is_verified?: boolean | null
+          last_active?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          nickname?: string | null
+          occupation?: string | null
+          profile_pic_url?: string | null
+          relationship_status?: string | null
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_public_profile: {
