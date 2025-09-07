@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export interface Profile {
+// Public profile interface for safe data viewing
+export interface PublicProfile {
   id: string;
   nickname: string;
   first_name: string;
-  last_name?: string; // Optional for public profiles (sensitive data)
   age: number;
   gender: string;
   bio: string | null;
@@ -26,6 +26,11 @@ export interface Profile {
   profile_pic_url?: string | null;
   verification_status?: string | null;
   account_status?: string | null;
+}
+
+// Full profile interface (for internal use and complete profile data)
+export interface Profile extends PublicProfile {
+  last_name?: string; // Optional for public profiles (sensitive data)
 }
 
 export interface PrivateProfile extends Profile {
@@ -53,7 +58,7 @@ export interface UseProfilesOptions {
 }
 
 export const useProfiles = (options: UseProfilesOptions = {}) => {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -69,8 +74,9 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
       const currentPage = reset ? 0 : page;
       const pageSize = options.limit || 20;
       
-      // Use secure query that excludes sensitive data like email
-      let query = supabase
+      // For now, use direct query but with restricted fields for public viewing
+      // This excludes sensitive data like email, last_name
+      const queryBuilder = supabase
         .from('profiles')
         .select(`
           id,
@@ -102,6 +108,8 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
         `)
         .eq('account_status', 'active')
         .range(currentPage * pageSize, (currentPage + 1) * pageSize - 1);
+
+      let query = queryBuilder;
 
       // Apply filters
       if (options.filters?.ageRange) {
@@ -142,7 +150,7 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
 
       console.log('Profiles fetched:', profilesData?.length || 0);
 
-      const transformedProfiles: Profile[] = (profilesData || []).map(profile => ({
+      const transformedProfiles: PublicProfile[] = (profilesData || []).map(profile => ({
         ...profile,
         photos: (profile.profile_photos || []).sort((a, b) => a.photo_order - b.photo_order)
       }));
