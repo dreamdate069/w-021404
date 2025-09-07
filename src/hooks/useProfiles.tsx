@@ -74,8 +74,8 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
       const currentPage = reset ? 0 : page;
       const pageSize = options.limit || 20;
       
-      // For now, use direct query but with restricted fields for public viewing
-      // This excludes sensitive data like email, last_name
+      // Query profiles table directly with only safe public fields
+      // This excludes sensitive data like email, last_name, etc.
       const queryBuilder = supabase
         .from('profiles')
         .select(`
@@ -259,7 +259,7 @@ export const useProfile = (profileId: string) => {
         console.log('Fetching profile:', profileId);
         setLoading(true);
         
-        // Use secure query for public profile viewing
+        // Use secure query for public profile viewing - excludes sensitive data
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select(`
